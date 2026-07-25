@@ -11,6 +11,18 @@
 
 이 두 문서가 실행 기준입니다. 요약본이나 다른 사본과 내용이 다르면 이 두 문서를 따릅니다.
 
+## Claude Code Skill
+
+두 문서는 [skills/wf-design](./skills/wf-design/SKILL.md)과 [skills/wf-implement](./skills/wf-implement/SKILL.md)로 스킬화되어 있습니다. `~/.claude/skills/`에 복사하거나 junction으로 연결하면 전역에서 사용할 수 있습니다.
+
+```powershell
+New-Item -ItemType Junction -Path "$env:USERPROFILE\.claude\skills\wf-design" -Target "<repo>\skills\wf-design"
+New-Item -ItemType Junction -Path "$env:USERPROFILE\.claude\skills\wf-implement" -Target "<repo>\skills\wf-implement"
+```
+
+- 스킬 내용은 이 저장소의 01/02 문서에서 파생됩니다. 문서를 수정하면 스킬도 함께 갱신합니다.
+- 설치된 ponytail 스킬과 wf-implement의 내용이 다르면 wf-implement의 규정을 우선합니다.
+
 ```text
 작업 요청
    ↓
