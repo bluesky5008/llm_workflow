@@ -49,10 +49,13 @@ Get-ChildItem $skillsSrc -Directory | ForEach-Object {
     }
 }
 
-# 2) Install global workflow rules into ~/.claude/CLAUDE.md
+# 2) Install global workflow rules into ~/.claude/CLAUDE.md.
+#    Existing installs get any template rule lines they are missing, so rules
+#    added to CLAUDE.global.md later still reach them on re-run. Reworded lines
+#    are appended as new rules; removing the outdated wording stays manual.
 $rules = Get-Content -Raw -Encoding UTF8 $template
-$wfDocRule = $rules -split "`r?`n" | Where-Object { $_ -match 'wf-doc' } | Select-Object -First 1
-if (-not $wfDocRule) { throw 'wf-doc rule not found in CLAUDE.global.md' }
+$ruleLines = @($rules -split "`r?`n" | Where-Object { $_ -match '^- ' })
+if (-not $ruleLines) { throw 'no rule lines found in CLAUDE.global.md' }
 if (-not (Test-Path $globalMd)) {
     Set-Content -Path $globalMd -Value $rules -Encoding UTF8
     Write-Host "[ok]   CLAUDE.md: created $globalMd"
@@ -61,11 +64,15 @@ if (-not (Test-Path $globalMd)) {
     if ($installedRules -notmatch 'wf-design') {
         Add-Content -Path $globalMd -Value "`r`n$rules" -Encoding UTF8
         Write-Host "[ok]   CLAUDE.md: appended workflow rules"
-    } elseif ($installedRules -notmatch 'wf-doc') {
-        Add-Content -Path $globalMd -Value $wfDocRule -Encoding UTF8
-        Write-Host "[ok]   CLAUDE.md: added wf-doc rule"
     } else {
-        Write-Host "[skip] CLAUDE.md: workflow rules already present"
+        $installed = @($installedRules -split "`r?`n" | ForEach-Object { $_.Trim() })
+        $missing = @($ruleLines | Where-Object { $installed -notcontains $_.Trim() })
+        if ($missing) {
+            Add-Content -Path $globalMd -Value ($missing -join "`r`n") -Encoding UTF8
+            $missing | ForEach-Object { Write-Host "[ok]   CLAUDE.md: added rule: $_" }
+        } else {
+            Write-Host "[skip] CLAUDE.md: workflow rules already present"
+        }
     }
 }
 
