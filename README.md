@@ -31,7 +31,7 @@
 | 스킬 | 소유하는 것 |
 |---|---|
 | [skills/wf-design](./skills/wf-design/SKILL.md) | 요구사항·설계의 의미, ADR/DCR 판단, 코드 역공학의 현행 상태 복원, 승인과 기준선의 효력 |
-| [skills/wf-implement](./skills/wf-implement/SKILL.md) | 승인된 기준선의 구현, 테스트 실행과 증거, 리뷰와 통합 |
+| [skills/wf-implement](./skills/wf-implement/SKILL.md) | 승인된 기준선의 구현, 테스트 우선(TDD)과 테스트 실행·증거, 리뷰와 통합 |
 | [skills/wf-doc](./skills/wf-doc/SKILL.md) | 기록할 Markdown 구조, 상태 표기, 식별자, 하이퍼링크, 추적표와 인계 형식 |
 | [skills/wf-tree](./skills/wf-tree/SKILL.md) | 작업 계획의 트리 구조화, 분기 템플릿 제안, 포트폴리오·진행 시각화 |
 

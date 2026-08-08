@@ -49,7 +49,7 @@ description: 작업 계획을 분기마다 가지가 생기는 트리로 구조�
 │   ├─ [✓] 설계: 정책·저장 방식
 │   ├─ [✓] 승인: 기준선 v1
 │   ├─ [▶] 구현: 미들웨어 (TASK-01)
-│   │   ├─ [ ] 테스트: 단위
+│   │   ├─ [▶] 테스트: 단위 (선행)
 │   │   └─ [ ] 리뷰: 자체 리뷰
 │   └─ [ ] 검증: AC 판정 (VER-01)
 ├─ [작업] 20260815-session-store ............ pending  depends: rate-limit
@@ -75,7 +75,7 @@ description: 작업 계획을 분기마다 가지가 생기는 트리로 구조�
 | `approve` 승인 ★ | 사용자 승인 관문 (기준선·범위·외부 작업) | `APR`, [wf-design §8](../wf-design/SKILL.md#8-사용자-승인-관문) |
 | `prototype` 실험 | 가설 검증용 임시 구현 (폐기 전제) | [프로토타입 규칙](../wf-design/SKILL.md#1-적용-시점) |
 | `implement` 구현 | 코드·테스트·설정 변경 | `TASK-NN` |
-| `test` 테스트 | 구현 활동으로서의 테스트 작성·실행 | [wf-implement §3.4](../wf-implement/SKILL.md#34-검증) 1~3단계 |
+| `test` 테스트 | 구현 활동으로서의 테스트 작성·실행. TDD에서는 구현 전 Red 테스트 작성이 시작점 | [wf-implement §3.3](../wf-implement/SKILL.md#33-구현) TDD 사이클, [§3.4](../wf-implement/SKILL.md#34-검증) 1~3단계 |
 | `review` 리뷰 | 설계 일관성 검토 / 구현 자체 리뷰 | [wf-design §4.5](../wf-design/SKILL.md#45-일관성-검토), [wf-implement §3.5](../wf-implement/SKILL.md#35-자체-리뷰) |
 | `verify` 검증 | 인수 조건 판정 (test와 구분: AC 기준 판정) | `VER-NN` ↔ `AC-NN` |
 | `document` 문서화 | 요구사항·설계·운영 문서 갱신 | [wf-doc](../wf-doc/SKILL.md) |
@@ -93,7 +93,8 @@ description: 작업 계획을 분기마다 가지가 생기는 트리로 구조�
 |---|---|---|
 | `design` 노드 생성 | `review`(일관성 검토) + `approve`(승인 관문) | wf-design §4.5, §8 |
 | 대안이 2개 이상 경쟁 | `decide`(ADR) OR-분기 | wf-design §3.3 |
-| `implement` 노드 생성 | `test` + `review`(자체 리뷰) | wf-implement §2.4, §3.5 |
+| `implement` 노드 생성 | `test`(선행 — Red 먼저) + `review`(자체 리뷰) | wf-implement §2.4, §3.3(TDD 사이클), §3.5 |
+| 버그 수정 작업 생성 | `test`(재현 테스트, 선행) | wf-implement §3.3 |
 | 공개 인터페이스·계약 변경 | `document` + `verify`(호환성) | wf-implement §3.3 |
 | `migrate` 노드 생성 | 롤백 준비 + `verify` **필수** | wf-implement §3.2 |
 | `release` 노드 생성 | 부모에 `approve`(외부 작업 승인) **필수 게이트** | wf-implement §2.3 |
@@ -138,12 +139,14 @@ HTML 등 저장소 밖 산출물은 사용하지 않는다. git 추적이 안 �
 
 Mermaid 표기 규칙: 상태를 `classDef`(completed·in-progress·pending·gate)로 구분하고, 승인·릴리스 게이트는 이중 테두리(`[[...]]`)와 ★로 표시하며, `depends:` 관계는 점선 간선으로 그린다.
 
+`implement` 노드의 `test` 자식은 첫 자식으로 배치하고 `(선행)` 라벨을 붙인다. 부모-자식은 분해 관계이므로 테스트 선행성은 구조가 아니라 배치 순서와 라벨로 표현한다([wf-implement §3.3의 TDD 사이클](../wf-implement/SKILL.md#33-구현) 반영).
+
 ```mermaid
 flowchart TD
     ROOT["로그인 rate limit 추가"] --> DES["설계: 정책·저장"]:::done
     DES --> APR1[["★ 승인: 기준선 v1"]]:::done
     ROOT --> T1["구현: 미들웨어 TASK-01"]:::active
-    T1 --> TEST1["테스트: 단위"]:::todo
+    T1 --> TEST1["테스트: 단위 (선행)"]:::active
     T1 --> REV["리뷰: 자체"]:::todo
     ROOT --> T2["구현: 잠금 해제 TASK-03"]:::todo
     T1 -. depends .-> T2
