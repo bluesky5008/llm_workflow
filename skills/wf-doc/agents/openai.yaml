@@ -1,0 +1,4 @@
+interface:
+  display_name: "WF Document"
+  short_description: "사람과 AI가 함께 읽는 워크플로우 문서 포맷"
+  default_prompt: "$wf-doc의 공통 포맷을 이 작업의 워크플로우 문서에 적용해 주세요. 문서의 내용과 승인 절차는 wf-design 또는 wf-implement를 따릅니다."

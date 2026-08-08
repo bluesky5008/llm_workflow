@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Install llm_workflow skills (wf-design, wf-implement) into Claude Code.
+Install llm_workflow skills (wf-design, wf-implement, wf-doc) into Claude Code.
 
 .DESCRIPTION
 Creates junctions from ~/.claude/skills to this repo's skills/ folder and
@@ -26,11 +26,23 @@ if (-not (Test-Path $template))  { throw "template not found: $template" }
 
 New-Item -ItemType Directory -Force $skillsDir | Out-Null
 
-# 1) Link each skill into ~/.claude/skills via junction
+# 1) Link each skill into ~/.claude/skills via junction.
+#    Verify the target too: a junction left over from a previous repo location
+#    would silently keep pointing at the old path.
 Get-ChildItem $skillsSrc -Directory | ForEach-Object {
     $link = Join-Path $skillsDir $_.Name
-    if (Test-Path $link) {
-        Write-Host "[skip] skill '$($_.Name)': already exists at $link"
+    $item = if (Test-Path $link) { Get-Item $link -Force } else { $null }
+    $target = if ($item -and $item.LinkType) { @($item.Target)[0] } else { $null }
+
+    if ($target -eq $_.FullName) {
+        Write-Host "[skip] skill '$($_.Name)': junction already points here"
+    } elseif ($item -and -not $item.LinkType) {
+        Write-Host "[warn] skill '$($_.Name)': $link exists and is not a link - left unchanged"
+    } elseif ($item) {
+        # Deletes the reparse point only; the target directory is untouched.
+        [System.IO.Directory]::Delete($link)
+        New-Item -ItemType Junction -Path $link -Target $_.FullName | Out-Null
+        Write-Host "[ok]   skill '$($_.Name)': retargeted from '$target' -> $($_.FullName)"
     } else {
         New-Item -ItemType Junction -Path $link -Target $_.FullName | Out-Null
         Write-Host "[ok]   skill '$($_.Name)': junction -> $($_.FullName)"
@@ -39,15 +51,23 @@ Get-ChildItem $skillsSrc -Directory | ForEach-Object {
 
 # 2) Install global workflow rules into ~/.claude/CLAUDE.md
 $rules = Get-Content -Raw -Encoding UTF8 $template
+$wfDocRule = $rules -split "`r?`n" | Where-Object { $_ -match 'wf-doc' } | Select-Object -First 1
+if (-not $wfDocRule) { throw 'wf-doc rule not found in CLAUDE.global.md' }
 if (-not (Test-Path $globalMd)) {
     Set-Content -Path $globalMd -Value $rules -Encoding UTF8
     Write-Host "[ok]   CLAUDE.md: created $globalMd"
-} elseif ((Get-Content -Raw -Encoding UTF8 $globalMd) -match 'wf-design') {
-    Write-Host "[skip] CLAUDE.md: workflow rules already present"
 } else {
-    Add-Content -Path $globalMd -Value "`r`n$rules" -Encoding UTF8
-    Write-Host "[ok]   CLAUDE.md: appended workflow rules"
+    $installedRules = Get-Content -Raw -Encoding UTF8 $globalMd
+    if ($installedRules -notmatch 'wf-design') {
+        Add-Content -Path $globalMd -Value "`r`n$rules" -Encoding UTF8
+        Write-Host "[ok]   CLAUDE.md: appended workflow rules"
+    } elseif ($installedRules -notmatch 'wf-doc') {
+        Add-Content -Path $globalMd -Value $wfDocRule -Encoding UTF8
+        Write-Host "[ok]   CLAUDE.md: added wf-doc rule"
+    } else {
+        Write-Host "[skip] CLAUDE.md: workflow rules already present"
+    }
 }
 
 Write-Host ''
-Write-Host 'Done. Open a NEW Claude Code session and verify with /wf-design.'
+Write-Host 'Done. Open a NEW Claude Code session and verify with /wf-design or /wf-doc.'
