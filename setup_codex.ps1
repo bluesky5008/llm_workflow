@@ -26,6 +26,7 @@ $template   = Join-Path $repoRoot 'AGENTS.codex.md'
 foreach ($p in @((Join-Path $repoRoot 'skills\wf-design\SKILL.md'),
                  (Join-Path $repoRoot 'skills\wf-implement\SKILL.md'),
                  (Join-Path $repoRoot 'skills\wf-doc\SKILL.md'),
+                 (Join-Path $repoRoot 'skills\wf-tree\SKILL.md'),
                  $template)) {
     if (-not (Test-Path $p)) { throw "required file not found: $p" }
 }
@@ -35,8 +36,10 @@ New-Item -ItemType Directory -Force $promptsDir | Out-Null
 
 # 1) Append workflow rules to global AGENTS.md (repo path substituted)
 $rules = (Get-Content -Raw -Encoding UTF8 $template).Replace('{{REPO}}', $repoRoot)
-$wfDocRule = $rules -split "`r?`n" | Where-Object { $_ -match 'wf-doc' } | Select-Object -First 1
-if (-not $wfDocRule) { throw 'wf-doc rule not found in AGENTS.codex.md' }
+$wfDocRule  = $rules -split "`r?`n" | Where-Object { $_ -match 'wf-doc' }  | Select-Object -First 1
+$wfTreeRule = $rules -split "`r?`n" | Where-Object { $_ -match 'wf-tree' } | Select-Object -First 1
+if (-not $wfDocRule)  { throw 'wf-doc rule not found in AGENTS.codex.md' }
+if (-not $wfTreeRule) { throw 'wf-tree rule not found in AGENTS.codex.md' }
 if (-not (Test-Path $agentsMd)) {
     Set-Content -Path $agentsMd -Value $rules -Encoding UTF8
     Write-Host "[ok]   AGENTS.md: created $agentsMd"
@@ -45,11 +48,20 @@ if (-not (Test-Path $agentsMd)) {
     if ($installedRules -notmatch 'wf-design') {
         Add-Content -Path $agentsMd -Value "`r`n$rules" -Encoding UTF8
         Write-Host "[ok]   AGENTS.md: appended workflow rules"
-    } elseif ($installedRules -notmatch 'wf-doc') {
-        Add-Content -Path $agentsMd -Value $wfDocRule -Encoding UTF8
-        Write-Host "[ok]   AGENTS.md: added wf-doc rule"
     } else {
-        Write-Host "[skip] AGENTS.md: workflow rules already present"
+        # Incrementally add rules introduced after the initial install.
+        $added = $false
+        if ($installedRules -notmatch 'wf-doc') {
+            Add-Content -Path $agentsMd -Value $wfDocRule -Encoding UTF8
+            Write-Host "[ok]   AGENTS.md: added wf-doc rule"
+            $added = $true
+        }
+        if ($installedRules -notmatch 'wf-tree') {
+            Add-Content -Path $agentsMd -Value $wfTreeRule -Encoding UTF8
+            Write-Host "[ok]   AGENTS.md: added wf-tree rule"
+            $added = $true
+        }
+        if (-not $added) { Write-Host "[skip] AGENTS.md: workflow rules already present" }
     }
 }
 
@@ -59,6 +71,7 @@ $prompts = @{
     'wf-design.md'    = "Read the file ``$repoRoot\skills\wf-design\SKILL.md`` and follow the workflow it defines for the current task. Communicate with the user in the user's language."
     'wf-implement.md' = "Read the file ``$repoRoot\skills\wf-implement\SKILL.md`` and follow the workflow it defines for the current task. Communicate with the user in the user's language."
     'wf-doc.md'       = "Read the file ``$repoRoot\skills\wf-doc\SKILL.md`` and use its common format for workflow documents in the current task. Communicate with the user in the user's language."
+    'wf-tree.md'      = "Read the file ``$repoRoot\skills\wf-tree\SKILL.md`` and follow its rules to structure, visualize, and update the work plan tree for the current task. Communicate with the user in the user's language."
 }
 foreach ($name in $prompts.Keys) {
     Set-Content -Path (Join-Path $promptsDir $name) -Value $prompts[$name] -Encoding UTF8
@@ -67,4 +80,4 @@ foreach ($name in $prompts.Keys) {
 
 Write-Host ''
 Write-Host 'Done. Start a new Codex session; rules load from ~/.codex/AGENTS.md.'
-Write-Host 'Manual invocation: /wf-design, /wf-implement, or /wf-doc.'
+Write-Host 'Manual invocation: /wf-design, /wf-implement, /wf-doc, or /wf-tree.'

@@ -33,8 +33,11 @@
 | [skills/wf-design](./skills/wf-design/SKILL.md) | 요구사항·설계의 의미, ADR/DCR 판단, 코드 역공학의 현행 상태 복원, 승인과 기준선의 효력 |
 | [skills/wf-implement](./skills/wf-implement/SKILL.md) | 승인된 기준선의 구현, 테스트 실행과 증거, 리뷰와 통합 |
 | [skills/wf-doc](./skills/wf-doc/SKILL.md) | 기록할 Markdown 구조, 상태 표기, 식별자, 하이퍼링크, 추적표와 인계 형식 |
+| [skills/wf-tree](./skills/wf-tree/SKILL.md) | 작업 계획의 트리 구조화, 분기 템플릿 제안, 포트폴리오·진행 시각화 |
 
 wf-doc은 별도의 실행 단계가 아니라 두 워크플로우 전체에 적용되는 문서 계층입니다. 문서의 현재 상태, 기준선, 문서간 양방향 하이퍼링크, 추적 관계, 검증 증거와 다음 인계 지점을 같은 방식으로 기록합니다.
+
+wf-tree는 선택 계층입니다. 계획을 트리로 수립·시각화하거나 여러 작업을 포트폴리오로 묶을 때 두 워크플로우·wf-doc과 함께 사용하며, 항목의 의미·승인·완료 판정은 계속 wf-design과 wf-implement가 소유합니다.
 
 동작·인터페이스·데이터·보안에 영향이 없는 작은 작업은 1단계 산출물을 생략할 수 있습니다. 조건은 [적용 제외 — 경량 경로](./skills/wf-design/SKILL.md#적용-제외--경량-경로)를 따릅니다.
 
@@ -64,6 +67,7 @@ mkdir -p ~/.claude/skills
 ln -s "$(pwd)/skills/wf-design" ~/.claude/skills/wf-design
 ln -s "$(pwd)/skills/wf-implement" ~/.claude/skills/wf-implement
 ln -s "$(pwd)/skills/wf-doc" ~/.claude/skills/wf-doc
+ln -s "$(pwd)/skills/wf-tree" ~/.claude/skills/wf-tree
 cat CLAUDE.global.md >> ~/.claude/CLAUDE.md
 ```
 
