@@ -333,24 +333,23 @@ TDD로 작성한 테스트는 최초 실패 실행과 구현 후 성공 실행�
 이 목록은 보고에 담아야 할 **의미상 필수 내용**이지 Markdown 포맷이 아니다. 전달 형태를 다음과 같이 구분한다.
 
 - **대화형 보고:** 사용자에게 직접 전달하는 결과 요약이다. 위 내용을 작업 규모에 맞는 분량으로 전달하며, 템플릿 절 제목을 그대로 옮겨 적지 않는다. 경량 경로 작업은 완료 상태, 변경 내용, 실행한 검증, 남은 위험만으로 축약할 수 있다.
-- **영구 완료 보고 문서:** `completion.md`로 남기는 기록이다. 절 구조와 문서 연결은 [wf-doc 완료 보고 템플릿](../wf-doc/references/templates.md#완료-보고-completion)을 따른다.
+- **영구 완료 보고 문서:** `work-log.md`에 `completion` 유형을 합쳐 남기는 기록이다([§7 작업 기록과 저장 위치](#7-작업-기록과-저장-위치)). 절 구조와 문서 연결은 [wf-doc 완료 보고 템플릿](../wf-doc/references/templates.md#완료-보고-completion)을 따른다.
 
 완료 보고 문서를 남길지는 이 스킬이 결정한다. 정식 경로에서는 남기고, 경량 경로에서는 [wf-doc 경량 경로 문서](../wf-doc/SKILL.md#28-경량-경로-문서)로 축약하거나 대화형 보고만으로 갈음할 수 있다. 어느 경우에도 실패·미수행 검증과 남은 위험은 생략하지 않는다.
 
 ## 7. 작업 기록과 저장 위치
 
-구현 산출물은 `docs/work/<작업-ID>/`에 유지한다. 이 스킬이 소유하는 파일은 다음과 같다.
+구현 계획은 저장소 전체를 관통하는 현행 문서로 `docs/plan.md`에 두고, 작업 폴더 `docs/work/<작업-ID>/`에는 해당 작업의 작업 기록만 남긴다. 이 스킬이 소유하는 파일은 다음과 같다.
 
 ```text
+docs/
+└── plan.md            # plan — 저장소 현행 구현 계획 (계획 트리 포함)
 docs/work/<작업-ID>/
-├── plan.md            # plan
-├── work-log.md        # work-log
-├── verification.md    # verification
-└── completion.md      # completion
+└── work-log.md        # work-log — 이 작업의 작업 내역
 ```
 
-- 파일을 나눌 만큼 크지 않은 작업은 `work-log.md` 하나에 합칠 수 있다. 이때 공통 머리말의 `문서 유형`에 합친 유형을 쉼표로 나열하고 각 유형의 필수 절을 유지한다.
-- 같은 디렉터리의 `requirements.md`, `design.md`, `design-change-log.md`, `changes/`, `decisions/`, `approvals/`는 [wf-design 산출물](../wf-design/SKILL.md#6-산출물)이 소유한다. 이 스킬은 해당 파일을 링크로 참조하고 기준선의 의미를 바꾸지 않는다.
+- 검증 결과(`verification`)와 완료 보고(`completion`)는 별도 파일을 만들지 않고 `work-log.md`에 유형을 합쳐 기록한다. 공통 머리말의 `문서 유형`에 합친 유형을 쉼표로 나열하고 각 유형의 필수 절을 유지한다.
+- 같은 위치의 `requirements.md`, `design.md`, `decisions.md`(결정 등록부)와 작업 폴더의 ADR·DCR 파일은 [wf-design 산출물](../wf-design/SKILL.md#6-산출물)이 소유한다. 이 스킬은 해당 파일을 링크로 참조하고 기준선의 의미를 바꾸지 않는다.
 
 **작업 ID 발행:** 정식 경로에서는 wf-design이 발행한 작업 ID를 그대로 사용한다. 경량 경로처럼 wf-design을 거치지 않는 작업에서 기록을 남기기로 하면 이 스킬이 작업 ID를 발행한다. 문자열 문법은 [wf-doc 공통 머리말 규칙](../wf-doc/SKILL.md#23-공통-머리말-작성)을 따르며, 같은 작업이 나중에 정식 경로로 전환되어도 ID를 바꾸지 않는다.
 

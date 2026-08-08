@@ -229,8 +229,8 @@ description: wf-design, wf-implement 또는 wf-tree와 함께 적용하는 문�
 
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
-| input | baseline | [REQ-작업-ID: 요구사항](./requirements.md) | FR-01, AC-01 | 이 문서의 입력 기준선 |
-| output | verification | [VERIFY-작업-ID: 검증 결과](./verification.md) | VER-01 | 이 문서를 검증 |
+| input | baseline | [REQ-프로젝트: 요구사항](./requirements.md) | FR-01, AC-01 | 이 문서의 입력 기준선 |
+| output | verification | [WORK-작업-ID: 작업 기록](./work/작업-ID/work-log.md#인수-조건별-결과) | VER-01 | 이 문서를 검증 (verification 유형 합침) |
 ```
 
 - `방향`은 현재 문서를 기준으로 `input`, `output`, `bidirectional` 중 하나를 사용한다.
@@ -261,9 +261,9 @@ Q-01      미해결 질문
 문서 ID — 파일 하나를 가리킨다. 항목 ID와 구분되도록 다른 접두사를 쓴다.
 
 ```text
-REQ-<작업-ID>      requirements
-DESIGN-<작업-ID>   design
-PLAN-<작업-ID>     plan
+REQ-<프로젝트-슬러그>      requirements (저장소 현행 문서)
+DESIGN-<프로젝트-슬러그>   design (저장소 현행 문서)
+PLAN-<프로젝트-슬러그>     plan (저장소 현행 문서)
 WORK-<작업-ID>     work-log
 VERIFY-<작업-ID>   verification
 RESULT-<작업-ID>   completion
@@ -275,7 +275,7 @@ ST-<슬러그>        status (작업 상위 단위)
 
 - 어떤 대상이 별도 식별자를 가져야 하고 언제 새 식별자나 기준선을 발행할지는 내용 소유자가 결정한다. wf-doc은 발행된 식별자의 문자열 문법, 표시 위치와 링크 형식만 소유한다.
 - 문서 안에서 식별자는 유일해야 하며 의미가 바뀌어도 재사용하지 않는다.
-- 문서 ID 접두사를 항목 ID로, 항목 ID 접두사를 문서 ID로 쓰지 않는다. `DES-01`은 항상 설계 요소이고 `DESIGN-<작업-ID>`는 항상 설계 문서다.
+- 문서 ID 접두사를 항목 ID로, 항목 ID 접두사를 문서 ID로 쓰지 않는다. `DES-01`은 항상 설계 요소이고 `DESIGN-<프로젝트-슬러그>`는 항상 설계 문서다.
 - 삭제된 항목은 조용히 제거하지 말고 상태나 변경 이력으로 대체·취소 이유를 남긴다.
 - 요구사항 → 설계 → 작업 → 검증의 연결은 `## 추적성`에 기록하며, 다른 파일에 있는 식별자는 해당 파일의 하이퍼링크로 만든다.
 - 검증 증거에는 실행 방법, 실행 환경, 결과, 원본 위치를 포함한다.
@@ -288,7 +288,7 @@ ST-<슬러그>        status (작업 상위 단위)
 
 | 요구사항 | 설계 | 작업 | 인수 조건 | 검증 | 결과 |
 |---|---|---|---|---|---|
-| [FR-01](./requirements.md) | [DES-01](./design.md) | [TASK-01](./plan.md) | [AC-01](./requirements.md) | [VER-01](./verification.md) | 성공·실패·미수행 |
+| [FR-01](./requirements.md) | [DES-01](./design.md) | [TASK-01](./plan.md) | [AC-01](./requirements.md) | [VER-01](./work/작업-ID/work-log.md) | 성공·실패·미수행 |
 ```
 
 작업 규모에 맞게 열을 줄일 수 있지만, 존재하는 연결을 서술문 속에 숨기지 않는다.

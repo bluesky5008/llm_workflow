@@ -116,8 +116,8 @@ description: 작업 계획을 분기마다 가지가 생기는 트리로 구조�
 
 ### 저장 위치
 
-- **포트폴리오:** `docs/work/status.md` — 전용 폴더를 만들지 않고 작업 폴더들과 나란히 둔다. 포트폴리오가 여럿이면 `docs/work/status-<슬러그>.md`로 구분한다. [wf-doc `status` 유형](../wf-doc/references/templates.md#포트폴리오-status)을 따르고, `ST-<슬러그>` 식별자 문법은 [wf-doc 추적 식별자](../wf-doc/SKILL.md#추적-식별자)를 따른다.
-- **작업 내부 트리:** 해당 작업 `plan.md`의 `## 계획 트리` 절에 생성물로 둔다. 절의 위치는 [wf-doc 구현 계획 템플릿](../wf-doc/references/templates.md#구현-계획-plan)이 정의한 대로 `## 작업 목록` 바로 앞이다. 별도 파일을 만들지 않는다.
+- **포트폴리오:** `docs/status.md` — 저장소 관통 문서(`requirements.md`·`design.md`·`plan.md`)와 함께 `docs/` 바로 아래에 둔다. 포트폴리오가 여럿이면 `docs/status-<슬러그>.md`로 구분한다. [wf-doc `status` 유형](../wf-doc/references/templates.md#포트폴리오-status)을 따르고, `ST-<슬러그>` 식별자 문법은 [wf-doc 추적 식별자](../wf-doc/SKILL.md#추적-식별자)를 따른다.
+- **작업 내부 트리:** `docs/plan.md`의 `## 계획 트리` 절에 생성물로 둔다. 절의 위치는 [wf-doc 구현 계획 템플릿](../wf-doc/references/templates.md#구현-계획-plan)이 정의한 대로 `## 작업 목록` 바로 앞이다. 별도 파일을 만들지 않는다.
 
 ## 6. 상태와 롤업
 
@@ -187,7 +187,7 @@ flowchart TD
 - 트리가 계획 문서의 항목 목록과 일치하는가? (다르면 목록이 맞다)
 - 생성된 표현에 `<!-- generated -->` 표시가 있는가?
 - 필수 게이트(`approve`·`release`·`migrate` 검증)가 누락되거나 임의로 생략되지 않았는가?
-- 포트폴리오가 저장 위치(`docs/work/status.md` 또는 `docs/work/status-<슬러그>.md`)에 실제 파일로 존재하고, 범위 승인의 결과가 문서 상태와 승인 기록에 반영되었는가?
+- 포트폴리오가 저장 위치(`docs/status.md` 또는 `docs/status-<슬러그>.md`)에 실제 파일로 존재하고, 범위 승인의 결과가 문서 상태와 승인 기록에 반영되었는가?
 - 롤업 집계가 문서의 상태 필드를 바꾸지 않았는가?
 - OR-분기의 기각 대안이 삭제되지 않고 보존되었는가?
 - 노드 30 초과 다이어그램이 분할되었는가?

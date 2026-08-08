@@ -151,7 +151,7 @@ EV-01 → OBS-01 → RR-01 → RD-01
 - 동적 검증 결과
 - wf-design 인계 문서
 
-역공학을 시작할 때 [wf-design 산출물 규칙](../SKILL.md#6-산출물)에 따라 작업 ID를 발행하고, 산출물은 `docs/work/<작업-ID>/` 아래에 유지한다. 현행 요구사항·설계 초안은 같은 규칙의 `requirements.md`, `design.md`에 `draft` 상태로 작성하고, 증거·관찰 등록부처럼 전용 파일이 필요한 산출물은 같은 디렉터리에 `evidence.md` 등의 이름으로 둔다.
+역공학을 시작할 때 [wf-design 산출물 규칙](../SKILL.md#6-산출물)에 따라 작업 ID를 발행한다. 현행 요구사항·설계 초안은 저장소 관통 문서인 `docs/requirements.md`, `docs/design.md`에 `draft` 상태로 작성하고, 증거·관찰 등록부처럼 전용 파일이 필요한 산출물은 작업 폴더 `docs/work/<작업-ID>/`에 `evidence.md` 등의 이름으로 둔다.
 
 산출물의 wf-doc 적용 범위는 다음과 같다.
 
