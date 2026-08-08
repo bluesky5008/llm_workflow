@@ -100,7 +100,7 @@ description: wf-design, wf-implement 또는 wf-tree와 함께 적용하는 문�
 | `work-log` | 진행 상태, 발견 사항, 변경 및 재개 지점 |
 | `verification` | 인수 조건별 검증 방법, 결과, 증거 |
 | `completion` | 통합 결과, 남은 위험, 후속 작업 |
-| `portfolio` | 여러 작업을 묶는 목표, 작업 분해와 계획 트리 |
+| `status` | 여러 작업을 묶는 목표, 작업 분해와 계획 트리, 진행 현황 |
 
 새 문서를 만들거나 문서 유형별 필수 절을 판단할 때 [references/templates.md](references/templates.md)를 읽고 해당 템플릿을 적용한다. 여러 유형을 한 파일에 합치면 `문서 유형`을 쉼표로 나열하고 각 유형의 필수 절을 유지한다.
 
@@ -268,7 +268,7 @@ WORK-<작업-ID>     work-log
 VERIFY-<작업-ID>   verification
 RESULT-<작업-ID>   completion
 APR-<작업-ID>-NNN  approval
-PF-<슬러그>        portfolio (작업 상위 단위)
+ST-<슬러그>        status (작업 상위 단위)
 ```
 
 `adr`와 `dcr`은 문서 하나가 항목 하나에 대응하므로 `ADR-001`, `DCR-001`을 문서 ID로도 사용한다. 유형별 권장값과 예시는 [문서 유형별 템플릿](references/templates.md)을 따른다.

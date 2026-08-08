@@ -17,7 +17,7 @@
 - [작업 기록](#작업-기록-work-log)
 - [검증 결과](#검증-결과-verification)
 - [완료 보고](#완료-보고-completion)
-- [포트폴리오](#포트폴리오-portfolio)
+- [포트폴리오](#포트폴리오-status)
 
 ## 공통 상태 규칙
 
@@ -30,7 +30,7 @@
 | `plan`, `work-log` | `draft → in-progress → blocked/completed` |
 | `verification` | `draft → in-progress → completed` |
 | `completion` | `draft → completed` 또는 `blocked` |
-| `portfolio` | `draft → awaiting-approval → approved/rejected/on-hold → in-progress → completed` |
+| `status` | `draft → awaiting-approval → approved/rejected/on-hold → in-progress → completed` |
 
 승인 관문의 응답별 전이는 다음과 같다. 어떤 응답이 있었는지와 그 효력은 [wf-design 사용자 승인 관문](../../wf-design/SKILL.md#8-사용자-승인-관문)이 결정한다.
 
@@ -93,7 +93,7 @@
 | `work-log` | 구현 계획, 적용 기준선, 발생한 DCR, 검증 결과 |
 | `verification` | 검증 대상 요구사항·인수 조건·설계·계획, 완료 보고 |
 | `completion` | 승인된 기준선, 구현 계획·작업 기록, 검증 결과, 미완료 후속 문서 |
-| `portfolio` | 포함된 각 작업의 계획 또는 요구사항, 포트폴리오 승인 기록 |
+| `status` | 포함된 각 작업의 계획 또는 요구사항, 포트폴리오 승인 기록 |
 
 각 연결은 현재 문서와 대상 문서 양쪽에 기록한다. 외부·읽기 전용·불변 문서라 역방향 링크를 추가할 수 없는 경우에만 단방향 연결 사유와 대체 추적 위치를 `비고`에 기록한다.
 
@@ -462,11 +462,11 @@ DCR 시작 조건, 변경 분류, 영향 분석, 구현 보류, 재승인과 새
 - 최종 보고는 상세 작업 기록을 반복하지 않고 핵심 결과와 링크를 제공한다.
 - 후속 작업에는 책임자, 우선순위 또는 시작 조건 중 필요한 정보를 포함한다.
 
-## 포트폴리오 (`portfolio`)
+## 포트폴리오 (`status`)
 
-문서 ID 권장값: `PF-<슬러그>`
+문서 ID 권장값: `ST-<슬러그>`
 
-저장 위치: `docs/work/PF-<슬러그>/portfolio.md`
+저장 위치: `docs/work/status.md` — 전용 폴더를 만들지 않고 작업 폴더들과 나란히 둔다. 포트폴리오가 여럿이면 `docs/work/status-<슬러그>.md`로 구분한다.
 
 ```markdown
 ## 목표와 범위

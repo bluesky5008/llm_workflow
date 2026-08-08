@@ -44,7 +44,7 @@ description: 작업 계획을 분기마다 가지가 생기는 트리로 구조�
 - **하위 계층(작업 내부):** 노드 = action item. 각 작업이 통과하는 단계와 실행 단위.
 
 ```text
-[포트폴리오] 인증 시스템 개선 (PF-auth-improvement)
+[포트폴리오] 인증 시스템 개선 (ST-auth-improvement)
 ├─ [작업] 20260808-login-rate-limit ......... in-progress (3/7)
 │   ├─ [✓] 설계: 정책·저장 방식
 │   ├─ [✓] 승인: 기준선 v1
@@ -116,7 +116,7 @@ description: 작업 계획을 분기마다 가지가 생기는 트리로 구조�
 
 ### 저장 위치
 
-- **포트폴리오:** `docs/work/PF-<슬러그>/portfolio.md` — [wf-doc `portfolio` 유형](../wf-doc/references/templates.md#포트폴리오-portfolio)을 따른다. `PF-<슬러그>` 식별자 문법은 [wf-doc 추적 식별자](../wf-doc/SKILL.md#추적-식별자)를 따른다.
+- **포트폴리오:** `docs/work/status.md` — 전용 폴더를 만들지 않고 작업 폴더들과 나란히 둔다. 포트폴리오가 여럿이면 `docs/work/status-<슬러그>.md`로 구분한다. [wf-doc `status` 유형](../wf-doc/references/templates.md#포트폴리오-status)을 따르고, `ST-<슬러그>` 식별자 문법은 [wf-doc 추적 식별자](../wf-doc/SKILL.md#추적-식별자)를 따른다.
 - **작업 내부 트리:** 해당 작업 `plan.md`의 `## 계획 트리` 절에 생성물로 둔다. 절의 위치는 [wf-doc 구현 계획 템플릿](../wf-doc/references/templates.md#구현-계획-plan)이 정의한 대로 `## 작업 목록` 바로 앞이다. 별도 파일을 만들지 않는다.
 
 ## 6. 상태와 롤업
@@ -174,7 +174,7 @@ flowchart TD
 
 ## 8. 포트폴리오 생성과 갱신
 
-- **최초 생성 — 문서 출력:** 승인을 요청하기 전에 [저장 위치](#저장-위치)에 `portfolio.md`를 `awaiting-approval` 상태로 먼저 생성한다. 목표, 작업 분해안, 작업 간 의존과 계획 트리를 [wf-doc `portfolio` 템플릿](../wf-doc/references/templates.md#포트폴리오-portfolio)으로 기록한다. 화면 요약과 대화만으로 관문을 진행하고 문서 생성을 생략하지 않는다.
+- **최초 생성 — 문서 출력:** 승인을 요청하기 전에 [저장 위치](#저장-위치)에 `status.md`를 `awaiting-approval` 상태로 먼저 생성한다. 목표, 작업 분해안, 작업 간 의존과 계획 트리를 [wf-doc `status` 템플릿](../wf-doc/references/templates.md#포트폴리오-status)으로 기록한다. 화면 요약과 대화만으로 관문을 진행하고 문서 생성을 생략하지 않는다.
 - **최초 생성 — 범위 승인 관문:** 사용자 승인 관문을 거친다(범위 승인). 대화형 승인 요청에는 목표, 작업 분해안(각 작업의 제목과 한 줄 범위), 작업 간 의존, 먼저 시작할 작업을 요약하고 이 분해를 포트폴리오로 확정할지 명시적으로 묻는다. 승인 결과는 [wf-doc 상태 규칙](../wf-doc/references/templates.md#공통-상태-규칙)에 따라 문서 상태에 반영하고 승인 기록에 남긴다.
 - **이후 갱신:** 작업 추가·제거, 상태 반영, 트리 재구성은 승인 없이 자동으로 진행한다.
 - 자동 갱신은 포트폴리오 **표현**에 한정된다. 개별 작업의 기준선 승인 관문([wf-design §8](../wf-design/SKILL.md#8-사용자-승인-관문))과 외부·비가역 작업의 별도 승인([wf-implement §2.3](../wf-implement/SKILL.md#23-자율-진행과-승인))을 대체하지 않는다.
@@ -187,7 +187,7 @@ flowchart TD
 - 트리가 계획 문서의 항목 목록과 일치하는가? (다르면 목록이 맞다)
 - 생성된 표현에 `<!-- generated -->` 표시가 있는가?
 - 필수 게이트(`approve`·`release`·`migrate` 검증)가 누락되거나 임의로 생략되지 않았는가?
-- 포트폴리오가 저장 위치(`docs/work/PF-<슬러그>/portfolio.md`)에 실제 파일로 존재하고, 범위 승인의 결과가 문서 상태와 승인 기록에 반영되었는가?
+- 포트폴리오가 저장 위치(`docs/work/status.md` 또는 `docs/work/status-<슬러그>.md`)에 실제 파일로 존재하고, 범위 승인의 결과가 문서 상태와 승인 기록에 반영되었는가?
 - 롤업 집계가 문서의 상태 필드를 바꾸지 않았는가?
 - OR-분기의 기각 대안이 삭제되지 않고 보존되었는가?
 - 노드 30 초과 다이어그램이 분할되었는가?
