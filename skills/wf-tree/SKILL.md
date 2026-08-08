@@ -117,7 +117,7 @@ description: 작업 계획을 분기마다 가지가 생기는 트리로 구조�
 ### 저장 위치
 
 - **포트폴리오:** `docs/work/PF-<슬러그>/portfolio.md` — [wf-doc `portfolio` 유형](../wf-doc/references/templates.md#포트폴리오-portfolio)을 따른다. `PF-<슬러그>` 식별자 문법은 [wf-doc 추적 식별자](../wf-doc/SKILL.md#추적-식별자)를 따른다.
-- **작업 내부 트리:** 해당 작업 `plan.md`의 `## 계획 트리` 절에 생성물로 둔다. 별도 파일을 만들지 않는다.
+- **작업 내부 트리:** 해당 작업 `plan.md`의 `## 계획 트리` 절에 생성물로 둔다. 절의 위치는 [wf-doc 구현 계획 템플릿](../wf-doc/references/templates.md#구현-계획-plan)이 정의한 대로 `## 작업 목록` 바로 앞이다. 별도 파일을 만들지 않는다.
 
 ## 6. 상태와 롤업
 
