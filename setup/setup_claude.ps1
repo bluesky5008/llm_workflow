@@ -14,12 +14,12 @@ Windows only (junctions). On macOS/Linux use symlinks instead - see README.
 
 $ErrorActionPreference = 'Stop'
 
-$repoRoot  = $PSScriptRoot
+$repoRoot  = Split-Path $PSScriptRoot -Parent
 $skillsSrc = Join-Path $repoRoot 'skills'
 $claudeDir = Join-Path $env:USERPROFILE '.claude'
 $skillsDir = Join-Path $claudeDir 'skills'
 $globalMd  = Join-Path $claudeDir 'CLAUDE.md'
-$template  = Join-Path $repoRoot 'CLAUDE.global.md'
+$template  = Join-Path $PSScriptRoot 'CLAUDE.global.md'
 
 if (-not (Test-Path $skillsSrc)) { throw "skills folder not found: $skillsSrc" }
 if (-not (Test-Path $template))  { throw "template not found: $template" }

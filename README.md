@@ -55,10 +55,10 @@ wf-tree는 선택 계층입니다. 계획을 트리로 수립·시각화하거�
 **Windows** — 저장소를 클론한 뒤 한 번 실행합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup_claude.ps1
+powershell -ExecutionPolicy Bypass -File .\setup\setup_claude.ps1
 ```
 
-스크립트는 `~/.claude/skills/`에 junction을 만들고 [CLAUDE.global.md](./CLAUDE.global.md)의 워크플로우 규칙을 `~/.claude/CLAUDE.md`에 설치합니다. 재실행해도 안전하며(이미 올바른 junction은 건너뛰고, 다른 곳을 가리키면 다시 연결합니다), junction 방식이므로 `git pull`만 하면 스킬이 최신화됩니다. 설치 후 새 세션에서 `/wf-design` 또는 `/wf-doc`으로 확인합니다.
+스크립트는 `~/.claude/skills/`에 junction을 만들고 [CLAUDE.global.md](./setup/CLAUDE.global.md)의 워크플로우 규칙을 `~/.claude/CLAUDE.md`에 설치합니다. 재실행해도 안전하며(이미 올바른 junction은 건너뛰고, 다른 곳을 가리키면 다시 연결합니다), junction 방식이므로 `git pull`만 하면 스킬이 최신화됩니다. 설치 후 새 세션에서 `/wf-design` 또는 `/wf-doc`으로 확인합니다.
 
 **macOS / Linux** — symlink로 연결하고 규칙을 복사합니다.
 
@@ -68,7 +68,7 @@ ln -s "$(pwd)/skills/wf-design" ~/.claude/skills/wf-design
 ln -s "$(pwd)/skills/wf-implement" ~/.claude/skills/wf-implement
 ln -s "$(pwd)/skills/wf-doc" ~/.claude/skills/wf-doc
 ln -s "$(pwd)/skills/wf-tree" ~/.claude/skills/wf-tree
-cat CLAUDE.global.md >> ~/.claude/CLAUDE.md
+cat setup/CLAUDE.global.md >> ~/.claude/CLAUDE.md
 ```
 
 ## OpenAI Codex CLI 설치
@@ -76,10 +76,10 @@ cat CLAUDE.global.md >> ~/.claude/CLAUDE.md
 저장소를 클론한 뒤 한 번 실행합니다.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\setup_codex.ps1
+powershell -ExecutionPolicy Bypass -File .\setup\setup_codex.ps1
 ```
 
-스크립트는 [AGENTS.codex.md](./AGENTS.codex.md)의 진입 규칙(이 저장소의 절대 경로로 치환됨)을 `~/.codex/AGENTS.md`에 설치하고, 수동 호출용 custom prompt(`/wf-design`, `/wf-implement`, `/wf-doc`)를 `~/.codex/prompts/`에 만듭니다.
+스크립트는 [AGENTS.codex.md](./setup/AGENTS.codex.md)의 진입 규칙(이 저장소의 절대 경로로 치환됨)을 `~/.codex/AGENTS.md`에 설치하고, 수동 호출용 custom prompt(`/wf-design`, `/wf-implement`, `/wf-doc`)를 `~/.codex/prompts/`에 만듭니다.
 
 - Codex에는 스킬 자동 로드가 없으므로 항상 로드되는 것은 짧은 진입 규칙뿐이고, 상세 절차는 규칙이 가리키는 이 저장소의 SKILL.md를 세션 중에 읽는 방식입니다.
 - 규칙이 저장소 안의 파일을 절대 경로로 참조하므로 **설치 후 저장소를 이동·삭제하면 안 됩니다.** 이동했다면 스크립트를 다시 실행합니다.

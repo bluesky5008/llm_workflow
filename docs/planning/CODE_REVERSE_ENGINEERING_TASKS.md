@@ -3,20 +3,20 @@
 > 상태: 반영됨
 > 작성일: 2026-08-08
 
-> **이 문서는 기획 기록입니다.** 절차 정본은 [skills/wf-design/references/reverse-engineering.md](./skills/wf-design/references/reverse-engineering.md)이며, 내용이 다르면 그 절차를 따릅니다.
+> **이 문서는 기획 기록입니다.** 절차 정본은 [skills/wf-design/references/reverse-engineering.md](../../skills/wf-design/references/reverse-engineering.md)이며, 내용이 다르면 그 절차를 따릅니다.
 
 ## 요약
 
 코드 기반 역공학은 코드에서 현재 시스템의 사실을 추출하고, 근거가 연결된 현행 요구사항과 설계를 재구성하는 작업이다.
 
-코드는 현재 동작의 근거일 수 있지만 제품 의도나 정식 요구사항 그 자체는 아니다. 역공학 결과는 증거 기반의 현행 상태 초안이며, 정식 요구사항·설계와 기준선은 [wf-design](./skills/wf-design/SKILL.md)의 검토와 승인을 거쳐야 한다.
+코드는 현재 동작의 근거일 수 있지만 제품 의도나 정식 요구사항 그 자체는 아니다. 역공학 결과는 증거 기반의 현행 상태 초안이며, 정식 요구사항·설계와 기준선은 [wf-design](../../skills/wf-design/SKILL.md)의 검토와 승인을 거쳐야 한다.
 
 ## 관련 문서
 
-- [Human–AI Development Workflow](./README.md)
-- [wf-design](./skills/wf-design/SKILL.md)
-- [wf-doc](./skills/wf-doc/SKILL.md)
-- [wf-implement](./skills/wf-implement/SKILL.md)
+- [Human–AI Development Workflow](../../README.md)
+- [wf-design](../../skills/wf-design/SKILL.md)
+- [wf-doc](../../skills/wf-doc/SKILL.md)
+- [wf-implement](../../skills/wf-implement/SKILL.md)
 
 ## 전체 흐름
 
@@ -58,7 +58,7 @@ flowchart LR
 원본 증거 → 관찰 사실 → 해석 → 요구사항 또는 설계 추론
 ```
 
-권장 식별자는 다음과 같다. 문자열 문법과 번호 표기는 [wf-doc 추적 식별자](./skills/wf-doc/SKILL.md#추적-식별자)의 항목 ID 규칙을 따른다.
+권장 식별자는 다음과 같다. 문자열 문법과 번호 표기는 [wf-doc 추적 식별자](../../skills/wf-doc/SKILL.md#추적-식별자)의 항목 ID 규칙을 따른다.
 
 - `EV-01`: 코드·테스트·설정·실행 증거
 - `OBS-01`: 증거에서 직접 확인한 사실
@@ -91,7 +91,7 @@ EV-01 → OBS-01 → RR-01 → RD-01
 
 각 추론에는 근거 위치, 해석 과정, 신뢰도와 반증 조건을 기록한다.
 
-신뢰도는 [wf-doc 정보 성격 표지](./skills/wf-doc/SKILL.md#25-본문-작성)(사실·해석·가정·결정·질문·위험)를 대체하지 않는 보조 속성이며, 두 분류는 다음과 같이 대응시킨다.
+신뢰도는 [wf-doc 정보 성격 표지](../../skills/wf-doc/SKILL.md#25-본문-작성)(사실·해석·가정·결정·질문·위험)를 대체하지 않는 보조 속성이며, 두 분류는 다음과 같이 대응시킨다.
 
 - `사실`로 표시한 항목에는 `confirmed`만 사용할 수 있다.
 - `해석`과 `가정`에는 `strongly-inferred` 또는 `tentative`를 사용한다.
@@ -118,7 +118,7 @@ EV-01 → OBS-01 → RR-01 → RD-01
 
 - 정적 분석을 기본으로 하고 필요한 경우에만 빌드·테스트·로컬 실행으로 추론을 검증한다.
 - 운영 시스템, 외부 사용자, 원격 저장소와 실제 데이터에 상태 변경을 일으키지 않는다.
-- 분석용 계측이나 실험이 필요하면 [wf-design 프로토타입 규칙](./skills/wf-design/SKILL.md#1-적용-시점)과 동일하게 검증하려는 가설, 범위, 폐기 여부, 성공·실패 판단 기준을 먼저 명시하고, 제품 변경과 분리된 임시·가역 환경에서 수행한다.
+- 분석용 계측이나 실험이 필요하면 [wf-design 프로토타입 규칙](../../skills/wf-design/SKILL.md#1-적용-시점)과 동일하게 검증하려는 가설, 범위, 폐기 여부, 성공·실패 판단 기준을 먼저 명시하고, 제품 변경과 분리된 임시·가역 환경에서 수행한다.
 - 실행하지 못한 검증을 성공으로 기록하지 않는다.
 
 ## 피해야 할 오류
@@ -148,12 +148,12 @@ EV-01 → OBS-01 → RR-01 → RD-01
 - 동적 검증 결과
 - wf-design 인계 문서
 
-역공학을 시작할 때 [wf-design 산출물 규칙](./skills/wf-design/SKILL.md#6-산출물)에 따라 작업 ID를 발행하고, 산출물은 `docs/work/<작업-ID>/` 아래에 유지한다.
+역공학을 시작할 때 [wf-design 산출물 규칙](../../skills/wf-design/SKILL.md#6-산출물)에 따라 작업 ID를 발행하고, 산출물은 `docs/work/<작업-ID>/` 아래에 유지한다.
 
 산출물의 wf-doc 적용 범위는 다음과 같다.
 
 - 현행 요구사항 초안과 현행 SW 설계 초안은 wf-doc의 `requirements`, `design` 유형에 `draft` 상태로 매핑한다.
-- 증거·관찰 등록부, 모순·공백·질문 목록, 동적 검증 결과처럼 대응하는 wf-doc 문서 유형이 없는 산출물에는 [wf-doc 공통 머리말](./skills/wf-doc/SKILL.md#23-공통-머리말-작성)과 하이퍼링크·식별자·상태 규칙만 적용한다. 역공학의 동적 검증은 인수 조건 검증이 아니므로 `verification` 유형을 사용하지 않는다.
+- 증거·관찰 등록부, 모순·공백·질문 목록, 동적 검증 결과처럼 대응하는 wf-doc 문서 유형이 없는 산출물에는 [wf-doc 공통 머리말](../../skills/wf-doc/SKILL.md#23-공통-머리말-작성)과 하이퍼링크·식별자·상태 규칙만 적용한다. 역공학의 동적 검증은 인수 조건 검증이 아니므로 `verification` 유형을 사용하지 않는다.
 - 역공학 전용 문서 유형과 `EV`, `OBS`, `RR`, `RD`, `CON`, `GAP` 식별자를 wf-doc에 정식으로 추가하는 것은 스킬화 시점에 검토한다.
 
 ## 기존 워크플로우와의 경계
@@ -161,23 +161,23 @@ EV-01 → OBS-01 → RR-01 → RD-01
 | 영역 | 책임 |
 |---|---|
 | 코드 기반 역공학 | 현재 코드에서 사실·증거·현행 동작과 구조를 복원한다. |
-| [wf-design](./skills/wf-design/SKILL.md) | 추론을 제품 의도와 대조하고 정식 요구사항·설계로 결정·승인한다. |
-| [wf-doc](./skills/wf-doc/SKILL.md) | 역공학 산출물의 문서 구조와 연결 형식을 정의한다. |
-| [wf-implement](./skills/wf-implement/SKILL.md) | 승인된 기준선 이후 변경이 필요할 때 참여한다. |
+| [wf-design](../../skills/wf-design/SKILL.md) | 추론을 제품 의도와 대조하고 정식 요구사항·설계로 결정·승인한다. |
+| [wf-doc](../../skills/wf-doc/SKILL.md) | 역공학 산출물의 문서 구조와 연결 형식을 정의한다. |
+| [wf-implement](../../skills/wf-implement/SKILL.md) | 승인된 기준선 이후 변경이 필요할 때 참여한다. |
 
 역공학은 요구사항이나 설계를 승인하지 않는다. 현재 코드에서 확인하거나 추론한 내용을 증거 기반 초안으로 만들고 wf-design에 전달한다.
 
 ### 스킬화 시 배치
 
-이 절차는 독립 스킬이 아니라 [design-change.md](./skills/wf-design/references/design-change.md)와 같은 **wf-design의 참조 절차**로 편입한다. 이 결정은 [reverse-engineering.md](./skills/wf-design/references/reverse-engineering.md)로 반영되었다.
+이 절차는 독립 스킬이 아니라 [design-change.md](../../skills/wf-design/references/design-change.md)와 같은 **wf-design의 참조 절차**로 편입한다. 이 결정은 [reverse-engineering.md](../../skills/wf-design/references/reverse-engineering.md)로 반영되었다.
 
-- wf-design이 이미 [현재 상태 조사](./skills/wf-design/SKILL.md#41-현재-상태-조사)와 요구사항·설계의 의미를 소유하며, 역공학은 그 조사를 체계화한 확장이다.
+- wf-design이 이미 [현재 상태 조사](../../skills/wf-design/SKILL.md#41-현재-상태-조사)와 요구사항·설계의 의미를 소유하며, 역공학은 그 조사를 체계화한 확장이다.
 - 역공학의 최종 산출물은 wf-design 승인 관문으로 인계되는 요구사항·설계 초안이므로 소유권이 갈라지지 않는다.
 - 독립 스킬로 만들면 wf-design·wf-implement·wf-doc과의 경계쌍 3개가 새로 생겨 정본·요약 동기화 부담이 늘어난다.
 
 ## 완료 조건
 
-다음 조건을 모두 만족하면 역공학 결과를 wf-design에 인계할 수 있다. 인계 문서에는 [wf-doc 인계 블록](./skills/wf-doc/SKILL.md#27-인계와-재개-지점-작성)을 적용한다.
+다음 조건을 모두 만족하면 역공학 결과를 wf-design에 인계할 수 있다. 인계 문서에는 [wf-doc 인계 블록](../../skills/wf-doc/SKILL.md#27-인계와-재개-지점-작성)을 적용한다.
 
 - 분석 대상과 제외 범위, 저장소 기준점이 명시되어 있다.
 - 주요 실행 경로, 인터페이스, 데이터와 실패·복구 흐름이 다뤄졌다.
@@ -189,4 +189,4 @@ EV-01 → OBS-01 → RR-01 → RD-01
 - 실행하지 못한 검증과 분석하지 못한 영역이 기록되어 있다.
 - 다음 담당자가 대화 기록 없이 문서만으로 검토를 계속할 수 있다.
 
-이 문서는 역공학 절차의 작업 범위와 원칙을 정리한 기획 기록이다. 절차 정본은 [wf-design의 참조 절차](./skills/wf-design/references/reverse-engineering.md)다.
+이 문서는 역공학 절차의 작업 범위와 원칙을 정리한 기획 기록이다. 절차 정본은 [wf-design의 참조 절차](../../skills/wf-design/references/reverse-engineering.md)다.

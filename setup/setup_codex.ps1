@@ -17,11 +17,11 @@ Do not move or delete this repo after installation - the rules point into it.
 
 $ErrorActionPreference = 'Stop'
 
-$repoRoot   = $PSScriptRoot
+$repoRoot   = Split-Path $PSScriptRoot -Parent
 $codexDir   = Join-Path $env:USERPROFILE '.codex'
 $agentsMd   = Join-Path $codexDir 'AGENTS.md'
 $promptsDir = Join-Path $codexDir 'prompts'
-$template   = Join-Path $repoRoot 'AGENTS.codex.md'
+$template   = Join-Path $PSScriptRoot 'AGENTS.codex.md'
 
 foreach ($p in @((Join-Path $repoRoot 'skills\wf-design\SKILL.md'),
                  (Join-Path $repoRoot 'skills\wf-implement\SKILL.md'),
