@@ -30,7 +30,7 @@
 | `plan`, `work-log` | `draft → in-progress → blocked/completed` |
 | `verification` | `draft → in-progress → completed` |
 | `completion` | `draft → completed` 또는 `blocked` |
-| `status` | `draft → awaiting-approval → approved/rejected/on-hold → in-progress → completed` |
+| `status` | `draft → awaiting-approval → approved/rejected/on-hold → in-progress → completed`, 완료 후 같은 목표의 작업이 추가되면 `in-progress`로 재개 |
 
 승인 관문의 응답별 전이는 다음과 같다. 어떤 응답이 있었는지와 그 효력은 [wf-design 사용자 승인 관문](../../wf-design/SKILL.md#8-사용자-승인-관문)이 결정한다.
 
@@ -55,7 +55,7 @@
 | YYYY-MM-DD | 변경 요약 | 관련 DCR·대화·검증 | draft → approved | 이름 또는 역할 |
 ```
 
-`plan`, `work-log`, `verification`, `completion`, `approval`에서는 선택 사항이다. 이 유형들은 시간순 기록이나 결정 필드에 사건이 남으므로, 별도 이력이 같은 내용을 반복하면 두지 않는다. 필드 규칙은 [wf-doc 기존 문서 갱신](../../wf-doc/SKILL.md#3-기존-문서-갱신)을 따른다.
+`plan`, `work-log`, `verification`, `completion`, `approval`, `status`에서는 선택 사항이다. 이 유형들은 시간순 기록이나 결정 필드에 사건이 남으므로, 별도 이력이 같은 내용을 반복하면 두지 않는다. 다만 완료된 `status`를 재개할 때는 이 절에 재개 사유와 추가된 작업을 기록한다(절이 없으면 추가한다). 필드 규칙은 [wf-doc 기존 문서 갱신](../../wf-doc/SKILL.md#3-기존-문서-갱신)을 따른다.
 
 ## 공통 문서 연결 절
 
@@ -351,6 +351,7 @@ DCR 시작 조건, 변경 분류, 영향 분석, 구현 보류, 재승인과 새
 - 작업 상태를 체크박스로 표시할 수 있지만 안정적인 `TASK-NN` 식별자를 함께 유지한다.
 - `상위`는 분해 관계이며 `의존성`(순서 제약)과 구분한다. 이 필드에서 파생되는 트리 구조화·시각화 규칙은 [wf-tree](../../wf-tree/SKILL.md)가 소유하며, 트리를 사용하지 않는 계획에서는 생략할 수 있다.
 - `## 계획 트리` 절은 생성물이다. `## 작업 목록` 바로 앞에 두어 계획 전체를 먼저 조망하게 하고, 손으로 수정하지 않고 wf-tree 렌더링 규칙으로 작업 목록에서 재생성한다. 트리를 사용하지 않는 계획에서는 절을 생략할 수 있다.
+- 완료된 과거 사이클의 TASK는 식별자·상태·`상위:`(트리 사용 시)·한 줄 요약과 해당 [작업 기록](#작업-기록-work-log) 링크만 남긴 축약형으로 유지할 수 있다. 축약 후에도 식별자는 재사용하지 않는다. 축약 여부와 대상은 [wf-implement 작업 기록과 저장 위치](../../wf-implement/SKILL.md#7-작업-기록과-저장-위치)가 결정한다.
 
 ## 작업 기록 (`work-log`)
 
@@ -488,3 +489,4 @@ DCR 시작 조건, 변경 분류, 영향 분석, 구현 보류, 재승인과 새
 - 포트폴리오의 생성 승인, 트리 구조·노드 유형과 갱신 규칙은 [wf-tree](../../wf-tree/SKILL.md)를 따른다. 이 템플릿은 결정된 내용을 배치하는 형식만 정의한다.
 - `## 계획 트리` 절은 생성물이다. 손으로 수정하지 않고 wf-tree 렌더링 규칙으로 작업 목록에서 재생성한다.
 - 작업 목록의 상태는 각 작업의 실제 상태를 기록할 뿐이며, 이 문서가 작업 상태를 전이시키지 않는다.
+- 완료된 포트폴리오에 같은 목표의 작업이 추가되면 문서를 새로 만들지 않고 재개한다. 재개·신설 판단과 절차는 [wf-tree 포트폴리오 생성과 갱신](../../wf-tree/SKILL.md#8-포트폴리오-생성과-갱신)을 따르고, 재개 사유는 [변경 이력](#공통-변경-이력-절)에 기록한다.
