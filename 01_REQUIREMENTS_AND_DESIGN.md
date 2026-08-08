@@ -46,6 +46,7 @@ Workflow 1은 **무엇을 왜 어떤 계약과 구조로 만들지** 결정하�
 |---|---|
 | 적용 시점, 기본 원칙, 진행 절차, 완료 조건, 승인 관문 | [wf-design/SKILL.md](./skills/wf-design/SKILL.md) |
 | DCR 시작 조건, 변경 분류, 영향 분석, 재승인 | [wf-design/references/design-change.md](./skills/wf-design/references/design-change.md) |
+| 코드 역공학: 증거 관리, 현행 요구사항·설계 복원, 신뢰도 분류 | [wf-design/references/reverse-engineering.md](./skills/wf-design/references/reverse-engineering.md) |
 | 문서 머리말, 상태값, 식별자, 하이퍼링크, 추적표, 인계 형식 | [wf-doc/SKILL.md](./skills/wf-doc/SKILL.md) |
 | 문서 유형별 필수 절과 템플릿 | [wf-doc/references/templates.md](./skills/wf-doc/references/templates.md) |
 
