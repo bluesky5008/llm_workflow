@@ -1,0 +1,82 @@
+# WORK-20260809-claude-hooks: 작업 기록
+
+> 문서 유형: `work-log, verification, completion`
+> 작업 ID: `20260809-claude-hooks`
+> 상태: `completed`
+> 기준선: `v1` ([REQ](../../requirements.md)·[DESIGN](../../design.md), 2026-08-09 승인)
+> 작성일: 2026-08-09
+> 최종 갱신: 2026-08-09
+> 관련 문서: [PLAN-llm-workflow: 구현 계획](../../plan.md), [ADR-001](./ADR-001-컨텍스트-신호-선택.md)
+
+## 요약
+
+- 목적: C층 훅 3종 + 설치 로직의 구현 진행 상태와 검증 증거를 기록한다.
+- 현재 결론 또는 상태: 완료. 테스트 21/21 성공, 실설치·실저장소 스모크 성공. 실세션 관찰 2건(VER-06, VER-07)은 미수행으로 공개.
+- 다음 행동: 없음 — 후속 작업은 완료 보고 절 참조.
+
+## 문서 연결
+
+| 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
+|---|---|---|---|---|
+| input | baseline | [DESIGN-llm-workflow: 설계](../../design.md) | DES-01~05 | 승인 기준선 v1 |
+| input | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-01~06 | 이 기록이 진행 상태의 정본 |
+
+## 진행 기록
+
+- 2026-08-09 — 기준선 v1 승인, 계획 수립(TASK-01~06). TASK-01 착수.
+- 2026-08-09 — TASK-01 완료: `setup/hooks/tests/run-tests.ps1`(T01~T21) 작성, Red 확인(T01~T13 실패 관찰, 하니스 자체 버그 2건 수정 — stderr 리다이렉트 함정, 상태 디렉터리 픽스처).
+- 2026-08-09 — TASK-02~04 완료: `wf-common.ps1` + 훅 3종 + 메시지 3종 구현. T01~T17 Green. (계획은 TASK별 사이클이었으나 훅 3종이 공용 라이브러리를 공유해 일괄 구현 후 케이스별 Green 확인으로 진행 — 케이스 매핑은 계획대로 유지.)
+- 2026-08-09 — TASK-05 완료: `install-hooks.ps1` 구현, T18~T21 Green(전체 21/21). T20 실패 1회는 하니스 단언식의 PS 5.1 함정이 원인(아래 발견).
+- 2026-08-09 — TASK-06 완료: `setup_claude.ps1` 통합, README 안내 추가, 실설치 실행·검증, 실저장소 스모크 테스트 성공.
+
+## 발견과 결정
+
+- PS 5.1에서 `2>$null` 네이티브 stderr 리다이렉트가 `$ErrorActionPreference='Stop'`과 결합하면 하니스가 중단된다 → 리다이렉트 제거로 해결.
+- 한글은 스크립트 리터럴에 두지 않고 messages/*.md 분리(DES-05 그대로). 상태 판정은 ASCII 상태값 백틱 토큰 매칭으로 해결해 훅 스크립트를 완전 ASCII로 유지.
+- PS 5.1에서 `(파이프라인 단일 결과).Count`는 신뢰할 수 없다(T20 실패 원인 — 설치 함수는 정상, 단언식 버그). `@()` 래핑으로 해결.
+- PostToolUse 훅은 툴 사용마다 powershell.exe 자식 프로세스를 띄운다(개당 수백 ms). 계약 검증에서는 문제없으나 실사용에서 체감되면 async 등록 또는 발화 이벤트 축소를 검토한다 → 완료 보고의 후속 작업.
+
+## 검증
+
+실행 명령: `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` (2026-08-09, Windows 11 / PS 5.1)
+
+| 검증 | 인수 조건 | 방법 | 결과 | 증거 |
+|---|---|---|---|---|
+| VER-01 | [AC-01](../../requirements.md#인수-조건) | 하니스 T01~T04 + 실저장소 스모크(이 저장소 cwd로 훅 실행, 미완료 기록 목록 주입 확인) | 성공 | 21/21 pass 출력, 스모크 JSON에 `docs/work/20260809-claude-hooks` 포함·한글 무손상 |
+| VER-02 | [AC-02](../../requirements.md#인수-조건) | T07~T11 (미만 무주입·초과 주입·재경고 억제·간격 후 재경고·환경 변수 재정의) | 성공 | 21/21 pass 출력 |
+| VER-03 | [AC-03](../../requirements.md#인수-조건) | T18~T21 + 실설치 전후 비교 | 성공 | 실설치 후 기존 5개 키 전부 보존, SessionStart 2건·PostToolUse 1건 등록 확인 |
+| VER-04 | [AC-04](../../requirements.md#인수-조건) | T06(비정상 stdin), T12(transcript 부재) | 성공 | 무출력·exit 0 확인 |
+| VER-05 | [AC-05](../../requirements.md#인수-조건) | T05·T13·T17 (docs/work 부재 가드) | 성공 | 무출력·상태 파일 미생성 확인 |
+| VER-06 | [AC-06](../../requirements.md#인수-조건) | 스크립트 계약은 T14~T16으로 성공. 실세션에서 `/compact` 후 주입 관찰 | **미수행** | 실행 중 세션에는 훅 등록 이전이라 관찰 불가. 다음 세션에서 수동 `/compact`로 관찰 |
+| VER-07 | [AC-01](../../requirements.md#인수-조건) 실세션 부분 | 새 세션 시작 시 Claude Code가 실제로 훅을 호출·주입하는지 관찰 | **미수행** | 다음 새 세션 시작이 곧 검증이다(미완료 작업이 있을 때 재개 지시가 주입되는지 확인) |
+
+Red→Green 전환 증거: 최초 실행에서 T01~T13 FAIL(구현 부재), 구현 후 T01~T17 pass, 설치 로직 구현 후 21/21 pass.
+
+## 완료 보고
+
+- **완료 상태:** 완료 (실세션 관찰 VER-06·VER-07 미수행 — 위 표에 공개, 다음 세션에서 자연 확인)
+- **변경 파일:** `setup/hooks/`(wf-common·훅 3종·messages 3종·install-hooks·tests), `setup/setup_claude.ps1`(훅 설치 단계), `README.md`(안내), docs/ 산출물(requirements·design·plan·decisions·ADR-001·이 기록)
+- **설계와 달라진 점:** 없음 — DES-01~05 그대로 구현. 발화 지연(PostToolUse 자식 프로세스) 관찰은 새 위험이 아니라 NFR-03 관련 제한으로 기록
+- **남은 위험과 제한:** 임계값 기본값(1500KB)은 실측 보정 전 추정값. `%TEMP%\claude-wf\` 상태 파일은 세션당 1개 누적(무해, 청소 없음). PostToolUse 훅의 툴당 수백 ms 오버헤드
+- **후속 작업:** (1) 실세션 관찰 VER-06·VER-07, (2) 임계값 실측 보정, (3) 체감 지연 시 async 등록 검토, (4) Codex 상당 기능·제3 하네스 어댑터·B층은 별도 작업 후보
+
+## 인계
+
+- 다음 단계 또는 워크플로우: 없음 — 작업 완료. 실세션 관찰(VER-06·VER-07)만 다음 세션에서 확인
+- 시작 조건: N/A — 완료
+- 입력 문서와 기준선: [REQ v1](../../requirements.md), [DESIGN v1](../../design.md), [PLAN](../../plan.md)
+- 완료된 항목: TASK-01~06 전체, 실설치 배포
+- 미완료 항목: VER-06·VER-07 실세션 관찰
+- 차단 요인: 없음
+- 다음 행동: 다음 새 세션에서 재개 주입 관찰(VER-07), 수동 `/compact`로 재정렬 주입 관찰(VER-06). 결과를 이 기록의 검증 표에 갱신
+
+## 인계
+
+- 다음 단계 또는 워크플로우: wf-implement 계속 (구현 단계)
+- 시작 조건: 없음 — 진행 중
+- 입력 문서와 기준선: [REQ v1](../../requirements.md), [DESIGN v1](../../design.md), [PLAN](../../plan.md)
+- 완료된 항목: TASK-01(하니스+Red), TASK-02~04(훅 3종 Green)
+- 미완료 항목: TASK-05(설치 병합), TASK-06(README·실설치·최종 보고)
+- 차단 요인: 없음
+- 다음 행동: TASK-05 — `install-hooks.ps1` 병합 함수 구현 후 T18~T21 Green 확인, `setup_claude.ps1` 통합
+- 재개 프롬프트: 작업 20260809-claude-hooks 재개 — docs/work/20260809-claude-hooks/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.

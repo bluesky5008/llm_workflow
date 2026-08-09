@@ -76,5 +76,13 @@ if (-not (Test-Path $globalMd)) {
     }
 }
 
+# 3) Register session-handoff hooks (SessionStart resume/compact re-anchor +
+#    PostToolUse context-threshold) in ~/.claude/settings.json. The merge
+#    preserves every foreign key and user-defined hook; re-run retargets
+#    entries after a repo move.
+. (Join-Path $PSScriptRoot 'hooks\install-hooks.ps1')
+Install-WfHooks -SettingsPath (Join-Path $claudeDir 'settings.json') -HooksDir (Join-Path $PSScriptRoot 'hooks')
+Write-Host "[ok]   hooks: session-handoff hooks registered in ~/.claude/settings.json"
+
 Write-Host ''
 Write-Host 'Done. Open a NEW Claude Code session and verify with /wf-design or /wf-doc.'

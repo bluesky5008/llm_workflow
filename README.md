@@ -64,6 +64,14 @@ powershell -ExecutionPolicy Bypass -File .\setup\setup_claude.ps1
 
 스크립트는 `~/.claude/skills/`에 junction을 만들고 [CLAUDE.global.md](./setup/CLAUDE.global.md)의 워크플로우 규칙을 `~/.claude/CLAUDE.md`에 설치합니다. 재실행해도 안전하며(이미 올바른 junction은 건너뛰고, 다른 곳을 가리키면 다시 연결합니다), junction 방식이므로 `git pull`만 하면 스킬이 최신화됩니다. 설치 후 새 세션에서 `/wf-design` 또는 `/wf-doc`으로 확인합니다.
 
+스크립트는 세션 핸드오프 훅 3종([setup/hooks/](./setup/hooks/))도 `~/.claude/settings.json`에 등록합니다. 기존 설정과 사용자 훅은 보존됩니다.
+
+- **세션 시작 재개 주입** — 새 세션·`/clear`·재개 시 미완료 작업 기록(`docs/work/`)이 있으면 재개 지시를 주입합니다.
+- **컨텍스트 임계값 경고** — transcript 성장량이 임계값(기본 1500KB, 환경 변수 `CLAUDE_WF_THRESHOLD_KB`·`CLAUDE_WF_REWARN_KB`로 조정)을 넘으면 다음 계획 항목 경계에서 세션 인계를 수행하라는 지시를 주입합니다.
+- **컴팩션 사후 재정렬** — 자동 요약 직후 작업 기록을 정본으로 재확인하라는 지시를 주입합니다.
+
+훅은 fail-open이며(오류 시 조용히 통과) `docs/work/`가 없는 저장소에서는 아무 동작도 하지 않습니다. 제거하려면 `~/.claude/settings.json`의 `hooks`에서 이 저장소 경로가 포함된 항목을 삭제합니다.
+
 **macOS / Linux** — symlink로 연결하고 규칙을 복사합니다.
 
 ```bash
