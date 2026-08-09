@@ -2,8 +2,8 @@
 
 > 문서 유형: `requirements, design`
 > 작업 ID: `20260809-dev-briefing`
-> 상태: `awaiting-approval`
-> 기준선: `draft`
+> 상태: `approved`
+> 기준선: `v1` (승인일 2026-08-09)
 > 작성일: 2026-08-09
 > 최종 갱신: 2026-08-09
 > 관련 문서: [README](../../../README.md), [REQ-llm-workflow: 요구사항](../../requirements.md), [DESIGN-llm-workflow: 설계](../../design.md)
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: llm_workflow 저장소의 전체 개발 내용을 내부 동료 개발자에게 공유하는 발표 자료(md 초판 → pptx)의 요구사항과 설계를 확정한다.
-- 현재 결론 또는 상태: 초안 작성 완료, 사용자 승인 대기.
-- 다음 행동: 사용자 승인 관문 → 승인 시 wf-implement로 인계.
+- 현재 결론 또는 상태: 기준선 v1 승인(2026-08-09). 구현은 wf-implement로 진행.
+- 다음 행동: [구현 계획](../../plan.md)의 작업 순서를 따른다.
 
 ## 문서 연결
 
@@ -21,6 +21,8 @@
 | input | baseline | N/A | document | 이 작업의 루트 문서이며 선행 워크플로우 문서 없음 |
 | input | related | [README](../../../README.md) | document | 발표 내용의 원천(소재). 원천 문서의 의미에 영향이 없으므로 역방향 링크를 두지 않는 단방향 참조 |
 | input | related | [REQ-llm-workflow: 요구사항](../../requirements.md), [DESIGN-llm-workflow: 설계](../../design.md) | document | 발표 내용의 원천(소재). 위와 같은 단방향 참조. 이 작업은 해당 기준선 v1의 의미를 변경하지 않는다 |
+| output | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-07~12 | 이 기준선의 구현 계획 |
+| output | implementation | [WORK-20260809-dev-briefing: 작업 기록](./work-log.md) | document | 진행 상태·검증의 정본 |
 
 **산출물 위치에 대한 결정:** [wf-design 산출물 규칙](../../../skills/wf-design/SKILL.md#6-산출물)의 기본 위치(`docs/requirements.md`·`design.md` 누적)를 따르지 않고 이 작업 폴더에 통합 문서로 둔다. 이유: 저장소 관통 문서는 워크플로우 **시스템**의 현행 상태를 기술하는 기준선인데, 발표 자료는 시스템의 동작·계약을 바꾸지 않는 일회성 전달물이다. 시스템 기준선(v1)에 발표 요구사항을 누적하면 현행 문서의 의미가 흐려진다. 이 결정은 승인 관문에서 사용자 확인을 받는다.
 
@@ -166,20 +168,21 @@ docs/presentation/
 
 ## 승인 기록
 
-- 2026-08-09 — 승인 요청(대화형 관문) 발신. 결과 대기 중.
+- 2026-08-09 — 사용자가 대화형 승인 관문에서 **승인**. 응답: "승인". 기준선 v1 발행. 확인 대상에 산출물 위치 결정(작업 폴더 통합 문서, 저장소 관통 기준선 미변경)과 python-pptx 신규 의존성 포함.
 
 ## 변경 이력
 
 | 날짜 | 변경 | 근거 | 상태 또는 기준선 | 작성자·승인자 |
 |---|---|---|---|---|
 | 2026-08-09 | 최초 작성 | 사용자 요청(발표 자료 제작, md 초판 → pptx) | draft → awaiting-approval | Claude(작성) |
+| 2026-08-09 | 승인 관문 통과, 기준선 v1 발행 | 사용자 승인(대화형 관문) | awaiting-approval → approved, v1 | 사용자(승인) |
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: 승인 시 [wf-implement](../../../skills/wf-implement/SKILL.md) — 계획 수립부터
-- 시작 조건: 이 문서의 기준선 v1 승인
-- 입력 문서와 기준선: 이 문서(승인 후 v1)
-- 완료된 항목: 현재 상태 조사, 요구사항 정의, 설계, 자체 검토
-- 미완료 항목: 사용자 승인, 구현 전체
-- 차단 요인: 사용자 승인 대기
-- 다음 행동: 승인 응답 수신 후 승인 기록 갱신 → wf-implement 계획 수립
+- 다음 단계 또는 워크플로우: [wf-implement](../../../skills/wf-implement/SKILL.md) — 계획 수립부터
+- 시작 조건: 충족 — 기준선 v1 승인(2026-08-09)
+- 입력 문서와 기준선: 이 문서 v1
+- 완료된 항목: 현재 상태 조사, 요구사항 정의, 설계, 자체 검토, 승인
+- 미완료 항목: 구현 전체([구현 계획](../../plan.md) 참조)
+- 차단 요인: 없음
+- 다음 행동: [구현 계획](../../plan.md)의 TASK-07(md 초판 작성)부터 진행
