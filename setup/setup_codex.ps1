@@ -38,8 +38,10 @@ New-Item -ItemType Directory -Force $promptsDir | Out-Null
 $rules = (Get-Content -Raw -Encoding UTF8 $template).Replace('{{REPO}}', $repoRoot)
 $wfDocRule  = $rules -split "`r?`n" | Where-Object { $_ -match 'wf-doc' }  | Select-Object -First 1
 $wfTreeRule = $rules -split "`r?`n" | Where-Object { $_ -match 'wf-tree' } | Select-Object -First 1
+$resumeRule = $rules -split "`r?`n" | Where-Object { $_ -match 'docs/work' } | Select-Object -First 1
 if (-not $wfDocRule)  { throw 'wf-doc rule not found in AGENTS.codex.md' }
 if (-not $wfTreeRule) { throw 'wf-tree rule not found in AGENTS.codex.md' }
+if (-not $resumeRule) { throw 'session-resume rule not found in AGENTS.codex.md' }
 if (-not (Test-Path $agentsMd)) {
     Set-Content -Path $agentsMd -Value $rules -Encoding UTF8
     Write-Host "[ok]   AGENTS.md: created $agentsMd"
@@ -59,6 +61,11 @@ if (-not (Test-Path $agentsMd)) {
         if ($installedRules -notmatch 'wf-tree') {
             Add-Content -Path $agentsMd -Value $wfTreeRule -Encoding UTF8
             Write-Host "[ok]   AGENTS.md: added wf-tree rule"
+            $added = $true
+        }
+        if ($installedRules -notmatch 'docs/work') {
+            Add-Content -Path $agentsMd -Value $resumeRule -Encoding UTF8
+            Write-Host "[ok]   AGENTS.md: added session-resume rule"
             $added = $true
         }
         if (-not $added) { Write-Host "[skip] AGENTS.md: workflow rules already present" }
