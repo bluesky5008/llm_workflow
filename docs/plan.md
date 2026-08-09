@@ -3,22 +3,23 @@
 > 문서 유형: `plan`
 > 작업 ID: `20260809-dev-briefing`
 > 상태: `in-progress`
-> 기준선: `v1` ([REQ-DESIGN-dev-briefing](./work/20260809-dev-briefing/req-design.md), 2026-08-09 승인)
+> 기준선: `v2` ([REQ-DESIGN-dev-briefing](./work/20260809-dev-briefing/req-design.md), 2026-08-09 승인, [DCR-002](./work/20260809-dev-briefing/DCR-002-디자인-적용.md))
 > 작성일: 2026-08-09
 > 최종 갱신: 2026-08-09
 > 관련 문서: [REQ-DESIGN-dev-briefing: 요구사항·설계](./work/20260809-dev-briefing/req-design.md), [WORK-20260809-dev-briefing: 작업 기록](./work/20260809-dev-briefing/work-log.md)
 
 ## 요약
 
-- 목적: 승인된 발표 자료 요구사항·설계(v1)를 md 초판 → 사용자 검토 → pptx 구현 → 완성도 검토 순서로 실행한다.
-- 현재 결론 또는 상태: TASK-07~11 완료(테스트 4/4, pptx 생성·대조·실열기 성공). TASK-12(사용자 완성도 검토) 진행 중.
-- 다음 행동: 검토 통과 시 완료 보고, 수정 요청 시 md 수정 후 재생성·재검토.
+- 목적: 승인된 발표 자료 요구사항·설계(v2)를 md 초판 → 사용자 검토 → pptx 구현 → 디자인 적용 → 완성도 검토 순서로 실행한다.
+- 현재 결론 또는 상태: TASK-07~11 완료(기준선 v1). DCR-002 승인으로 기준선 v2 발행 — 디자인 구현 TASK-13~15 추가, TASK-12는 최종 관문으로 이동.
+- 다음 행동: TASK-13(테스트 확장 Red)부터 TDD로 구현, 이후 TASK-15 검증을 거쳐 TASK-12 최종 검토.
 
 ## 문서 연결
 
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
-| input | baseline | [REQ-DESIGN-dev-briefing: 요구사항·설계](./work/20260809-dev-briefing/req-design.md) | FR-01~04, AC-01~04, DES-01~04 | 승인 기준선 v1 |
+| input | baseline | [REQ-DESIGN-dev-briefing: 요구사항·설계](./work/20260809-dev-briefing/req-design.md) | FR-01~06, AC-01~05, DES-01~06 | 승인 기준선 v2 |
+| input | change | [DCR-002: 발표 자료 디자인 적용](./work/20260809-dev-briefing/DCR-002-디자인-적용.md) | TASK-13~15 | v2 변경이 추가한 작업 |
 | output | implementation | [WORK-20260809-dev-briefing: 작업 기록](./work/20260809-dev-briefing/work-log.md) | document | 진행 상태·검증의 정본 |
 | input | related | [WORK-20260809-claude-hooks: 작업 기록](./work/20260809-claude-hooks/work-log.md) | document | 완료된 이전 사이클(아래 축약) |
 
@@ -85,16 +86,46 @@
 
 ### TASK-12: 사용자 완성도 검토와 완료 보고 (관문)
 
-- 상태: in-progress
-- 목표: AC-04 (2) — pptx 구현 완성도 검토(육안 확인 포함) 통과, 완료 보고 작성
-- 의존성: TASK-11
+- 상태: in-progress (v1에서 진행 중이었으나 DCR-002 승인으로 기준선 v2의 최종 관문으로 이동, TASK-15 완료로 재개)
+- 목표: AC-04 (2)·AC-05 (4) — pptx 구현 완성도 검토(육안 확인 포함) 통과, 완료 보고 작성. **슬라이드 18(현재 상태와 남은 과제) 재확인을 사용자에게 별도 요청**(TASK-08의 재검토 예약)
+- 의존성: TASK-15
 - 완료 조건: 사용자 검토 통과, 작업 기록에 완료 보고 기록
 
-의존성 요약: TASK-07 → TASK-08(관문) → TASK-09 → TASK-10 → TASK-11 → TASK-12(관문).
+기준선 v2 추가 작업 ([DCR-002](./work/20260809-dev-briefing/DCR-002-디자인-적용.md), 2026-08-09 승인):
+
+### TASK-13: 디자인·인포그래픽 테스트 확장 (Red)
+
+- 상태: completed
+- 목표: `tests/test_make_pptx.py` 확장 — 태그 펜스(flow·rows·ladder) 파싱, 다이어그램 도형 존재(도형 수), 무태그 펜스 폴백(고정폭 패널 유지), 카드 매핑 폴백(제목 불일치 시 불릿 렌더), 디자인 시스템 적용(배경·색) 케이스
+- 관련 요구사항과 설계: FR-05·FR-06, NFR-04, DES-01(v2)·DES-04(v2)·DES-05·DES-06
+- 변경 대상: `docs/presentation/tests/test_make_pptx.py` (확장)
+- 의존성: DCR-002 승인(완료)
+- 검증 방법: 확장 기능 부재 상태에서 실행해 의도한 이유로 실패(Red)함을 확인. 기존 4개 케이스는 계속 통과해야 한다
+- 완료 조건: Red 확인 기록(신규 케이스 실패, 기존 케이스 영향 없음)
+
+### TASK-14: 디자인 시스템 + 인포그래픽 렌더러 구현 (Green)
+
+- 상태: completed
+- 목표: `make_pptx.py`에 DES-05(5색 시스템, 표지·본문 배치, 언더바·마진)와 DES-06(flow/rows/ladder 렌더러, 카드형 배치 2곳 + 폴백) 구현. `dev-briefing.md`는 펜스 태그·사다리 행 구조만 조정(문구 불변)
+- 관련 요구사항과 설계: FR-05·FR-06, NFR-04, DES-05·DES-06
+- 변경 대상: `docs/presentation/make_pptx.py`(확장), `docs/presentation/dev-briefing.md`(태그만)
+- 의존성: TASK-13
+- 위험: 다이어그램 텍스트 넘침(RISK-03), 색 선호(RISK-04)
+- 완료 조건: 테스트 전체 성공(Green — 기존 4 + 신규)
+
+### TASK-15: pptx 재생성과 검증
+
+- 상태: completed
+- 목표: `dev-briefing.md` → `dev-briefing.pptx` 재생성, 자동 대조 통과(AC-02), PowerPoint 실열기·한글 확인(AC-03), 디자인·다이어그램 적용 확인(AC-05 기계 확인 부분)
+- 관련 요구사항과 설계: AC-02·03·05, NFR-02·04
+- 의존성: TASK-14
+- 완료 조건: 생성·대조·실열기 성공 기록(VER-06)
+
+의존성 요약: TASK-07 → TASK-08(관문) → TASK-09 → TASK-10 → TASK-11 → [DCR-002 승인] → TASK-13 → TASK-14 → TASK-15 → TASK-12(최종 관문).
 
 ## 검증 계획
 
-각 AC의 검증 방법은 [기준선의 검증 전략](./work/20260809-dev-briefing/req-design.md#검증-전략)을 따른다. AC-01은 TASK-07, AC-02는 TASK-10·11, AC-03은 TASK-11(기계 확인)과 TASK-12(육안), AC-04는 TASK-08·12의 사용자 관문으로 판정한다. 결과는 [작업 기록](./work/20260809-dev-briefing/work-log.md#검증)에 기록한다.
+각 AC의 검증 방법은 [기준선의 검증 전략](./work/20260809-dev-briefing/req-design.md#검증-전략)을 따른다. AC-01은 TASK-07, AC-02는 TASK-10·11(v1)과 TASK-15(v2 재수행), AC-03은 TASK-11·15(기계 확인)와 TASK-12(육안), AC-04는 TASK-08·12의 사용자 관문, AC-05는 TASK-13~15(테스트·재생성)와 TASK-12(완성도 재검토)로 판정한다. 결과는 [작업 기록](./work/20260809-dev-briefing/work-log.md#검증)에 기록한다.
 
 ## 마이그레이션과 롤백
 
