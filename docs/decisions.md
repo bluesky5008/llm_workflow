@@ -6,3 +6,4 @@ ADR·DCR 전역 목록. 개별 파일이 정본이며 이 표는 조망용이다
 |---|---|---|---|---|---|---|
 | ADR-001 | adr | 컨텍스트 사용량 신호 선택 | approved | 2026-08-09 | [work/20260809-claude-hooks/ADR-001-…](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md) | — |
 | DCR-002 | dcr | 발표 자료 디자인 적용(범위·요구사항 변경) | approved | 2026-08-09 | [work/20260809-dev-briefing/DCR-002-…](./work/20260809-dev-briefing/DCR-002-디자인-적용.md) | [REQ-DESIGN-dev-briefing](./work/20260809-dev-briefing/req-design.md) v1 → v2 |
+| ADR-003 | adr | 계획 트리 트리거의 단일 관문 배치 | approved | 2026-08-14 | [work/20260814-wf-tree-triggers/ADR-003-…](./work/20260814-wf-tree-triggers/ADR-003-트리거-단일-관문.md) | [REQ-DESIGN-wf-tree-triggers](./work/20260814-wf-tree-triggers/req-design.md) |
