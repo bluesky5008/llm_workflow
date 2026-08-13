@@ -31,6 +31,35 @@
 - 마지막 완료 작업: TASK-19 — 검증과 자체 리뷰(2026-08-14)
 - 차단 요인: 없음
 
+## 계획 트리
+
+<!-- snapshot: 2026-08-14 완료 시점 -->
+
+> [20260814-tree-snapshot](../20260814-tree-snapshot/req-design.md) FR-05 소급 백업(2026-08-14) — 커밋 `13e4a72`의 plan.md에서 복원. 동결 기록이며 재생성·수정하지 않는다.
+
+```text
+└─ [✓] 20260814-wf-tree-triggers ....... completed (4/4)
+    ├─ [✓] TASK-16 구현: wf-implement 트리거·완료 조건·용어
+    ├─ [✓] TASK-17 구현: wf-doc 템플릿 (plan 노트·죽은 필드)
+    ├─ [✓] TASK-18 구현: wf-tree 적용 시점·description
+    └─ [✓] TASK-19 검증: AC-01~06 기계 확인 + 자체 리뷰   depends: TASK-16~18
+```
+
+```mermaid
+flowchart TD
+    ROOT["20260814-wf-tree-triggers: wf-tree 트리거 신설"] --> T16["TASK-16 구현: wf-implement<br/>트리거·완료 조건·용어"]:::done
+    ROOT --> T17["TASK-17 구현: wf-doc 템플릿"]:::done
+    ROOT --> T18["TASK-18 구현: wf-tree 적용 시점"]:::done
+    ROOT --> T19["TASK-19 검증: AC-01~06 + 자체 리뷰"]:::done
+    T16 -. depends .-> T19
+    T17 -. depends .-> T19
+    T18 -. depends .-> T19
+    classDef done fill:#c8e6c9,stroke:#2e7d32
+    classDef active fill:#fff9c4,stroke:#f9a825
+    classDef todo fill:#eceff1,stroke:#90a4ae
+    classDef gate fill:#ffcdd2,stroke:#c62828
+```
+
 ## 수행 기록
 
 ### 2026-08-14 — 계획 수립
