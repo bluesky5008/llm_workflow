@@ -1,0 +1,27 @@
+# Secret-scan configuration for the repo-global gate in docs/quality-gates.md.
+# The gate scans the working tree (--no-git), so uncommitted files are covered:
+# the point is to catch a secret before it reaches a commit, not after.
+#
+# Keep this allowlist narrow. Every entry here is a check that will not run
+# again, so widening it to silence a finding is the same move as weakening a
+# gate - see the immutable-settings rule in docs/quality-gates.md.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test fixtures and obvious placeholders"
+
+paths = [
+  # Hook contract tests build throwaway repos and settings files.
+  '''setup/hooks/tests/.*''',
+  # Research notes quote sample tokens from the papers they analyse.
+  '''docs/work/20260919-aidlc-research/.*''',
+]
+
+regexes = [
+  '''(?i)(example|placeholder|changeme|your[-_]?(api[-_]?)?key|dummy|sample|redacted)''',
+  # Documentation writes secrets as <...> or {{...}} slots rather than values.
+  '''<[A-Za-z0-9_-]{1,40}>''',
+  '''\{\{[A-Za-z0-9_-]{1,40}\}\}''',
+]

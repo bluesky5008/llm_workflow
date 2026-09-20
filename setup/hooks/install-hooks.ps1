@@ -3,19 +3,21 @@
 # Dot-source this file and call Install-WfHooks. Idempotent; entries pointing
 # at a stale repo location are replaced by the current HooksDir paths.
 
-function New-WfCommandHook([string]$ScriptPath) {
+# The injection hooks only read a file and print text, so 10s is generous.
+# The Stop gate runs the project's own checks and needs its own budget.
+function New-WfCommandHook([string]$ScriptPath, [int]$TimeoutSec = 10) {
     return [pscustomobject]@{
         type    = 'command'
         command = 'powershell.exe'
         args    = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ScriptPath)
-        timeout = 10
+        timeout = $TimeoutSec
     }
 }
 
-function New-WfEntry([string]$Matcher, [string]$ScriptPath) {
+function New-WfEntry([string]$Matcher, [string]$ScriptPath, [int]$TimeoutSec = 10) {
     return [pscustomobject]@{
         matcher = $Matcher
-        hooks   = @(New-WfCommandHook $ScriptPath)
+        hooks   = @(New-WfCommandHook $ScriptPath $TimeoutSec)
     }
 }
 
@@ -49,6 +51,12 @@ function Install-WfHooks([string]$SettingsPath, [string]$HooksDir) {
         )
         PostToolUse  = @(
             (New-WfEntry '*' (Join-Path $HooksDir 'wf-context-threshold.ps1'))
+        )
+        # Stop fires on every agent response, so it takes no matcher. 600s is
+        # the whole-hook ceiling (DCR-006); the per-gate budget lives in
+        # wf-stop-gate.ps1.
+        Stop         = @(
+            (New-WfEntry '' (Join-Path $HooksDir 'wf-stop-gate.ps1') 600)
         )
     }
 

@@ -76,13 +76,16 @@ if (-not (Test-Path $globalMd)) {
     }
 }
 
-# 3) Register session-handoff hooks (SessionStart resume/compact re-anchor +
-#    PostToolUse context-threshold) in ~/.claude/settings.json. The merge
-#    preserves every foreign key and user-defined hook; re-run retargets
-#    entries after a repo move.
+# 3) Register the workflow hooks (SessionStart resume/compact re-anchor,
+#    PostToolUse context-threshold, Stop quality gate) in
+#    ~/.claude/settings.json. The merge preserves every foreign key and
+#    user-defined hook; re-run retargets entries after a repo move.
+#    The Stop gate needs a Claude Code build that sends stop_hook_active and
+#    honours a Stop hook's {"decision":"block"}. On older builds the entry is
+#    simply never invoked - the gate is fail-open, so nothing breaks.
 . (Join-Path $PSScriptRoot 'hooks\install-hooks.ps1')
 Install-WfHooks -SettingsPath (Join-Path $claudeDir 'settings.json') -HooksDir (Join-Path $PSScriptRoot 'hooks')
-Write-Host "[ok]   hooks: session-handoff hooks registered in ~/.claude/settings.json"
+Write-Host "[ok]   hooks: session-handoff + Stop gate registered in ~/.claude/settings.json"
 
 Write-Host ''
 Write-Host 'Done. Open a NEW Claude Code session and verify with /wf-design or /wf-doc.'
