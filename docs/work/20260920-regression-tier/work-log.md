@@ -11,7 +11,7 @@
 ## 요약
 
 - 목적: 기준선 v1에 따라 검증 결과 3튜플 앵커, 테스트 맵, 회귀 의무 목록, 검증 계층 표를 wf-implement·wf-doc에 구현하고 자기 적용으로 검증한다.
-- 현재 결론 또는 상태: **완료** — TASK-30~36 전부 완료, AC-01~09 전 항목 성공(아래 검증 표). 저장소 커밋은 사용자 요청 범위(§3.6) — 이 기록의 검증 SHA는 커밋 후 갱신 대상([발견 사항](#설계와-달라진-점) 참조).
+- 현재 결론 또는 상태: **완료** — TASK-30~36 전부 완료, AC-01~09 전 항목 성공(아래 검증 표). 저장소 커밋 `bc970ef`(2026-09-20)로 종결. 검증 표의 SHA는 잠정값 `c4cde3f+dirty`에서 `bc970ef`로 확정([설계와 달라진 점](#설계와-달라진-점) 1번째).
 - 다음 행동: 변경 파일을 저장소에 반영·커밋한 뒤 검증 표의 SHA를 종결 커밋으로 갱신.
 
 ## 문서 연결
@@ -129,7 +129,7 @@ flowchart TD
 
 ## 설계와 달라진 점
 
-- **미커밋 검증의 앵커(발견, 경미).** FR-01의 인용 조건은 "SHA 일치 + 워킹트리 clean"이다. 이 작업처럼 커밋이 사용자 요청 범위에 있어 검증 시점에 워킹트리가 dirty이면, 검증 표의 SHA는 잠정값이며 인용 불가다. 기준선은 이 상황을 명시하지 않았으나 규칙의 자연스러운 귀결이므로 설계 변경이 아니다. 처리: 증거에 `c4cde3f+dirty`로 기록하고 종결 커밋 후 갱신. **후속 검토 후보**: §3.6 통합에 "커밋 후 최종 SHA로 검증 표 갱신"을 명문화할지 — 사이클 2에서 판단(경미한 명확화, DCR 불요).
+- **미커밋 검증의 앵커(발견, 경미).** FR-01의 인용 조건은 "SHA 일치 + 워킹트리 clean"이다. 이 작업처럼 커밋이 사용자 요청 범위에 있어 검증 시점에 워킹트리가 dirty이면, 검증 표의 SHA는 잠정값이며 인용 불가다. 기준선은 이 상황을 명시하지 않았으나 규칙의 자연스러운 귀결이므로 설계 변경이 아니다. 처리: 증거에 `c4cde3f+dirty`로 기록하고 종결 커밋 후 갱신 — 커밋 `bc970ef` 생성 뒤 검증 표 9행을 `bc970ef`로 치환했다. 정당성: 검증을 실행한 워킹트리의 12개 파일이 `bc970ef` 트리와 체크섬 동일(저장소 측에서 재확인)이고, 커밋 직전 저장소에서 VER-08 스크립트를 재실행해 9/9·9/9를 재확인했다. 이 치환 자체는 별도 커밋으로 남긴다. **후속 검토 후보**: §3.6 통합에 "커밋 후 최종 SHA로 검증 표 갱신"을 명문화할지 — 사이클 2에서 판단(경미한 명확화, DCR 불요).
 - **예산 규칙 항목 추가(경미).** verification-depth.md §4에 "`completed` 전이 의무 목록 실행은 생략하지 않는다" 추가. 설계 초안에 없던 문장이나 DES-03·04의 의미 안이며 새 계약이 아니다.
 - **측정 도구 보정(발견, 경미).** AC-08 첫 실행에서 이 사이클 행이 명령 기록 2/9로 산출됐다. 원인은 스크립트의 명령 인식 정규식이 `pytest|python|git|.ps1|.py` 등 키워드만 잡고 `grep`·`test` 같은 범용 셸 명령을 놓친 것(도구 결함이지 기록 결함이 아님). 처리: `measure_regression_baseline.py`의 정규식을 `grep|rg|test|ls|find|diff|sed|cat|wc`로 시작하는 백틱 문자열도 인식하도록 확장(양쪽 사본 동일), 이전 6개 사이클의 산출값이 보정 전후 동일(2/35 → 2/35)함을 확인해 기준선 1차 수치는 유지. 같은 실행에서 VER-07의 방법이 "통독"만이라 명령이 없던 것도 드러나 `grep` 명령을 부여했다 — 규칙("증거에 명령 필수")을 이 문서 자신에게 적용한 결과다.
 
@@ -151,15 +151,15 @@ flowchart TD
 
 | 검증 ID | 인수 조건 | 방법·명령 | 결과 | 분류 | 증거 |
 |---|---|---|---|---|---|
-| VER-01 | [AC-01](./req-design.md#인수-조건) | `grep -n "테스트 집합, 커밋 SHA, 실행 명령\|마지막 성공 SHA 이후의 변경\|기록된 형태로 실행" skills/wf-implement/SKILL.md` | 성공 | — | `c4cde3f+dirty` · 240행 귀속·인용·명령 고정 문단, 248행 분류 SHA 근거 규칙 |
-| VER-02 | [AC-02](./req-design.md#인수-조건) | `grep -n "분류 \| 증거 \|\|둘 중 하나라도 없는 행은 인용\|어휘는 \[wf-implement 검증\]" skills/wf-doc/references/templates.md` | 성공 | — | `c4cde3f+dirty` · 474행 6열 표, 488·489행 노트 |
-| VER-03 | [AC-03](./req-design.md#인수-조건) | `grep -n "test-map" skills/wf-doc/SKILL.md; grep -n "^## 테스트 맵\|관련 테스트: <" skills/wf-doc/references/templates.md; grep -n "test-map.md)\|관련 테스트\` 필드" skills/wf-implement/SKILL.md` | 성공 | — | `c4cde3f+dirty` · wf-doc SKILL 104행 유형, templates 322행 절·385행 필드, wf-implement 157행 §3.1·181행 §3.2 |
-| VER-04 | [AC-04](./req-design.md#인수-조건) | `grep -n "^## 회귀 의무 목록" skills/wf-doc/references/templates.md; grep -n "회귀 의무 목록" skills/wf-implement/SKILL.md` | 성공 | — | `c4cde3f+dirty` · templates 419행 절; wf-implement 159(§3.1)·211(§3.3)·295(§3.6)·335(§5)·366·386(§7)행 |
-| VER-05 | [AC-05](./req-design.md#인수-조건) | `test -f skills/wf-implement/references/verification-depth.md && grep -c "^## " …; grep -n "references/verification-depth.md" skills/wf-implement/SKILL.md` | 성공 | — | `c4cde3f+dirty` · 파일 존재, `## ` 절 4개(실행 집합·깊이·진입 조건·예산), 본문 238행 트리거·211행 진입 조건 링크 |
-| VER-06 | [AC-06](./req-design.md#인수-조건) | `grep -n "Green을 확인한 뒤와 Refactor를 마친 뒤에는 테스트 맵\|전체 테스트 스위트를 1회\|마지막 성공 SHA와 현재 HEAD를 비교" skills/wf-implement/SKILL.md` | 성공 | — | `c4cde3f+dirty` · 201행(§3.3 맵)·295행(§3.6 전체 1회)·159행(§3.1 SHA 비교), 211행 `completed`=의무 목록 |
-| VER-07 | [AC-07](./req-design.md#인수-조건) | `grep -n "^## 회귀 의무 목록\|^| 검증 ID | 인수 조건 | 방법·명령 | 결과 | 분류 | 증거 |" docs/work/20260920-regression-tier/work-log.md` + 통독 | 성공 | — | `c4cde3f+dirty` · 이 문서 [회귀 의무 목록](#회귀-의무-목록)·[검증 표](#인수-조건별-결과). 단 SHA는 잠정(`+dirty`) — [설계와 달라진 점](#설계와-달라진-점) |
-| VER-08 | [AC-08](./req-design.md#인수-조건) | `python3 docs/work/20260919-aidlc-research/measure_regression_baseline.py .` | 성공 | — | `c4cde3f+dirty` · 이 사이클 행: 명령 기록 9/9, SHA 기록 9/9 (100%); 이전 6사이클 합계 2/35·1/35 불변. 첫 실행은 2/9였고 도구 보정 후 재실행 — [설계와 달라진 점](#설계와-달라진-점) 3번째 |
-| VER-09 | [AC-09](./req-design.md#인수-조건) | `git diff --name-only; git diff --stat -- docs/work/2026080* docs/work/2026081*; git diff skills/wf-implement/SKILL.md \| grep '^[-+]\|'` | 성공 | — | `c4cde3f+dirty` · 변경 파일 5개(decisions·plan·wf-doc SKILL·templates·wf-implement) + 신설 3경로 — 전부 범위 내. 기존 사이클 diff 없음(빈 출력). 경계표 행 diff 없음(빈 출력) |
+| VER-01 | [AC-01](./req-design.md#인수-조건) | `grep -n "테스트 집합, 커밋 SHA, 실행 명령\|마지막 성공 SHA 이후의 변경\|기록된 형태로 실행" skills/wf-implement/SKILL.md` | 성공 | — | `bc970ef` · 240행 귀속·인용·명령 고정 문단, 248행 분류 SHA 근거 규칙 |
+| VER-02 | [AC-02](./req-design.md#인수-조건) | `grep -n "분류 \| 증거 \|\|둘 중 하나라도 없는 행은 인용\|어휘는 \[wf-implement 검증\]" skills/wf-doc/references/templates.md` | 성공 | — | `bc970ef` · 474행 6열 표, 488·489행 노트 |
+| VER-03 | [AC-03](./req-design.md#인수-조건) | `grep -n "test-map" skills/wf-doc/SKILL.md; grep -n "^## 테스트 맵\|관련 테스트: <" skills/wf-doc/references/templates.md; grep -n "test-map.md)\|관련 테스트\` 필드" skills/wf-implement/SKILL.md` | 성공 | — | `bc970ef` · wf-doc SKILL 104행 유형, templates 322행 절·385행 필드, wf-implement 157행 §3.1·181행 §3.2 |
+| VER-04 | [AC-04](./req-design.md#인수-조건) | `grep -n "^## 회귀 의무 목록" skills/wf-doc/references/templates.md; grep -n "회귀 의무 목록" skills/wf-implement/SKILL.md` | 성공 | — | `bc970ef` · templates 419행 절; wf-implement 159(§3.1)·211(§3.3)·295(§3.6)·335(§5)·366·386(§7)행 |
+| VER-05 | [AC-05](./req-design.md#인수-조건) | `test -f skills/wf-implement/references/verification-depth.md && grep -c "^## " …; grep -n "references/verification-depth.md" skills/wf-implement/SKILL.md` | 성공 | — | `bc970ef` · 파일 존재, `## ` 절 4개(실행 집합·깊이·진입 조건·예산), 본문 238행 트리거·211행 진입 조건 링크 |
+| VER-06 | [AC-06](./req-design.md#인수-조건) | `grep -n "Green을 확인한 뒤와 Refactor를 마친 뒤에는 테스트 맵\|전체 테스트 스위트를 1회\|마지막 성공 SHA와 현재 HEAD를 비교" skills/wf-implement/SKILL.md` | 성공 | — | `bc970ef` · 201행(§3.3 맵)·295행(§3.6 전체 1회)·159행(§3.1 SHA 비교), 211행 `completed`=의무 목록 |
+| VER-07 | [AC-07](./req-design.md#인수-조건) | `grep -n "^## 회귀 의무 목록\|^| 검증 ID | 인수 조건 | 방법·명령 | 결과 | 분류 | 증거 |" docs/work/20260920-regression-tier/work-log.md` + 통독 | 성공 | — | `bc970ef` · 이 문서 [회귀 의무 목록](#회귀-의무-목록)·[검증 표](#인수-조건별-결과). 단 SHA는 잠정(`+dirty`) — [설계와 달라진 점](#설계와-달라진-점) |
+| VER-08 | [AC-08](./req-design.md#인수-조건) | `python3 docs/work/20260919-aidlc-research/measure_regression_baseline.py .` | 성공 | — | `bc970ef` · 이 사이클 행: 명령 기록 9/9, SHA 기록 9/9 (100%); 이전 6사이클 합계 2/35·1/35 불변. 첫 실행은 2/9였고 도구 보정 후 재실행 — [설계와 달라진 점](#설계와-달라진-점) 3번째 |
+| VER-09 | [AC-09](./req-design.md#인수-조건) | `git diff --name-only; git diff --stat -- docs/work/2026080* docs/work/2026081*; git diff skills/wf-implement/SKILL.md \| grep '^[-+]\|'` | 성공 | — | `bc970ef` · 변경 파일 5개(decisions·plan·wf-doc SKILL·templates·wf-implement) + 신설 3경로 — 전부 범위 내. 기존 사이클 diff 없음(빈 출력). 경계표 행 diff 없음(빈 출력) |
 
 ### 실패와 미수행 분석
 
@@ -197,10 +197,10 @@ flowchart TD
 - 주요 변경: `skills/wf-implement/SKILL.md`(14곳), `skills/wf-implement/references/verification-depth.md`(신설), `skills/wf-doc/references/templates.md`(10곳), `skills/wf-doc/SKILL.md`(1행), `docs/plan.md`, `docs/decisions.md`, 이 작업 폴더 4파일.
 - 설계와 달라진 점: 3건(경미) — 위 절. 이 중 측정 도구 보정은 AC-08 첫 실행 실패(2/9)에서 나온 것으로, 도구를 고친 뒤 재실행해 통과했다.
 - 인수 조건 충족 여부: AC-01~09 전부 충족.
-- 검증 결과와 증거: 위 검증 표. SHA는 잠정.
-- 통합 상태: 로컬 클론 워킹트리에 완결 반영. 저장소 커밋·푸시는 사용자 요청 범위(§3.6) — 연결 복구 후 저장소 파일과 대조하여 반영 예정.
+- 검증 결과와 증거: 위 검증 표. SHA `bc970ef` 확정.
+- 통합 상태: 저장소 `main`에 커밋 `bc970ef`(사이클 산출물 25파일)로 통합. 반영 전 대상 5파일이 `c4cde3f`와 동일함(CRLF 차이 제외)을 대조. 푸시는 사용자 몫.
 - 남은 위험과 제한: RISK-04·05. 실측 효과는 코드 저장소 사이클에서.
-- 후속 작업: (1) 종결 커밋 후 검증 표 SHA 갱신, (2) 사이클 2 — Stop 게이트·시도 등록부·보안 게이트(플랜 AI-07·09·11·12), (3) 코드 저장소 정량 기준선(기준선 1차 §4), (4) §3.6에 "커밋 후 SHA 갱신" 명문화 검토.
+- 후속 작업: (1) 사이클 2 — Stop 게이트·시도 등록부·보안 게이트(플랜 AI-07·09·11·12), (2) 코드 저장소 정량 기준선(기준선 1차 §4), (3) §3.6에 "커밋 후 SHA 갱신" 명문화 검토.
 
 ## 미완료 항목
 
@@ -208,7 +208,7 @@ flowchart TD
 
 ## 재개 지점
 
-- 다음 작업: 없음 — 작업 완료. 저장소 반영·커밋 후 검증 표 SHA 갱신만 남음
-- 먼저 확인할 사항: 저장소의 `skills/wf-implement/SKILL.md`·`skills/wf-doc/references/templates.md`·`skills/wf-doc/SKILL.md`·`docs/plan.md`·`docs/decisions.md`가 클론 HEAD `c4cde3f`와 동일한지(사용자 편집 유무) 대조 후 덮어쓰기
-- 필요한 명령 또는 파일: 이 폴더의 4파일, 위 변경 파일 5개, 신설 `references/verification-depth.md`, 보정된 `20260919-aidlc-research/measure_regression_baseline.py`
+- 다음 작업: 없음 — 작업 완료, 커밋 `bc970ef` + SHA 확정 커밋. 푸시는 사용자 몫
+- 먼저 확인할 사항: 없음
+- 필요한 명령 또는 파일: 없음
 - 회귀 의무 재실행: 해당 없음(유지할 테스트 없음)
