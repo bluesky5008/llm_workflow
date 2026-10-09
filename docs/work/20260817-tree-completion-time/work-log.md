@@ -6,7 +6,7 @@
 > 기준선: `v1` ([REQ-DESIGN-tree-completion-time](./req-design.md), 2026-08-17 승인)
 > 작성일: 2026-08-17
 > 최종 갱신: 2026-08-17
-> 관련 문서: [REQ-DESIGN-tree-completion-time: 요구사항·설계](./req-design.md), [PLAN-llm-workflow: 구현 계획](../../plan.md)
+> 관련 문서: [REQ-DESIGN-tree-completion-time: 요구사항·설계](./req-design.md), [PLAN-llm-workflow: 구현 계획](./work-log.md)
 
 ## 요약
 
@@ -19,11 +19,11 @@
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
 | input | baseline | [REQ-DESIGN-tree-completion-time](./req-design.md) | FR-01~06, NFR-01~03, AC-01~06, DES-01~05 | 승인 기준선 v1 |
-| input | plan | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-25~29 | 이 작업의 계획 |
+| input | plan | [PLAN-llm-workflow: 구현 계획](./work-log.md) | TASK-25~29 | 이 작업의 계획 |
 
 ## 기준선과 현재 계획
 
-기준선 v1(2026-08-17 승인) — Q-01 소급 포함, Q-02 날짜+시각(`YYYY-MM-DD HH:MM`). 계획은 [plan.md 작업 목록](../../plan.md#작업-목록)의 TASK-25~29 — 전부 완료.
+기준선 v1(2026-08-17 승인) — Q-01 소급 포함, Q-02 날짜+시각(`YYYY-MM-DD HH:MM`). 계획은 [plan.md 작업 목록](./work-log.md#수행-기록)의 TASK-25~29 — 전부 완료.
 
 소급 기입(DES-05)에 사용한 사이클 종결 커밋 시각(git log 실측, 2026-08-17 세션):
 
@@ -135,7 +135,7 @@ flowchart TD
 | VER-02 | [AC-02](./req-design.md#인수-조건) | templates.md 통독 | 성공 | 347행 `- 완료:` 골격, 366행 조건부 필드 노트(소유권·파생 링크), 369행 축약형 노트, status 표 5열 확장과 507행 공란 규칙 |
 | VER-03 | [AC-03](./req-design.md#인수-조건) | wf-implement §3.2 통독 | 성공 | 185행 — `completed` 전이 시 같은 변경에서 완료 필드 기입, wf-doc 템플릿 링크 |
 | VER-04 | [AC-04](./req-design.md#인수-조건) | wf-tree §7 통독 | 성공 | 162행 — 완료 필드 없는 항목은 시점만 생략·렌더링 계속, 롤업 생략 규칙 포함 |
-| VER-05 | [AC-05](./req-design.md#인수-조건) | plan.md 재생성 결과 대조 | 성공 | [plan.md 계획 트리](../../plan.md#계획-트리) — 과거 사이클 5건(커밋 시각)·현재 사이클 5건(실측 시각) 전부 우측 끝 표기, 이 문서의 스냅숏이 동일 상태 보존 |
+| VER-05 | [AC-05](./req-design.md#인수-조건) | plan.md 재생성 결과 대조 | 성공 | [plan.md 계획 트리](./work-log.md#계획-트리) — 과거 사이클 5건(커밋 시각)·현재 사이클 5건(실측 시각) 전부 우측 끝 표기, 이 문서의 스냅숏이 동일 상태 보존 |
 | VER-06 | [AC-06](./req-design.md#인수-조건) | `git diff --name-only` (과거 작업 폴더) | 성공 | 출력 없음 — 기존 work-log 스냅숏 5건 무변경(NFR-03) |
 
 ## 실패와 미수행 분석

@@ -214,7 +214,7 @@ docs/work/<작업-ID>/
 - 승인 기록은 기준선 문서(`requirements.md`·`design.md`)의 승인 기록 절에 기록한다. 별도 파일이 필요한 관문만 작업 폴더에 `APR-<작업-ID>-NNN-<관문명>.md`로 둔다.
 - 설계 변경 기록 파일(`design-change-log.md`)은 두지 않는다. DCR 문서, [결정 등록부](#62-결정-등록부), `design.md`의 변경 이력이 그 역할을 나눠 맡는다.
 
-`docs/plan.md`와 작업 폴더의 `work-log.md`는 [wf-implement 작업 기록과 저장 위치](../wf-implement/SKILL.md#7-작업-기록과-저장-위치)가 소유한다. 이 스킬은 해당 파일을 만들거나 판정하지 않고 링크로만 참조한다.
+작업 폴더의 `plan.md`·`work-log.md`와 포트폴리오 `docs/status.md`는 [wf-implement 작업 기록과 저장 위치](../wf-implement/SKILL.md#7-작업-기록과-저장-위치)가 소유한다. 이 스킬은 해당 파일을 만들거나 판정하지 않고 링크로만 참조한다.
 
 산출물 초안은 절차 단계를 마칠 때마다 저장소에 갱신한다. 대화에만 존재하는 분석과 결정은 세션이 끝나면 사라진 것으로 간주한다.
 

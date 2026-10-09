@@ -6,7 +6,7 @@
 > 기준선: `v1` ([REQ-DESIGN-id-item-tables](./req-design.md), 2026-08-14 승인)
 > 작성일: 2026-08-14
 > 최종 갱신: 2026-08-14
-> 관련 문서: [PLAN-llm-workflow: 구현 계획](../../plan.md)
+> 관련 문서: [PLAN-llm-workflow: 구현 계획](./work-log.md)
 
 ## 요약
 
@@ -19,11 +19,11 @@
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
 | input | baseline | [REQ-DESIGN-id-item-tables](./req-design.md) | FR-01~03, NFR-01~02, AC-01~04, DES-01~05 | 승인 기준선 v1 |
-| input | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-20~21 | 이 기록이 진행 상태의 정본 |
+| input | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md) | TASK-20~21 | 이 기록이 진행 상태의 정본 |
 
 ## 기준선과 현재 계획
 
-기준선 v1([req-design.md](./req-design.md)), 계획 [TASK-20~21](../../plan.md#작업-목록). 변경 대상: `skills/wf-doc/references/templates.md`.
+기준선 v1([req-design.md](./req-design.md)), 계획 [TASK-20~21](./work-log.md#수행-기록). 변경 대상: `skills/wf-doc/references/templates.md`.
 
 ## 현재 상태
 
@@ -59,7 +59,7 @@ flowchart TD
 ### 2026-08-14 — 계획 수립
 
 - 수행 내용: §3.1 재확인(기준선 v1 이후 저장소 변경 없음 — 미커밋 변경은 이 작업과 무관한 untracked 파일뿐. templates.md의 FR·NFR·AC·DES가 현재 불릿 형식임을 실측 확인, 기준선 적용 가능) 후 TASK-20·21 계획 수립. 완료 사이클 TASK-16~19는 §7 규칙으로 축약 이관.
-- 결정과 이유: **트리 사용 결정 = 사용** — 작업 2개이지만 TASK-21→TASK-20 의존이 있어 채택 기준(작업 간 의존 존재) 충족. 계획 수립과 같은 변경에서 [plan.md 계획 트리](../../plan.md#계획-트리) 재생성.
+- 결정과 이유: **트리 사용 결정 = 사용** — 작업 2개이지만 TASK-21→TASK-20 의존이 있어 채택 기준(작업 간 의존 존재) 충족. 계획 수립과 같은 변경에서 [plan.md 계획 트리](./work-log.md#계획-트리) 재생성.
 - 결정과 이유(TDD): 변경 대상이 산문 스킬 문서라 자동 테스트 체계가 없음 — wf-implement §3.3에 따라 TDD 사이클 부적용 사유를 여기 남기고 후행 검증(TASK-21의 기계 확인 AC-01~03)으로 대체.
 - 발견 사항(구현 재량 예정): requirements·design 템플릿의 코드 블록 뒤에는 plan 템플릿과 달리 기존 노트 불릿 목록이 없고 소유권 문단만 있음 — DES-02의 "기존 노트 불릿 목록에 추가"는 노트 목록 신설로 실현한다(코드 블록과 소유권 문단 사이). 표현 배치의 구현 세부사항으로 판단.
 - 결과: 계획 수립 완료.
@@ -69,7 +69,7 @@ flowchart TD
 - 수행 내용: `skills/wf-doc/references/templates.md` 수정 4곳 — (1) requirements 템플릿 코드 블록의 기능 요구사항·비기능 요구사항·인수 조건 절을 3열 표 골격(`| ID | 항목 | 내용 |` + 예시 행 1개)으로 교체, (2) 블록 뒤에 노트 불릿 2개 신설 — FR-02 탈출 규칙("판단 가능한 한 줄 요약" 요구 포함, RISK-02 완화)과 FR-03 RISK·Q 표 골격·"ID 발행 시" 적용 조건, (3) design 템플릿 코드 블록의 컴포넌트와 책임 절을 동일 3열 표 골격(`DES-01` 예시 행)으로 교체, (4) design 블록 뒤에 requirements 노트 참조 불릿 신설(DES-02 중복 회피).
 - 결정과 이유: requirements·design 템플릿에는 plan 템플릿과 달리 기존 노트 불릿 목록이 없어 코드 블록과 소유권 문단 사이에 신설 — 계획 수립 시 예정한 표현 배치의 구현 재량(wf-implement §4.1 경미한 변경).
 - 실행한 검증: 문자열 정확 일치 편집으로 변경 대상 절 밖 무변경(NFR-02) 확보. AC 판정은 TASK-21.
-- 결과: 완료. 같은 변경에서 [plan.md 계획 트리](../../plan.md#계획-트리) 재생성(1/2 롤업).
+- 결과: 완료. 같은 변경에서 [plan.md 계획 트리](./work-log.md#계획-트리) 재생성(1/2 롤업).
 
 ### 2026-08-14 — TASK-21: 검증과 자체 리뷰
 
@@ -106,7 +106,7 @@ flowchart TD
 
 - 다음 단계 또는 워크플로우: 없음 — 작업 완료
 - 시작 조건: N/A
-- 입력 문서와 기준선: [req-design.md v1](./req-design.md), [plan.md](../../plan.md)
+- 입력 문서와 기준선: [req-design.md v1](./req-design.md), [plan.md](./work-log.md)
 - 완료된 항목: 전체 — TASK-20·21, AC-01~04 검증
 - 미완료 항목: 없음
 - 차단 요인: 없음

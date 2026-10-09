@@ -6,7 +6,7 @@
 > 기준선: `v1` (승인일 2026-08-17)
 > 작성일: 2026-08-17
 > 최종 갱신: 2026-08-17
-> 관련 문서: [wf-tree SKILL](../../../skills/wf-tree/SKILL.md), [wf-implement SKILL](../../../skills/wf-implement/SKILL.md), [wf-doc 템플릿](../../../skills/wf-doc/references/templates.md), [PLAN-llm-workflow: 구현 계획](../../plan.md)
+> 관련 문서: [wf-tree SKILL](../../../skills/wf-tree/SKILL.md), [wf-implement SKILL](../../../skills/wf-implement/SKILL.md), [wf-doc 템플릿](../../../skills/wf-doc/references/templates.md), [PLAN-llm-workflow: 구현 계획](./work-log.md)
 
 ## 요약
 
@@ -20,7 +20,7 @@
 |---|---|---|---|---|
 | input | baseline | N/A | document | 이 작업의 루트 문서. 선행 워크플로우 문서 없음 (스킬 규칙이 변경 대상) |
 | input | related | [wf-tree §5·§6·§7](../../../skills/wf-tree/SKILL.md#5-데이터-모델과-식별자), [wf-doc plan·status 템플릿](../../../skills/wf-doc/references/templates.md#구현-계획-plan), [wf-implement §3.3](../../../skills/wf-implement/SKILL.md#33-구현) | 변경 대상 절 | 조사(2026-08-17 세션)에서 확인한 현행 규칙 |
-| output | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md), [WORK-20260817-tree-completion-time: 작업 기록](./work-log.md) | TASK-25~29 | 계획 수립(2026-08-17)과 같은 변경에서 링크 추가 |
+| output | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md), [WORK-20260817-tree-completion-time: 작업 기록](./work-log.md) | TASK-25~29 | 계획 수립(2026-08-17)과 같은 변경에서 링크 추가 |
 
 **산출물 위치에 대한 결정:** [선행 스킬 변경 작업들](../20260814-tree-snapshot/req-design.md)과 동일하게 작업 폴더의 통합 문서로 둔다 — 변경 대상이 `skills/`의 스킬 본문이며 C층 훅 기준선(`docs/requirements.md`·`design.md`)과 시스템이 다르다. 승인 관문에서 사용자 확인을 받는다.
 
@@ -131,7 +131,7 @@ ASCII 계획 트리는 완료 항목을 `[✓]`로 표시하지만 **언제** �
 - 다음 단계 또는 워크플로우: 없음 — 작업 완료(wf-implement 인계·구현·검증 종료, 2026-08-17)
 - 시작 조건: 충족 — 이 문서 v1 승인(2026-08-17)
 - 입력 문서와 기준선: 이 문서 v1
-- 완료된 항목: 현재 상태 조사, 요구사항·설계, Q-01·Q-02 확정, 기준선 v1 승인, 구현·검증 전체([TASK-25~29](../../plan.md#작업-목록), AC-01~06 성공 — [작업 기록](./work-log.md))
+- 완료된 항목: 현재 상태 조사, 요구사항·설계, Q-01·Q-02 확정, 기준선 v1 승인, 구현·검증 전체([TASK-25~29](./work-log.md#수행-기록), AC-01~06 성공 — [작업 기록](./work-log.md))
 - 미완료 항목: 없음
 - 차단 요인: 없음
 - 다음 행동: 없음 — 커밋 `a4d27ca`·푸시로 종결(2026-08-17)

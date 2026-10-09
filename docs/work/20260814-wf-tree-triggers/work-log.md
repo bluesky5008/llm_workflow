@@ -6,7 +6,7 @@
 > 기준선: `v1` ([REQ-DESIGN-wf-tree-triggers](./req-design.md)·[ADR-003](./ADR-003-트리거-단일-관문.md), 2026-08-14 승인)
 > 작성일: 2026-08-14
 > 최종 갱신: 2026-08-14
-> 관련 문서: [PLAN-llm-workflow: 구현 계획](../../plan.md)
+> 관련 문서: [PLAN-llm-workflow: 구현 계획](./work-log.md)
 
 ## 요약
 
@@ -19,11 +19,11 @@
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
 | input | baseline | [REQ-DESIGN-wf-tree-triggers](./req-design.md) | FR-01~07, AC-01~06, DES-01~05 | 승인 기준선 v1 |
-| input | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-16~19 | 이 기록이 진행 상태의 정본 |
+| input | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md) | TASK-16~19 | 이 기록이 진행 상태의 정본 |
 
 ## 기준선과 현재 계획
 
-기준선 v1([req-design.md](./req-design.md), [ADR-003](./ADR-003-트리거-단일-관문.md)), 계획 [TASK-16~19](../../plan.md#작업-목록). 변경 대상: `skills/wf-implement/SKILL.md`, `skills/wf-doc/references/templates.md`, `skills/wf-tree/SKILL.md`.
+기준선 v1([req-design.md](./req-design.md), [ADR-003](./ADR-003-트리거-단일-관문.md)), 계획 [TASK-16~19](./work-log.md#수행-기록). 변경 대상: `skills/wf-implement/SKILL.md`, `skills/wf-doc/references/templates.md`, `skills/wf-tree/SKILL.md`.
 
 ## 현재 상태
 
@@ -65,7 +65,7 @@ flowchart TD
 ### 2026-08-14 — 계획 수립
 
 - 수행 내용: §3.1 재확인(작업 기록 없음·신규, 기준선 이후 변경은 이 작업의 설계 문서뿐, 변경 대상 절 위치는 같은 날 검수에서 실측 확인) 후 TASK-16~19 계획 수립. 완료 사이클 TASK-07~15는 §7 규칙으로 축약 이관.
-- 결정과 이유: **트리 사용 결정 = 사용** — 작업 4개(≥3) + TASK-19의 의존이 기준선 FR-01 채택 기준을 충족. 신설 규칙을 이 계획에 선적용해 [plan.md에 `## 계획 트리`를 최초 생성](../../plan.md#계획-트리)(AC-06 실증 시작, ASCII + Mermaid, `<!-- generated -->` 표시).
+- 결정과 이유: **트리 사용 결정 = 사용** — 작업 4개(≥3) + TASK-19의 의존이 기준선 FR-01 채택 기준을 충족. 신설 규칙을 이 계획에 선적용해 [plan.md에 `## 계획 트리`를 최초 생성](./work-log.md#계획-트리)(AC-06 실증 시작, ASCII + Mermaid, `<!-- generated -->` 표시).
 - 결정과 이유(TDD): 변경 대상이 산문 스킬 문서라 자동 테스트 체계가 없음 — wf-implement §3.3에 따라 TDD 사이클 부적용 사유를 여기 남기고 후행 검증(TASK-19의 기계 확인 AC-01~05)으로 대체.
 - 결과: 계획 수립 완료.
 
@@ -103,7 +103,7 @@ flowchart TD
 | VER-03 | [AC-03](./req-design.md#인수-조건) | templates.md 검색·통독 | 성공 | 353행에 결정 소유자 링크 존재, `작업 트리 상태` 검색 0건 |
 | VER-04 | [AC-04](./req-design.md#인수-조건) | `skills/` 전체에서 "작업 트리" 검색 | 성공 | 0건 (치환 전 3건: wf-implement 21·286행, templates 367행) |
 | VER-05 | [AC-05](./req-design.md#인수-조건) | wf-tree §1·description 확인 | 성공 | §1 36행 이벤트 트리거 불릿, description 반영. 부수 증거: 실세션 스킬 목록에 갱신 description 즉시 반영(정션 링크 실증) |
-| VER-06 | [AC-06](./req-design.md#인수-조건) | 이 작업의 계획으로 신설 규칙 자기 적용 관찰 | 성공 | 관찰 4회 — ①계획 수립과 같은 변경에서 `## 계획 트리` 최초 생성(`## 작업 목록` 바로 앞, `<!-- generated -->`), ②TASK-16 완료 시 재생성, ③TASK-17·18 완료 시 재생성, ④TASK-19 종결 시 재생성(4/4 롤업). [plan.md 계획 트리](../../plan.md#계획-트리) |
+| VER-06 | [AC-06](./req-design.md#인수-조건) | 이 작업의 계획으로 신설 규칙 자기 적용 관찰 | 성공 | 관찰 4회 — ①계획 수립과 같은 변경에서 `## 계획 트리` 최초 생성(`## 작업 목록` 바로 앞, `<!-- generated -->`), ②TASK-16 완료 시 재생성, ③TASK-17·18 완료 시 재생성, ④TASK-19 종결 시 재생성(4/4 롤업). [plan.md 계획 트리](./work-log.md#계획-트리) |
 
 ## 설계와 달라진 점
 
@@ -124,7 +124,7 @@ flowchart TD
 
 - 다음 단계 또는 워크플로우: 없음 — 작업 완료
 - 시작 조건: N/A
-- 입력 문서와 기준선: [req-design.md v1](./req-design.md), [ADR-003](./ADR-003-트리거-단일-관문.md), [plan.md](../../plan.md)
+- 입력 문서와 기준선: [req-design.md v1](./req-design.md), [ADR-003](./ADR-003-트리거-단일-관문.md), [plan.md](./work-log.md)
 - 완료된 항목: 전체 — TASK-16~19, AC-01~06 검증
 - 미완료 항목: 없음
 - 차단 요인: 없음

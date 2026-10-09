@@ -6,7 +6,7 @@
 > 기준선: `v1` ([REQ-DESIGN-tree-snapshot](./req-design.md), 2026-08-14 승인)
 > 작성일: 2026-08-14
 > 최종 갱신: 2026-08-14
-> 관련 문서: [PLAN-llm-workflow: 구현 계획](../../plan.md)
+> 관련 문서: [PLAN-llm-workflow: 구현 계획](./work-log.md)
 
 ## 요약
 
@@ -19,12 +19,12 @@
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
 | input | baseline | [REQ-DESIGN-tree-snapshot](./req-design.md) | FR-01~05, NFR-01~02, AC-01~05, DES-01~05 | 승인 기준선 v1 |
-| input | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-22~24 | 이 기록이 진행 상태의 정본 |
+| input | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md) | TASK-22~24 | 이 기록이 진행 상태의 정본 |
 | output | verification | [WORK-20260814-wf-tree-triggers](../20260814-wf-tree-triggers/work-log.md#계획-트리), [WORK-20260814-id-item-tables](../20260814-id-item-tables/work-log.md#계획-트리) | FR-05 | 소급 백업 대상 — 스냅숏 절 추가(기록 보완) |
 
 ## 기준선과 현재 계획
 
-기준선 v1([req-design.md](./req-design.md)), 계획 [TASK-22~24](../../plan.md#작업-목록). 변경 대상: `skills/wf-implement/SKILL.md`, `skills/wf-tree/SKILL.md`, `skills/wf-doc/references/templates.md`, 소급 백업 work-log 2건.
+기준선 v1([req-design.md](./req-design.md)), 계획 [TASK-22~24](./work-log.md#수행-기록). 변경 대상: `skills/wf-implement/SKILL.md`, `skills/wf-tree/SKILL.md`, `skills/wf-doc/references/templates.md`, 소급 백업 work-log 2건.
 
 ## 현재 상태
 
@@ -64,7 +64,7 @@ flowchart TD
 
 - 수행 내용: §3.1 재확인(기준선 v1 승인 직후, 저장소 변경 없음) 후 TASK-22~24 계획 수립. 완료 사이클 TASK-20~21은 §7 규칙으로 축약 이관.
 - 수행 내용(FR-02 보정 경로 선적용): id-item-tables의 상세 트리가 이 계획 수립에서 새 사이클 트리로 대체되므로, **plan.md를 고치기 전에** 완료 시점 트리(ASCII 서브트리+mermaid)를 [해당 work-log의 계획 트리 절](../20260814-id-item-tables/work-log.md#계획-트리)에 `<!-- snapshot: 2026-08-14 완료 시점 -->` 표시로 선백업했다 — FR-05 소급 2건 중 1건이 이 시점에 완료(백업→대체 순서 준수).
-- 결정과 이유: **트리 사용 결정 = 사용** — 작업 3개 + TASK-24의 의존이 채택 기준 충족. 계획 수립과 같은 변경에서 [plan.md 계획 트리](../../plan.md#계획-트리) 재생성.
+- 결정과 이유: **트리 사용 결정 = 사용** — 작업 3개 + TASK-24의 의존이 채택 기준 충족. 계획 수립과 같은 변경에서 [plan.md 계획 트리](./work-log.md#계획-트리) 재생성.
 - 결정과 이유(TDD): 변경 대상이 산문 스킬 문서·문서 기록이라 자동 테스트 체계가 없음 — wf-implement §3.3에 따라 TDD 부적용 사유를 여기 남기고 후행 검증(TASK-24 기계 확인·대조)으로 대체.
 - 결과: 계획 수립 완료.
 
@@ -78,7 +78,7 @@ flowchart TD
 
 - 수행 내용: [wf-tree-triggers work-log](../20260814-wf-tree-triggers/work-log.md#계획-트리)에 `## 계획 트리` 절 추가 — 커밋 `13e4a72`의 plan.md에서 완료 시점 트리(ASCII 서브트리+mermaid)를 그대로 복원, `<!-- snapshot: 2026-08-14 완료 시점 -->` 표시와 소급 사유 인용문 포함(DES-02·04).
 - 확인 사항: FR-05의 나머지 1건(id-item-tables)은 계획 수립 변경에서 FR-02 보정 경로로 선백업 완료([해당 절](../20260814-id-item-tables/work-log.md#계획-트리)) — 수행 기록의 계획 수립 항목 참조.
-- 결과: 완료. 같은 변경에서 [plan.md 계획 트리](../../plan.md#계획-트리) 재생성(2/3 롤업).
+- 결과: 완료. 같은 변경에서 [plan.md 계획 트리](./work-log.md#계획-트리) 재생성(2/3 롤업).
 
 ### 2026-08-14 — TASK-24: 검증과 자체 리뷰
 
@@ -116,7 +116,7 @@ flowchart TD
 
 - 다음 단계 또는 워크플로우: 없음 — 작업 완료
 - 시작 조건: N/A
-- 입력 문서와 기준선: [req-design.md v1](./req-design.md), [plan.md](../../plan.md)
+- 입력 문서와 기준선: [req-design.md v1](./req-design.md), [plan.md](./work-log.md)
 - 완료된 항목: 전체 — TASK-22~24, AC-01~05 검증, 소급 백업 2건
 - 미완료 항목: 없음
 - 차단 요인: 없음

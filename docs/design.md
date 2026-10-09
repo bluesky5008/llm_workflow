@@ -112,11 +112,11 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 
 | 요구사항 | 설계 | 작업 | 인수 조건 | 검증 | 결과 |
 |---|---|---|---|---|---|
-| [FR-01](./requirements.md#기능-요구사항) | DES-01, DES-05 | [TASK-02](./plan.md#작업-목록) | AC-01 | [VER-01, VER-07](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-07 미수행) |
-| [FR-02](./requirements.md#기능-요구사항) | DES-02, DES-05 | [TASK-03](./plan.md#작업-목록) | AC-02 | [VER-02](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
-| [FR-03](./requirements.md#기능-요구사항) | DES-02, DES-03 | [TASK-03, TASK-04](./plan.md#작업-목록) | AC-02, AC-06 | [VER-02, VER-06](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-06 미수행) |
-| [FR-04](./requirements.md#기능-요구사항) | DES-04 | [TASK-05](./plan.md#작업-목록) | AC-03 | [VER-03](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
-| [FR-05](./requirements.md#기능-요구사항) | DES-01, DES-02, DES-03 | [TASK-02~04](./plan.md#작업-목록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
+| [FR-01](./requirements.md#기능-요구사항) | DES-01, DES-05 | [TASK-02](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-01 | [VER-01, VER-07](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-07 미수행) |
+| [FR-02](./requirements.md#기능-요구사항) | DES-02, DES-05 | [TASK-03](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02 | [VER-02](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
+| [FR-03](./requirements.md#기능-요구사항) | DES-02, DES-03 | [TASK-03, TASK-04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02, AC-06 | [VER-02, VER-06](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-06 미수행) |
+| [FR-04](./requirements.md#기능-요구사항) | DES-04 | [TASK-05](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-03 | [VER-03](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
+| [FR-05](./requirements.md#기능-요구사항) | DES-01, DES-02, DES-03 | [TASK-02~04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
 
 ## 승인 기록
 

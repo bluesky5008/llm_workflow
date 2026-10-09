@@ -6,7 +6,7 @@
 > 기준선: `v1` (승인일 2026-08-14)
 > 작성일: 2026-08-14
 > 최종 갱신: 2026-08-14
-> 관련 문서: [wf-implement SKILL](../../../skills/wf-implement/SKILL.md), [wf-tree SKILL](../../../skills/wf-tree/SKILL.md), [wf-doc 템플릿](../../../skills/wf-doc/references/templates.md), [선행 작업 REQ-DESIGN-wf-tree-triggers](../20260814-wf-tree-triggers/req-design.md), [PLAN-llm-workflow: 구현 계획](../../plan.md), [WORK-20260814-tree-snapshot: 작업 기록](./work-log.md)
+> 관련 문서: [wf-implement SKILL](../../../skills/wf-implement/SKILL.md), [wf-tree SKILL](../../../skills/wf-tree/SKILL.md), [wf-doc 템플릿](../../../skills/wf-doc/references/templates.md), [선행 작업 REQ-DESIGN-wf-tree-triggers](../20260814-wf-tree-triggers/req-design.md), [PLAN-llm-workflow: 구현 계획](./work-log.md), [WORK-20260814-tree-snapshot: 작업 기록](./work-log.md)
 
 ## 요약
 
@@ -21,7 +21,7 @@
 | input | baseline | N/A | document | 이 작업의 루트 문서. 선행 워크플로우 문서 없음 (스킬 규칙이 변경 대상) |
 | input | related | [wf-implement §7](../../../skills/wf-implement/SKILL.md#7-작업-기록과-저장-위치), [wf-tree §5·§7](../../../skills/wf-tree/SKILL.md#5-데이터-모델과-식별자), [wf-doc work-log 템플릿](../../../skills/wf-doc/references/templates.md#작업-기록-work-log) | 변경 대상 절 | 조사(2026-08-14 세션)에서 확인한 현행 규칙 |
 | input | related | [REQ-DESIGN-wf-tree-triggers](../20260814-wf-tree-triggers/req-design.md) | document | 계획 트리 생성·재생성 규칙을 신설한 선행 작업 — 이 작업은 그 규칙의 유실 간극을 보완 |
-| output | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md), [WORK-20260814-tree-snapshot: 작업 기록](./work-log.md) | TASK-22~24 | 계획 수립(2026-08-14)과 같은 변경에서 링크 추가 |
+| output | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md), [WORK-20260814-tree-snapshot: 작업 기록](./work-log.md) | TASK-22~24 | 계획 수립(2026-08-14)과 같은 변경에서 링크 추가 |
 
 **산출물 위치에 대한 결정:** [선행 작업들](../20260814-id-item-tables/req-design.md)과 동일하게 작업 폴더의 통합 문서로 둔다 — 변경 대상이 `skills/`의 스킬 본문이며 C층 훅 기준선(`docs/requirements.md`·`design.md`)과 시스템이 다르다. 승인 관문에서 사용자 확인을 받는다.
 
@@ -116,7 +116,7 @@ wf-implement §7의 축약 규칙은 "상세 이력의 정본은 작업 기록�
 - 다음 단계 또는 워크플로우: 없음 — 작업 완료(wf-implement 인계·구현·검증 종료, 2026-08-14)
 - 시작 조건: 충족 — 이 문서 v1 승인(2026-08-14)
 - 입력 문서와 기준선: 이 문서 v1
-- 완료된 항목: 현재 상태 조사(유실 경로·규칙 간극 실측), 요구사항·설계, 기준선 v1 승인, 구현·검증 전체([TASK-22~24](../../plan.md#작업-목록), AC-01~05 성공 — [작업 기록](./work-log.md))
+- 완료된 항목: 현재 상태 조사(유실 경로·규칙 간극 실측), 요구사항·설계, 기준선 v1 승인, 구현·검증 전체([TASK-22~24](./work-log.md#수행-기록), AC-01~05 성공 — [작업 기록](./work-log.md))
 - 미완료 항목: 없음
 - 차단 요인: 없음
 - 다음 행동: 없음 — 커밋 `3eea58d`·푸시로 종결(2026-08-14)

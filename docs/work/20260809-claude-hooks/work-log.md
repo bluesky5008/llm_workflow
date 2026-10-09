@@ -6,7 +6,7 @@
 > 기준선: `v1` ([REQ](../../requirements.md)·[DESIGN](../../design.md), 2026-08-09 승인)
 > 작성일: 2026-08-09
 > 최종 갱신: 2026-08-09
-> 관련 문서: [PLAN-llm-workflow: 구현 계획](../../plan.md), [ADR-001](./ADR-001-컨텍스트-신호-선택.md)
+> 관련 문서: [PLAN-llm-workflow: 구현 계획](./work-log.md), [ADR-001](./ADR-001-컨텍스트-신호-선택.md)
 
 ## 요약
 
@@ -19,7 +19,7 @@
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
 | input | baseline | [DESIGN-llm-workflow: 설계](../../design.md) | DES-01~05 | 승인 기준선 v1 |
-| input | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-01~06 | 이 기록이 진행 상태의 정본 |
+| input | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md) | TASK-01~06 | 이 기록이 진행 상태의 정본 |
 
 ## 진행 기록
 
@@ -69,7 +69,7 @@ Red→Green 전환 증거: 최초 실행에서 T01~T13 FAIL(구현 부재), 구�
 
 - 다음 단계 또는 워크플로우: 없음 — 작업 완료. 실세션 관찰(VER-06·VER-07)만 다음 세션에서 확인
 - 시작 조건: N/A — 완료
-- 입력 문서와 기준선: [REQ v1](../../requirements.md), [DESIGN v1](../../design.md), [PLAN](../../plan.md)
+- 입력 문서와 기준선: [REQ v1](../../requirements.md), [DESIGN v1](../../design.md), [PLAN](./work-log.md)
 - 완료된 항목: TASK-01~06 전체, 실설치 배포
 - 미완료 항목: VER-06·VER-07의 주입 가시성 관찰(훅 실행 자체는 VER-08로 실증됨)
 - 차단 요인: 없음

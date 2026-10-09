@@ -6,7 +6,7 @@
 > 기준선: `v2` ([REQ-DESIGN-dev-briefing](./req-design.md), 2026-08-09 승인, [DCR-002](./DCR-002-디자인-적용.md))
 > 작성일: 2026-08-09
 > 최종 갱신: 2026-08-09
-> 관련 문서: [PLAN-llm-workflow: 구현 계획](../../plan.md), [REQ-DESIGN-dev-briefing: 요구사항·설계](./req-design.md)
+> 관련 문서: [PLAN-llm-workflow: 구현 계획](./work-log.md), [REQ-DESIGN-dev-briefing: 요구사항·설계](./req-design.md)
 
 ## 요약
 
@@ -20,11 +20,11 @@
 |---|---|---|---|---|
 | input | baseline | [REQ-DESIGN-dev-briefing: 요구사항·설계](./req-design.md) | FR-01~06, AC-01~05, DES-01~06 | 승인 기준선 v2 |
 | input | change | [DCR-002: 발표 자료 디자인 적용](./DCR-002-디자인-적용.md) | document | v1 → v2 변경(2026-08-09 승인) |
-| input | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-07~15 | 이 기록이 진행 상태의 정본 |
+| input | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md) | TASK-07~15 | 이 기록이 진행 상태의 정본 |
 
 ## 기준선과 현재 계획
 
-기준선 v2([req-design.md](./req-design.md), [DCR-002](./DCR-002-디자인-적용.md)), 계획 [TASK-07~15](../../plan.md#작업-목록). 산출물: `docs/presentation/`의 dev-briefing.md(정본) · make_pptx.py · dev-briefing.pptx.
+기준선 v2([req-design.md](./req-design.md), [DCR-002](./DCR-002-디자인-적용.md)), 계획 [TASK-07~15](./work-log.md#수행-기록). 산출물: `docs/presentation/`의 dev-briefing.md(정본) · make_pptx.py · dev-briefing.pptx.
 
 ## 현재 상태
 
@@ -73,7 +73,7 @@
 
 ### 2026-08-09 — DCR-002 재승인과 기준선 v2 발행
 
-- 사용자가 대화형 재승인 관문에서 **승인** 응답("승인"). wf-design DCR 절차 §5에 따라 같은 변경에서 갱신: [DCR-002](./DCR-002-디자인-적용.md) `approved`, [req-design.md](./req-design.md) v2(FR-05·06, NFR-04, AC-05, DES-05·06 신설, DES-01·03·04 개정, 범위 이동, RISK-04 추가), [결정 등록부](../../decisions.md), [계획](../../plan.md)에 TASK-13~15 추가·TASK-12를 최종 관문으로 이동(의존성 TASK-15).
+- 사용자가 대화형 재승인 관문에서 **승인** 응답("승인"). wf-design DCR 절차 §5에 따라 같은 변경에서 갱신: [DCR-002](./DCR-002-디자인-적용.md) `approved`, [req-design.md](./req-design.md) v2(FR-05·06, NFR-04, AC-05, DES-05·06 신설, DES-01·03·04 개정, 범위 이동, RISK-04 추가), [결정 등록부](../../decisions.md), [계획](./work-log.md)에 TASK-13~15 추가·TASK-12를 최종 관문으로 이동(의존성 TASK-15).
 - 구현 보류 해제. 완료 구현 TASK-07~11은 당시 기준선(v1)의 완료 기록으로 유지, 되돌림 없음(DCR-002 "구현된 코드의 처리" — 확장만).
 
 ### 2026-08-09 — TASK-13: 디자인·인포그래픽 테스트 확장(Red)
@@ -130,7 +130,7 @@
 
 - 다음 단계 또는 워크플로우: 없음 — 작업 완료. 후속 과제는 새 작업으로 wf-design부터 시작
 - 시작 조건: N/A
-- 입력 문서와 기준선: [REQ-DESIGN-dev-briefing v2](./req-design.md), [DCR-002](./DCR-002-디자인-적용.md), [PLAN](../../plan.md)
+- 입력 문서와 기준선: [REQ-DESIGN-dev-briefing v2](./req-design.md), [DCR-002](./DCR-002-디자인-적용.md), [PLAN](./work-log.md)
 - 완료된 항목: 전체 — TASK-07~11(기준선 v1), DCR-002 재승인·기준선 v2, TASK-13~15(디자인 구현·검증), TASK-12(최종 검토 통과)
 - 미완료 항목: 없음
 - 차단 요인: 없음

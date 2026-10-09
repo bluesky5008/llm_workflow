@@ -22,7 +22,7 @@
 | input | related | [README](../../../README.md) | document | 발표 내용의 원천(소재). 원천 문서의 의미에 영향이 없으므로 역방향 링크를 두지 않는 단방향 참조 |
 | input | related | [REQ-llm-workflow: 요구사항](../../requirements.md), [DESIGN-llm-workflow: 설계](../../design.md) | document | 발표 내용의 원천(소재). 위와 같은 단방향 참조. 이 작업은 해당 기준선 v1의 의미를 변경하지 않는다 |
 | input | change | [DCR-002: 발표 자료 디자인 적용](./DCR-002-디자인-적용.md) | FR-05·06, NFR-04, AC-05, DES-05·06 | v1 → v2 변경 근거(2026-08-09 승인) |
-| output | implementation | [PLAN-llm-workflow: 구현 계획](../../plan.md) | TASK-07~15 | 이 기준선의 구현 계획 |
+| output | implementation | [PLAN-llm-workflow: 구현 계획](./work-log.md) | TASK-07~15 | 이 기준선의 구현 계획 |
 | output | implementation | [WORK-20260809-dev-briefing: 작업 기록](./work-log.md) | document | 진행 상태·검증의 정본 |
 
 **산출물 위치에 대한 결정:** [wf-design 산출물 규칙](../../../skills/wf-design/SKILL.md#6-산출물)의 기본 위치(`docs/requirements.md`·`design.md` 누적)를 따르지 않고 이 작업 폴더에 통합 문서로 둔다. 이유: 저장소 관통 문서는 워크플로우 **시스템**의 현행 상태를 기술하는 기준선인데, 발표 자료는 시스템의 동작·계약을 바꾸지 않는 일회성 전달물이다. 시스템 기준선(v1)에 발표 요구사항을 누적하면 현행 문서의 의미가 흐려진다. 이 결정은 승인 관문에서 사용자 확인을 받는다.
