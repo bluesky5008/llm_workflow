@@ -53,7 +53,7 @@
 - 변경 파일: 이 폴더 6개 파일, `docs/requirements.md`, `docs/design.md`, `docs/decisions.md`, `docs/status.md`
 - 결정과 이유: TASK 순서 — 합본 절 목록의 정본인 템플릿(TASK-01)을 린트(TASK-04)보다 먼저, 린트를 자기 적용(TASK-06)보다 먼저. TDD는 TASK-04·05에만 적용(자동 테스트 체계가 있는 변경), 나머지는 후행 검증.
 - 실행한 검증: 훅 테스트 러너 21/21(기존 상태 확인)
-- 결과: 완료(2026-10-09 14:50). 직후 컨텍스트 임계 훅 신호로 세션 인계
+- 결과: 완료(2026-10-09 14:50). 직후 컨텍스트 임계 훅 신호로 세션 인계. 사용자 요청으로 커밋 `58a0d7d`(이 작업 폴더 + C층 v2 + 등록부·포트폴리오·역방향 링크) 생성·origin/main 푸시
 
 ## 설계와 달라진 점
 
@@ -66,7 +66,7 @@
 ## 재개 지점
 
 - 다음 작업: TASK-01(wf-doc 템플릿 합본)
-- 먼저 확인할 사항: `git status --short`(미커밋: skills 무변경, docs/requirements·design·decisions·status, 이 폴더, 사이클 1 req-design·다인 토론 work-log 링크 행, 미추적 `docs/paper/`), 훅 테스트 21/21
+- 먼저 확인할 사항: `git status --short`(미추적 `docs/paper/`만 남아야 함 — 설계·계획은 커밋 `58a0d7d`로 푸시됨), 훅 테스트 21/21
 - 필요한 명령 또는 파일: [plan.md](./plan.md) TASK-01, `skills/wf-doc/references/templates.md` 372~480행(work-log·verification·completion 템플릿)
 
 ## 인계
@@ -75,7 +75,7 @@
 - 시작 조건: 충족 — 기준선 v1, 계획 수립 완료
 - 입력 문서와 기준선: [REQ-DESIGN-worklog-diet v1](./req-design.md), [PLAN-20261009-worklog-diet](./plan.md), [ADR-005](./ADR-005-작업-기록-수명주기.md), [ADR-006](./ADR-006-작업-기록-린트-B층.md), [DCR-007](./DCR-007-훅-닫힘-상태-on-hold.md)
 - 완료된 항목: wf-design 전체(조사·요구·설계·ADR·DCR·승인 v1), 승인 반영(C층 v2 포함), 계획 수립
-- 미완료 항목: TASK-01~07 전부(미착수). 미커밋 변경은 위 "먼저 확인할 사항" 목록
+- 미완료 항목: TASK-01~07 전부(미착수). 미커밋 변경 없음(커밋 `58a0d7d` 푸시, 2026-10-09)
 - 차단 요인: 없음
 - 다음 행동: TASK-01을 시작한다 — `skills/wf-doc/references/templates.md`의 `## 작업 기록 (work-log)` 절을 req-design FR-03의 H2 8개·H3 구조와 FR-01 필드(결정과 이유·발견 사항·검증·결과 필수/선택, `수행 내용` 선택, `변경 파일` 없음)로 바꾸고, `## 검증 결과`·`## 완료 보고` 절을 합본 포인터로 축소하며 목차를 맞춘다. 완료 시 plan.md TASK-01 상태·완료 시각과 이 기록을 갱신하고 TASK-02로 간다. 커밋은 사용자 요청 시에만.
 - 재개 프롬프트: 작업 20261009-worklog-diet 재개 — docs/work/20261009-worklog-diet/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
