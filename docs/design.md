@@ -3,9 +3,9 @@
 > 문서 유형: `design`
 > 작업 ID: `20260809-claude-hooks`
 > 상태: `approved`
-> 기준선: `v1` (승인일 2026-08-09)
+> 기준선: `v2` (승인일 2026-10-09; v1 2026-08-09)
 > 작성일: 2026-08-09
-> 최종 갱신: 2026-08-09
+> 최종 갱신: 2026-10-09
 > 관련 문서: [REQ-llm-workflow: 요구사항](./requirements.md), [ADR-001: 컨텍스트 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md)
 
 ## 요약
@@ -20,6 +20,7 @@
 |---|---|---|---|---|
 | input | baseline | [REQ-llm-workflow: 요구사항](./requirements.md) | FR-01~05, AC-01~06 | 이 설계의 입력 요구사항 |
 | input | decision | [ADR-001: 컨텍스트 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md) | document | DES-02의 신호 결정 |
+| input | change | [DCR-007: 훅 닫힘 상태에 on-hold 추가](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) | DES-01, 열린 작업 판정 | 승인(2026-10-09), 기준선 v1 → v2 |
 
 ## 설계 목표와 제약
 
@@ -49,7 +50,7 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 
 ## 컴포넌트와 책임
 
-- DES-01: **`wf-session-start.ps1`** — `SessionStart`(matcher `startup|resume|clear`). `<cwd>/docs/work/*/work-log.md`의 공통 머리말 `> 상태:`를 읽어 완료 계열(`completed`, `superseded`, `rejected`, `withdrawn`) 이외의 작업 기록을 찾는다. 있으면 작업 ID·경로 목록과 "재개 절차(인계 절의 '다음 행동')를 먼저 적용하라"는 지시를 `additionalContext`로 주입한다. 동시에 상태 파일에 현재 transcript 크기를 기준점으로 기록한다(DES-02의 입력). 미완료 기록이 없으면 기준점만 기록하고 무주입.
+- DES-01: **`wf-session-start.ps1`** — `SessionStart`(matcher `startup|resume|clear`). `<cwd>/docs/work/*/work-log.md`의 공통 머리말 `> 상태:`를 읽어 닫힘 계열(`completed`, `superseded`, `rejected`, `withdrawn`, `on-hold` — v2에서 `on-hold` 추가, [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md)) 이외의 열린 작업 기록을 찾는다. 있으면 작업 ID·경로 목록과 "재개 절차(인계 절의 '다음 행동')를 먼저 적용하라"는 지시를 `additionalContext`로 주입한다. 동시에 상태 파일에 현재 transcript 크기를 기준점으로 기록한다(DES-02의 입력). 미완료 기록이 없으면 기준점만 기록하고 무주입.
 - DES-02: **`wf-context-threshold.ps1`** — `PostToolUse`(matcher `*`). transcript 크기의 성장량(현재 크기 − 기준점)이 임계값을 넘으면 "다음 계획 항목 경계에서 wf-implement 세션 인계를 수행하라"는 지시를 주입한다. 주입 후에는 상태 파일에 경고 시점 크기를 기록하고, 재경고 간격만큼 더 성장하기 전까지 재주입하지 않는다. `UserPromptSubmit`이 아닌 `PostToolUse`를 쓰는 이유: 자동 실행 중에는 사용자 프롬프트 없이 툴 사용만 이어지므로 그 경로에서 발화해야 한다.
 - DES-03: **`wf-post-compact.ps1`** — `SessionStart`(matcher `compact`). 컴팩션 직후 "요약은 손실 압축이다. 진행 중 작업 기록의 인계 절과 대조해 상태를 재확인하고, 요약과 문서가 다르면 문서를 정본으로 삼아라"는 지시를 주입하고, 상태 파일의 기준점을 현재 transcript 크기로 재설정한다(컴팩션 후 컨텍스트가 줄었으므로 성장량 계산을 다시 시작).
 - DES-04: **`setup_claude.ps1` 훅 설치 로직** — `~/.claude/settings.json`을 JSON으로 읽어 `hooks` 키에 위 3개 항목을 병합한다. 파일·키가 없으면 만들고, 기존의 무관한 설정과 사용자 훅은 보존한다. 자기 항목의 식별은 스크립트 경로 문자열 매칭으로 하며, 재실행 시 중복 등록하지 않고 경로가 다르면(저장소 이동) 갱신한다.
@@ -62,7 +63,7 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 - **훅 출력:** 주입 시 `{"hookSpecificOutput":{"hookEventName":"<이벤트>","additionalContext":"<텍스트>"}}` 한 줄. 무주입 시 출력 없이 exit 0.
 - **상태 파일:** `%TEMP%\claude-wf\<session_id>.json` — `{ "baselineBytes": n, "lastWarnedBytes": n|null, "updatedAt": "ISO8601" }`. 없으면 그 자리에서 재생성(기준점=현재 크기). 오래된 파일은 무해하며 청소는 범위 밖.
 - **설정값:** 임계값 `CLAUDE_WF_THRESHOLD_KB`(기본 1500), 재경고 간격 `CLAUDE_WF_REWARN_KB`(기본 300) — 환경 변수로 재정의 가능, 기본값은 스크립트 상수. 기본값의 근거: transcript는 컨텍스트보다 빠르게 자라는 보수적 프록시이므로 통상적 자동 컴팩션 발생점보다 먼저 발화하는 쪽으로 잡고, 조기 발화의 비용은 "다음 경계에서"라는 지시 문구로 낮게 유지한다. 구현 중 실측으로 보정할 수 있다.
-- **미완료 판정(DES-01):** work-log 머리말의 `> 상태:` 값이 완료 계열이 아니면 미완료. 머리말을 읽을 수 없는 파일은 건너뛴다(오탐 방지).
+- **열린 작업 판정(DES-01):** work-log 머리말의 `> 상태:` 값이 닫힘 계열(위 5종)이 아니면 열린 작업. 보류(`on-hold`)는 사용자 지시로만 재개되므로 닫힘으로 취급한다(v2). 머리말을 읽을 수 없는 파일은 건너뛴다(오탐 방지).
 
 ## 정상·실패·복구 흐름
 
@@ -121,6 +122,7 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 ## 승인 기록
 
 - 2026-08-09 — 사용자가 대화형 승인 관문에서 [REQ-llm-workflow](./requirements.md)와 함께 기준선 v1로 **승인**. 응답: "승인". [ADR-001](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md) 동시 승인.
+- 2026-10-09 — [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) 재승인으로 기준선 v2. 응답: "권장안 전체 승인"([REQ-DESIGN-worklog-diet](./work/20261009-worklog-diet/req-design.md#승인-기록) 관문, Q-02 포함).
 
 ## 변경 이력
 
@@ -128,6 +130,7 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 |---|---|---|---|---|
 | 2026-08-09 | 최초 작성(훅 능력 조사 반영) | [REQ-llm-workflow](./requirements.md), 훅 문서 조사 | draft → awaiting-approval | Claude(작성) |
 | 2026-08-09 | 승인 관문 통과, 기준선 v1 발행 | 사용자 승인(대화형 관문) | awaiting-approval → approved, v1 | 사용자(승인) |
+| 2026-10-09 | DES-01·열린 작업 판정의 닫힘 계열에 `on-hold` 추가, 기준선 v2 | [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) 사용자 재승인 | approved, v1 → v2 | 사용자(승인) |
 
 ## 인계
 

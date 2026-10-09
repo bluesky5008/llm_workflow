@@ -23,6 +23,7 @@
 | input | related | [wf-implement SKILL](../../../skills/wf-implement/SKILL.md) | §2.3, §3.1, §7 | 분석 대상. 위와 같은 단방향 예외 |
 | input | related | [wf-doc SKILL](../../../skills/wf-doc/SKILL.md) | §2.6 하이퍼링크 규칙, §2.7 인계 | 분석 대상. 위와 같은 단방향 예외 |
 | input | related | [wf-tree SKILL](../../../skills/wf-tree/SKILL.md) | §5 단일 소스 원칙, §7 렌더링 | 분석 대상. 위와 같은 단방향 예외 |
+| output | related | [DCR-007: 훅 닫힘 상태에 on-hold 추가](../20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) | 머리말 상태 | 이 작업의 `on-hold`가 훅 재개 안내에 잡히는 사례로 인용됨(제안 중, 2026-10-09) |
 
 ## 기준선과 현재 계획
 

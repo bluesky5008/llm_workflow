@@ -24,6 +24,7 @@
 | input | related | [ADR-003: 계획 트리 트리거의 단일 관문 배치](../20260814-wf-tree-triggers/ADR-003-트리거-단일-관문.md) | 결정, 결과와 감수할 단점 | 부분 수정 대상(DES-09). 배치 결정은 유지, 관문에서의 재생성 의무와 완료 조건 안전망만 변경 |
 | output | decision | [ADR-004: TASK 식별자의 작업 범위 발행](./ADR-004-TASK-식별자-작업-범위.md) | FR-05, DES-06 | Q-01 결정의 장기 식별자 정책. 이 문서 v1과 함께 승인(2026-10-09) |
 | output | implementation | [PLAN-20261009-plan-relocation: 구현 계획](./plan.md), [WORK-20261009-plan-relocation: 작업 기록](./work-log.md) | TASK-01~07, VER-01~09 | 계획(자기 적용)과 수행·검증 기록 |
+| output | related | [REQ-DESIGN-worklog-diet: 요구사항·설계](../20261009-worklog-diet/req-design.md) | document | 후속 사이클 2(작업 기록 다이어트·아카이빙·린트). 이 문서의 제외 절·후속 작업이 가리키던 작업(2026-10-09 착수) |
 
 **산출물 위치에 대한 결정:** 선행 스킬 변경 작업들과 동일하게 작업 폴더의 통합 문서로 둔다. 승인 관문에서 사용자 확인을 받는다.
 

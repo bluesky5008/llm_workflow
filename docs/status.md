@@ -11,7 +11,7 @@
 ## 요약
 
 - 목적: 이 저장소에서 진행 중인 작업만 한 표로 조망한다. 완료 작업은 싣지 않으며, 이력은 `docs/work/` 각 폴더와 git이 정본이다.
-- 현재 결론 또는 상태: 보류 1건. (계획 문서 재배치 작업은 완료 보고 종결로 행 제거 — 트리는 온디맨드 규칙에 따라 재생성하지 않음, 생성 일시 참조)
+- 현재 결론 또는 상태: 진행 중 1건(기준선 v1 승인, 구현 중)·보류 1건. (계획 문서 재배치 작업은 완료 보고 종결로 행 제거 — 트리는 온디맨드 규칙에 따라 재생성하지 않음, 생성 일시 참조)
 - 다음 행동: 아래 작업 목록의 `다음 행동` 열.
 
 ## 문서 연결
@@ -21,6 +21,7 @@
 | input | approval | [REQ-DESIGN-plan-relocation](./work/20261009-plan-relocation/req-design.md#승인-기록) | document | 포트폴리오 최초 생성 승인(wf-tree §8)을 v1 승인 관문이 겸함. 이전 `docs/plan.md`를 대체(DES-05·07) |
 | input | related | [PLAN-20261009-plan-relocation: 구현 계획](./work/20261009-plan-relocation/plan.md) | document | 이 문서를 만든 작업(완료, 행 제거됨) |
 | output | related | [WORK-20260814-multiuser-workflow: 작업 기록](./work/20260814-multiuser-workflow/work-log.md) | document | 포함 작업(보류) |
+| output | related | [WORK-20261009-worklog-diet: 작업 기록](./work/20261009-worklog-diet/work-log.md) | document | 포함 작업(사이클 2, 구현 중) |
 
 ## 목표와 범위
 
@@ -32,6 +33,7 @@
 
 | 작업 ID | 제목 | 상태 | 계획·기록 | 의존 | 다음 행동 |
 |---|---|---|---|---|---|
+| 20261009-worklog-diet | 작업 기록 다이어트·아카이빙·린트 | in-progress | [plan](./work/20261009-worklog-diet/plan.md) · [work-log](./work/20261009-worklog-diet/work-log.md) | — (선행 20261009-plan-relocation 완료) | TASK-01(wf-doc 템플릿 합본) 착수 — 재개는 작업 기록 인계 절 |
 | 20260814-multiuser-workflow | 다인 사용 시나리오 토론 | on-hold | [work-log](./work/20260814-multiuser-workflow/work-log.md) | 20261009-plan-relocation | 재개 조건은 작업 기록 인계 절 — plan-relocation 완료 후 Q-04 재검토 |
 
 ## 계획 트리
@@ -54,6 +56,7 @@
 |---|---|---|
 | 2026-10-09 | 최초 생성. `docs/plan.md`(저장소 관통 구현 계획, 완료 사이클 7개 축약 포함)를 대체 | [REQ-DESIGN-plan-relocation v1](./work/20261009-plan-relocation/req-design.md) DES-05·DES-07, TASK-05 |
 | 2026-10-09 | `20261009-plan-relocation` 행 제거(완료 보고 종결, 2026-10-09 14:05) | wf-implement §7 포트폴리오 행의 추가·제거 |
+| 2026-10-09 | `20261009-worklog-diet` 행 추가(wf-design 착수, 작업 기록 시작 — 사이클 2) | wf-implement §7 포트폴리오 행의 추가·제거 |
 
 ## 인계
 
