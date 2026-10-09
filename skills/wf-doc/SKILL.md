@@ -101,6 +101,7 @@ description: wf-design, wf-implement 또는 wf-tree와 함께 적용하는 문�
 | `verification` | 인수 조건별 검증 방법, 결과, 증거 |
 | `completion` | 통합 결과, 남은 위험, 후속 작업 |
 | `status` | 여러 작업을 묶는 목표, 작업 분해와 계획 트리, 진행 현황 |
+| `test-register` | 저장소 현행 회귀 테스트 목록과 상태, 재정비 기록 |
 
 새 문서를 만들거나 문서 유형별 필수 절을 판단할 때 [references/templates.md](references/templates.md)를 읽고 해당 템플릿을 적용한다. 여러 유형을 한 파일에 합치면 `문서 유형`을 쉼표로 나열한다. 합본 템플릿이 있는 조합(`work-log`+`verification`+`completion`)은 [그 템플릿의 절 목록](references/templates.md#작업-기록-work-log)을 따르고 같은 의미의 절을 유형별로 반복하지 않는다.
 
@@ -257,6 +258,7 @@ TASK-01   구현 작업
 VER-01    검증 항목
 RISK-01   위험
 Q-01      미해결 질문
+TST-01    테스트 대장 행
 ```
 
 문서 ID — 파일 하나를 가리킨다. 항목 ID와 구분되도록 다른 접두사를 쓴다.
@@ -270,6 +272,7 @@ VERIFY-<작업-ID>   verification
 RESULT-<작업-ID>   completion
 APR-<작업-ID>-NNN  approval
 ST-<슬러그>        status (작업 상위 단위)
+REGISTER-<프로젝트-슬러그>  test-register (저장소 현행 문서)
 ```
 
 `adr`와 `dcr`은 문서 하나가 항목 하나에 대응하므로 `ADR-001`, `DCR-001`을 문서 ID로도 사용한다. 유형별 권장값과 예시는 [문서 유형별 템플릿](references/templates.md)을 따른다.
