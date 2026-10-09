@@ -49,6 +49,8 @@ wf-tree는 선택 계층입니다. 계획을 트리로 수립·시각화하거�
 
 진행 중인 작업은 [docs/status.md](./docs/status.md)가 한 표로 보여 주고, 각 작업의 계획·기록은 [docs/work/](./docs/work/)의 작업 폴더에 있습니다. 완료된 작업 사이클은 포트폴리오에서 제거되며 작업 폴더와 git 이력이 이력의 정본입니다.
 
+작업 기록의 형식과 분량은 린트로 검사합니다: 저장소 루트에서 `python skills/wf-doc/scripts/lint_worklog.py`(열린 작업 기록 전부와 `docs/status.md`를 검사하며 오류가 있으면 exit 1, 인자로 파일 경로를 주면 그 파일만). 린트 자체의 테스트는 `python -m pytest skills/wf-doc/scripts/tests -q`, 훅 테스트는 `powershell -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1`입니다. 실행 시점은 [wf-implement §7 린트](./skills/wf-implement/SKILL.md#린트), 지적 항목의 교정은 [작업 기록 교정 규칙](./skills/wf-doc/references/worklog-style.md)을 따릅니다.
+
 ## 개요 문서
 
 - [01. 요구사항 정의 + SW 설계](./01_REQUIREMENTS_AND_DESIGN.md)

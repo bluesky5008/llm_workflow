@@ -174,21 +174,21 @@
 
 | 요구사항 | 설계 | 작업 | 검증 |
 |---|---|---|---|
-| FR-01 | DES-01, DES-02 | 승인 후 plan.md | AC-01, AC-02 |
-| FR-02 | DES-05, DES-04 | 승인 후 plan.md | AC-03, AC-04 |
-| FR-03 | DES-01, DES-03 | 승인 후 plan.md | AC-01 |
-| FR-04 | DES-02, DES-06, DES-09 | 승인 후 plan.md | AC-02, AC-04 |
-| FR-05 | DES-03, DES-04 | 승인 후 plan.md | AC-06 |
-| FR-06 | DES-05, DES-07 | 승인 후 plan.md | AC-03 |
-| FR-07 | DES-08 | 승인 후 plan.md(Q-02 포함 시) | AC-07 |
-| FR-08 | DES-09 | 승인 후 plan.md | AC-04 |
-| FR-09 | DES-10 | 승인 후 plan.md | AC-08 |
-| NFR-01 | DES-09 | 승인 후 plan.md | AC-05 |
-| NFR-02 | DES-01 | 승인 후 plan.md | AC-01 |
-| NFR-03 | DES-05 | 승인 후 plan.md | AC-03 |
-| NFR-04 | DES-02, DES-03, DES-04 | 승인 후 plan.md | AC-09 |
+| FR-01 | DES-01, DES-02 | [TASK-01](./plan.md#task-01-wf-doc-템플릿--합본-템플릿과-수행-기록-필드), [TASK-03](./plan.md#task-03-wf-implement-75) | AC-01, AC-02 |
+| FR-02 | DES-05, DES-04 | [TASK-04](./plan.md#task-04-린트-스크립트-lint_worklogpy-tdd), [TASK-06](./plan.md#task-06-자기-적용--작업-기록-합본-전환과-추적-링크) | AC-03, AC-04 |
+| FR-03 | DES-01, DES-03 | [TASK-01](./plan.md#task-01-wf-doc-템플릿--합본-템플릿과-수행-기록-필드) | AC-01 |
+| FR-04 | DES-02, DES-06, DES-09 | [TASK-03](./plan.md#task-03-wf-implement-75), [TASK-06](./plan.md#task-06-자기-적용--작업-기록-합본-전환과-추적-링크), [TASK-07](./plan.md#task-07-검증자체-리뷰통합) | AC-02, AC-04 |
+| FR-05 | DES-03, DES-04 | [TASK-02](./plan.md#task-02-wf-doc-본문과-교정-규칙-참조-문서) | AC-06 |
+| FR-06 | DES-05, DES-07 | [TASK-04](./plan.md#task-04-린트-스크립트-lint_worklogpy-tdd) | AC-03 |
+| FR-07 | DES-08 | [TASK-05](./plan.md#task-05-dcr-007--훅-닫힘-상태에-on-hold-tdd) | AC-07 |
+| FR-08 | DES-09 | [TASK-06](./plan.md#task-06-자기-적용--작업-기록-합본-전환과-추적-링크) | AC-04 |
+| FR-09 | DES-10 | [TASK-07](./plan.md#task-07-검증자체-리뷰통합) | AC-08 |
+| NFR-01 | DES-09 | [TASK-06](./plan.md#task-06-자기-적용--작업-기록-합본-전환과-추적-링크), [TASK-07](./plan.md#task-07-검증자체-리뷰통합) | AC-05 |
+| NFR-02 | DES-01 | [TASK-01](./plan.md#task-01-wf-doc-템플릿--합본-템플릿과-수행-기록-필드) | AC-01 |
+| NFR-03 | DES-05 | [TASK-04](./plan.md#task-04-린트-스크립트-lint_worklogpy-tdd) | AC-03 |
+| NFR-04 | DES-02, DES-03, DES-04 | [TASK-02](./plan.md#task-02-wf-doc-본문과-교정-규칙-참조-문서), [TASK-03](./plan.md#task-03-wf-implement-75), [TASK-07](./plan.md#task-07-검증자체-리뷰통합) | AC-09 |
 
-작업 열은 승인 후 wf-implement가 `plan.md`를 만들 때 TASK 링크로 채운다(가상 링크 금지).
+작업 열은 [PLAN-20261009-worklog-diet](./plan.md)의 TASK 링크(2026-10-09, TASK-06에서 기입).
 
 ## 승인 기록
 

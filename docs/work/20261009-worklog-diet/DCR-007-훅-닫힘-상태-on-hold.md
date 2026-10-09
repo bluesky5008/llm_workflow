@@ -2,7 +2,7 @@
 
 > 문서 유형: `dcr`
 > 작업 ID: `20261009-worklog-diet`
-> 상태: `approved`
+> 상태: `completed`
 > 기준선: `v2` (승인일 2026-10-09, v1 → v2) ([REQ-llm-workflow](../../requirements.md)·[DESIGN-llm-workflow](../../design.md), 2026-08-09 승인 기준선)
 > 작성일: 2026-10-09
 > 최종 갱신: 2026-10-09
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: 세션 시작·컴팩션 사후 훅이 "미완료 작업 기록"을 고를 때 `on-hold`(의도적 보류) 작업을 제외한다.
-- 현재 결론 또는 상태: 승인(`approved`, 2026-10-09) — [REQ-DESIGN-worklog-diet Q-02](./req-design.md#가정과-미해결-질문) 포함 결정. REQ·DESIGN-llm-workflow 기준선 v2 발행. 구현·검증은 wf-implement(이 작업의 계획).
-- 다음 행동: 구현(정규식·테스트)과 검증(AC-07) — [작업 기록](./work-log.md).
+- 현재 결론 또는 상태: 완료(`completed`, 2026-10-09 15:25) — 승인(2026-10-09, [Q-02](./req-design.md#가정과-미해결-질문) 포함)으로 REQ·DESIGN-llm-workflow v2 발행, TASK-05에서 구현, VER-07로 검증(Red 21/22 → Green 22/22).
+- 다음 행동: 없음(선택: 다음 세션 시작 시 재개 안내에 보류 작업이 없는지 관찰).
 
 ## 문서 연결
 
@@ -22,7 +22,7 @@
 | input | baseline | [DESIGN-llm-workflow](../../design.md#컴포넌트와-책임) | DES-01, DES-03, 데이터와 인터페이스 "미완료 판정" | 변경 대상 설계(v1) |
 | input | related | [REQ-DESIGN-worklog-diet](./req-design.md) | FR-07, DES-08, Q-02 | 이 DCR을 발생시킨 작업 |
 | input | related | [WORK-20260814-multiuser-workflow](../20260814-multiuser-workflow/work-log.md) | 머리말 상태 `on-hold` | 증거: 보류 작업이 매 세션 재개 안내에 포함됨 |
-| output | verification | TBD — 승인 후 이 작업의 `plan.md`·`work-log.md`에 TASK·VER로 연결 | — | 가상 링크 금지. 생성 시 양쪽 갱신 |
+| output | verification | [TASK-05](./plan.md#task-05-dcr-007--훅-닫힘-상태에-on-hold-tdd), [WORK-20261009-worklog-diet](./work-log.md#인수-조건별-결과) | TASK-05, VER-07 | 훅 러너 Red 21/22 → Green 22/22(2026-10-09) |
 
 ## 변경 사유와 증거
 
@@ -100,12 +100,14 @@
 |---|---|---|---|---|
 | 2026-10-09 | 최초 작성 | 사이클 1 세션 인계(2026-10-09), `20260814-multiuser-workflow` on-hold 전환 후 관찰 | proposed | Claude(작성) |
 | 2026-10-09 | 재승인, 요구사항·설계 기준선 v2 발행 | 사용자 승인(대화형 관문, Q-02 포함) | proposed → approved, v1 → v2 | 사용자(승인) |
+| 2026-10-09 | 구현·검증 완료로 종결 | [WORK-20261009-worklog-diet VER-07](./work-log.md#인수-조건별-결과), design-change §6 완료 조건 5항 충족 | approved → completed | Claude(기록) |
 
 ## 인계
 
 - 다음 단계 또는 워크플로우: wf-implement — 이 작업의 계획에 TASK로 포함(DES-08)
 - 시작 조건: 충족(2026-10-09 승인)
 - 입력 문서와 기준선: 위 문서 연결
-- 완료된 항목: 변경 항목·영향·대안·검증 방법
-- 미완료 항목: 구현·검증(AC-07), 추적 링크(문서 연결 verification 행)
+- 완료된 항목: 변경 항목·영향·대안·검증 방법, 구현(TASK-05)·검증(VER-07), 추적 링크
+- 미완료 항목: 없음
 - 차단 요인: 없음
+- 다음 행동: 없음

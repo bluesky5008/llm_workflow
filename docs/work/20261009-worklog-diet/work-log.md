@@ -1,81 +1,162 @@
 # WORK-20261009-worklog-diet: 작업 기록 — 작업 기록 다이어트·아카이빙·린트
 
-> 문서 유형: `work-log`
+> 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261009-worklog-diet`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `v1` ([REQ-DESIGN-worklog-diet](./req-design.md), 2026-10-09 승인)
 > 작성일: 2026-10-09
 > 최종 갱신: 2026-10-09
-> 관련 문서: [REQ-DESIGN-worklog-diet: 요구사항·설계](./req-design.md), [PLAN-20261009-worklog-diet: 구현 계획](./plan.md), [ADR-005: 작업 기록의 수명주기](./ADR-005-작업-기록-수명주기.md), [ADR-006: 작업 기록 린트의 B층 배치](./ADR-006-작업-기록-린트-B층.md), [DCR-007: 훅 닫힘 상태에 on-hold 추가](./DCR-007-훅-닫힘-상태-on-hold.md), [ST-llm-workflow: 포트폴리오](../../status.md)
+> 관련 문서: [REQ-DESIGN-worklog-diet](./req-design.md), [PLAN-20261009-worklog-diet](./plan.md), [ADR-005](./ADR-005-작업-기록-수명주기.md), [ADR-006](./ADR-006-작업-기록-린트-B층.md), [DCR-007](./DCR-007-훅-닫힘-상태-on-hold.md), [ST-llm-workflow](../../status.md)
 
 ## 요약
 
-- 목적: 사이클 2(사용자 요구 4·5·6)의 wf-design 진행 상태와 재개 지점을 기록한다.
-- 현재 결론 또는 상태: 기준선 v1 승인(2026-10-09, 권장안 전체), 계획 수립 완료(TASK-01~07). **TASK-01 착수 전 세션 인계**(컨텍스트 임계 훅 신호).
-- 다음 행동: [인계](#인계) 절의 "다음 행동".
+- 목적: 사이클 2(요구 4·5·6) 구현의 수행 기록·검증 결과·완료 보고를 한 파일(합본)에 남긴다.
+- 현재 결론 또는 상태: 완료(2026-10-09 15:25) — TASK-01~07 완료, AC-01~09 9/9 성공. 미커밋(커밋은 사용자 요청 시).
+- 다음 행동: 없음
 
 ## 문서 연결
 
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
-| input | baseline | [REQ-DESIGN-worklog-diet](./req-design.md) | FR-01~09, AC-01~09, DES-01~10 | 기준선 v1(2026-10-09 승인) |
-| input | decision | [ADR-005](./ADR-005-작업-기록-수명주기.md), [ADR-006](./ADR-006-작업-기록-린트-B층.md) | document | `approved`(2026-10-09) |
-| input | implementation | [PLAN-20261009-worklog-diet: 구현 계획](./plan.md) | TASK-01~07, VER-01~09 | 이 작업의 계획. 진행 상태는 계획의 작업 목록이 정본 |
-| input | change | [DCR-007](./DCR-007-훅-닫힘-상태-on-hold.md) | document | `approved`(2026-10-09, Q-02 포함). TASK-05에서 구현 |
-| input | related | [ST-llm-workflow: 포트폴리오](../../status.md) | 작업 목록 | 이 작업의 행(작업 기록 시작과 같은 변경에서 추가) |
-| input | related | [WORK-20261009-plan-relocation](../20261009-plan-relocation/work-log.md) | 인계 "다음 행동" | 선행 사이클의 인계에 따라 착수 |
+| input | baseline | [REQ-DESIGN-worklog-diet](./req-design.md) | FR-01~09, AC-01~09, DES-01~10 | 기준선 v1 |
+| input | decision | [ADR-005](./ADR-005-작업-기록-수명주기.md), [ADR-006](./ADR-006-작업-기록-린트-B층.md) | document | `approved` |
+| input | implementation | [PLAN-20261009-worklog-diet](./plan.md) | TASK-01~07, VER-01~09 | 계획의 작업 목록이 진행 상태의 정본 |
+| input | change | [DCR-007](./DCR-007-훅-닫힘-상태-on-hold.md) | document | TASK-05에서 구현, VER-07로 검증, `completed` |
+| input | related | [ST-llm-workflow](../../status.md) | 변경 이력 | 완료 보고 종결로 행 제거 |
+| input | related | [WORK-20261009-plan-relocation](../20261009-plan-relocation/work-log.md) | 인계 | 선행 사이클 |
 
 ## 기준선과 현재 계획
 
-- 기준선: [REQ-DESIGN-worklog-diet v1](./req-design.md)(2026-10-09 승인), [ADR-005](./ADR-005-작업-기록-수명주기.md)·[ADR-006](./ADR-006-작업-기록-린트-B층.md), [DCR-007](./DCR-007-훅-닫힘-상태-on-hold.md)(C층 v2)
-- 계획: [PLAN-20261009-worklog-diet](./plan.md) — TASK-01~07, 트리 1회 생성(2026-10-09 14:50). 진행 상태는 계획의 작업 목록이 정본
-
-## 현재 상태
-
-- 진행 중인 작업: 없음(TASK-01 착수 전)
-- 마지막 완료 작업: 계획 수립(2026-10-09 14:50)
-- 차단 요인: 없음
+- 기준선: [REQ-DESIGN-worklog-diet v1](./req-design.md), [ADR-005](./ADR-005-작업-기록-수명주기.md)·[ADR-006](./ADR-006-작업-기록-린트-B층.md), [DCR-007](./DCR-007-훅-닫힘-상태-on-hold.md)(C층 v2)
+- 계획: [PLAN-20261009-worklog-diet](./plan.md) — TASK-01~07
 
 ## 수행 기록
 
-### 2026-10-09 — wf-design 착수, 조사, 요구·설계 확정, 승인 요청
+### 2026-10-09 — wf-design (조사·요구·설계·ADR·DCR)
 
-- 수행 내용: 선행 사이클 인계에 따라 작업 ID `20261009-worklog-diet` 발행. 요구 4·5·6 원문을 2026-10-09 세션 기록에서 복구(저장소에는 없었음). §4.1 조사: 현행 규정(wf-implement §7, wf-doc 템플릿 3종·§2.1·§2.7·§4), 작업 기록 8편 실측(최대 234행·26KB, 중복 절, 680자 불릿), 훅 닫힘 상태 목록, 들어오는 링크 수, 도구 가용성, 스킬 어절(6,351). req-design(FR-01~09, NFR-01~04, AC-01~09, DES-01~10, Q-01~05, RISK-01~06), ADR-005·006, DCR-007 작성. `docs/status.md` 행 추가, `docs/decisions.md` 3행, 역방향 링크(사이클 1 req-design, 다인 토론 work-log, `docs/requirements.md`·`design.md`).
-- 변경 파일: 이 폴더 5개 파일(신설), `docs/status.md`, `docs/decisions.md`, `docs/requirements.md`·`docs/design.md`(문서 연결 행), `docs/work/20261009-plan-relocation/req-design.md`·`docs/work/20260814-multiuser-workflow/work-log.md`(문서 연결 행)
-- 발견 사항: 비대화 원인은 합본 필수 절 중복·`수행 내용`/`변경 파일` 필드·집행 수단 없는 산문 규칙 3가지. 훅은 위치 무관이라 아카이빙에 이동이 불필요. `on-hold` 제외는 C층 기준선 변경이라 DCR 필요.
-- 결정과 이유: 아카이빙 = 상태 전이 시 축약 + 제자리 동결(ADR-005). 린트 = `skills/wf-doc/scripts/` Python 표준 라이브러리(ADR-006). Q-01~Q-05는 권장안과 함께 사용자 결정으로 남김.
-- 실행한 검증: 신규 5·수정 6 파일의 상대 링크·앵커 존재 검사(Python, GitHub 슬러그) — 293개 링크, 깨진 링크 0. wf-design §4.5 체크리스트 8항 통과(핵심 요구사항 전부 DES 연결, AC 전부 검증 방법 있음, 제외 절 명시, 실패 복구는 git revert·수동 검토 대체, 호환성은 NFR-01·RISK-05).
-- 결과: 완료(승인 요청 상태, 2026-10-09)
+- 발견 사항: 비대화 원인 3가지 — 합본 시 절 중복, `수행 내용`·`변경 파일` 필드(계획·git과 중복), 집행 수단 없는 산문 규칙. `on-hold` 제외는 C층 기준선 변경(DCR 필요).
+- 결정과 이유: 아카이빙 = 상태 전이 시 축약·제자리 동결(ADR-005). 린트 = `skills/wf-doc/scripts/` Python 표준 라이브러리(ADR-006). Q-01~05는 권장안을 붙여 사용자 결정으로.
+- 검증: 신규 5·수정 6 파일 링크 293개 깨짐 0. wf-design §4.5 체크리스트 8항 통과.
+- 결과: 완료 — 2026-10-09(승인 요청)
 
-### 2026-10-09 — 승인 처리와 계획 수립 (wf-implement §3.1·3.2)
+### 2026-10-09 — 승인 처리와 계획 수립
 
-- 수행 내용: 사용자 응답 "권장안 전체 승인" 반영 — req-design `approved`·v1(Q-01~05 결정 열), ADR-005·006 `approved`, DCR-007 `approved`에 따라 `docs/requirements.md`·`docs/design.md` v2(FR-01·AC-01·DES-01·열린 작업 판정 문구, 승인 기록·변경 이력), `docs/decisions.md`·`docs/status.md` 갱신. §3.1 재확인: HEAD f0c1b4d 불변, 미커밋은 이 작업 변경과 `docs/paper/`뿐, 훅 테스트 21/21. [plan.md](./plan.md) 작성(TASK-01~07, 트리 1회 생성).
-- 변경 파일: 이 폴더 6개 파일, `docs/requirements.md`, `docs/design.md`, `docs/decisions.md`, `docs/status.md`
-- 결정과 이유: TASK 순서 — 합본 절 목록의 정본인 템플릿(TASK-01)을 린트(TASK-04)보다 먼저, 린트를 자기 적용(TASK-06)보다 먼저. TDD는 TASK-04·05에만 적용(자동 테스트 체계가 있는 변경), 나머지는 후행 검증.
-- 실행한 검증: 훅 테스트 러너 21/21(기존 상태 확인)
-- 결과: 완료(2026-10-09 14:50). 직후 컨텍스트 임계 훅 신호로 세션 인계. 사용자 요청으로 커밋 `58a0d7d`(이 작업 폴더 + C층 v2 + 등록부·포트폴리오·역방향 링크) 생성·origin/main 푸시
+- 결정과 이유: TASK 순서 템플릿(01) → 린트(04) → 자기 적용(06). TDD는 자동 테스트 체계가 있는 TASK-04·05에만.
+- 검증: §3.1 재확인 — HEAD f0c1b4d 불변, 훅 러너 21/21.
+- 결과: 완료 — 2026-10-09 14:50. 컨텍스트 임계 신호로 세션 인계, 사용자 요청으로 커밋 `58a0d7d` 푸시.
+
+### 2026-10-09 — TASK-01 (wf-doc 템플릿 합본)
+
+- 발견 사항: 세 템플릿 앵커로 들어오는 링크 8곳. 원본 CRLF.
+- 결정과 이유: 제목 `## 작업 기록 (work-log)` 유지 — 앵커 보존. 펜스는 공통 머리말 뒤부터, H2 8개 목록은 불릿에 명시. verification·completion은 제목·문서 ID 유지 + 포인터 1문장.
+- 검증: H2 8개 FR-03과 순서 일치, H3 10개, 골격에 `변경 파일` 없음, 절 109행 → 83행, 링크 47개 깨짐 0, 앵커 3개 유지.
+- 결과: 완료 — 2026-10-09 14:58
+
+### 2026-10-09 — TASK-02 (wf-doc 본문·교정 규칙)
+
+- 발견 사항: wf-doc 어절 3,137 → 3,220, 합 6,434(기준 6,351 초과 — TASK-03에서 상쇄).
+- 결정과 이유: §4 린트 항목은 명령 대신 wf-implement 링크(정본 한 곳). 린트 대상이 아닌 문서는 수동 링크 검토 유지. worklog-style의 사이클 1 출처는 이식성 때문에 링크가 아닌 텍스트.
+- 검증: grep — 옛 수동 항목 0, 린트 항목·worklog-style 링크·합본 규칙·4필드 축약 각 1. 링크 88개 깨짐 0. worklog-style.md 40행(≤ 60).
+- 결과: 완료 — 2026-10-09 15:02
+
+### 2026-10-09 — TASK-03 (wf-implement §7·§5)
+
+- 발견 사항: 소절 추가 직후 어절 합 6,483. §3.3 경계 재진술 문단(경계표·§4.2와 중복)과 §3.4 중복 문장 삭제로 상쇄.
+- 결정과 이유: 린트 명령은 저장소 경로, 설치 경로 안내는 스크립트 도움말로. 아카이빙 소절은 ADR-005 미링크(스킬은 junction 이식). wf-doc 경계표 작업 기록 행의 `변경 파일` 제거, §2.8 경량 경로 문서는 유지.
+- 검증: AC-02 grep 충족(아카이빙 a·b·c, 린트 시점 3곳, §5 1항). 어절 3,148 + 3,200 = 6,348. 링크 129개 깨짐 0.
+- 결과: 완료 — 2026-10-09 15:10
+
+### 2026-10-09 — TASK-04 (린트 스크립트, TDD)
+
+- 결정과 이유: L8 양방향 — 열린 기록은 행 필수, 행의 기록이 completed 계열이면 오류, `on-hold` 행은 선택. L2는 H2만. 열린 상태의 재개 프롬프트 필수.
+- 검증: Red — pytest 수집 오류(ModuleNotFoundError). Green — 33 passed(0.40s). 루트 실행 exit 1, 오류 13건 전부 이 work-log(전환 전), status.md 0건, 0.06초.
+- 결과: 완료 — 2026-10-09 15:16
+
+### 2026-10-09 — TASK-05 (DCR-007 훅 닫힘 상태 on-hold, TDD)
+
+- 결정과 이유: 케이스 번호는 DCR-007 명세대로 T03b(T03 뒤). 훅 주석에 DCR-007 근거 1줄.
+- 검증: Red — T03b 추가 후 러너 21/22(T03b만 실패). Green — 정규식에 `on-hold` 추가 후 22/22. 린트 CLOSED 목록과 훅 정규식 동일(grep).
+- 결과: 완료 — 2026-10-09 15:21
+
+### 2026-10-09 — TASK-06 (자기 적용)
+
+- 결정과 이유: 기존 항목 7개를 교정 규칙(변환표)으로 압축 — 파일 상한 13KB(한글 3바이트)와 TASK-07 기입 여유 확보. 검증 표의 AC ID는 평문(문서 연결 행이 req-design을 링크). 롤백 사본은 스크래치 `work-log.before-task06.md`.
+- 검증: 린트 루트 실행 exit 0(오류 0·경고 0). 8,783바이트, H2 8, 펜스 0, 최장 불릿 214자, 항목 최대 4행·329자. req-design 추적표 13행·DCR-007 검증 행 기입 후 링크 142개 깨짐 0.
+- 결과: 완료 — 2026-10-09 15:22
+
+### 2026-10-09 — TASK-07 (검증·자체 리뷰·통합)
+
+- 결정과 이유: DCR-007을 `completed`로 전이 — design-change.md §6의 5조건(승인, 문서 일관, 계획·검증 반영, 구현 검증, 통합) 충족. README는 범위 밖이라 수정하지 않고 후속 작업으로.
+- 검증: VER-01~09 9/9 성공([인수 조건별 결과](#인수-조건별-결과)). §3.5 자체 리뷰 — 스킬·훅 diff 통독: 범위 밖 변경 없음, 옛 절 이름 참조 0, `__pycache__`는 .gitignore 대상.
+- 결과: 완료 — 2026-10-09 15:25
 
 ## 설계와 달라진 점
 
 없음.
 
-## 미완료 항목
+## 검증 결과
 
-- TASK-01~07([plan.md](./plan.md#작업-목록))
+### 범위와 환경
 
-## 재개 지점
+- 대상 기준선 또는 구현: 기준선 v1(FR-01~09, NFR-01~04, DES-01~10), DCR-007(C층 v2), TASK-01~07의 변경
+- 실행 환경: Windows 11, Python 3.13.1, pytest 9.1.1, Windows PowerShell 5.1, 저장소 루트(HEAD `db50d91`)
+- 제외 항목: DCR-007 실세션 관찰(선택 항목) — 다음 세션 시작 시 확인
 
-- 다음 작업: TASK-01(wf-doc 템플릿 합본)
-- 먼저 확인할 사항: `git status --short`(미추적 `docs/paper/`만 남아야 함 — 설계·계획은 커밋 `58a0d7d`로 푸시됨), 훅 테스트 21/21
-- 필요한 명령 또는 파일: [plan.md](./plan.md) TASK-01, `skills/wf-doc/references/templates.md` 372~480행(work-log·verification·completion 템플릿)
+### 결과 요약
+
+- 성공: VER-01~09(9/9)
+- 실패: 없음
+- 미수행: 없음
+
+### 인수 조건별 결과
+
+| 검증 ID | 인수 조건 | 방법·명령 | 결과 | 증거 |
+|---|---|---|---|---|
+| VER-01 | AC-01 | templates.md 펜스 H2 추출(Python), `변경 파일` grep | 성공 | 공통 2 + 펜스 6 = FR-03 8개 순서 일치, 골격 `변경 파일` 0, 포인터 절 2 |
+| VER-02 | AC-02 | wf-implement §7·§5 grep | 성공 | 아카이빙 (a)(b)(c)·린트 시점 3곳·§5 1항 각 1. "변경 파일"은 계획 경계표·금지 문장 2행뿐 |
+| VER-03 | AC-03 | `python -m pytest skills/wf-doc/scripts/tests -q`, 루트 실행 | 성공 | 33 passed(0.26s), 루트 exit 0(0.06초). Red 기록은 TASK-04 항목 |
+| VER-04 | AC-04 | 린트 + 크기·H2·불릿·항목 측정(Python) | 성공 | 명시 경로 린트 오류 0, 10,905바이트, H2 8, 펜스 0, 최장 불릿 ≤ 300, 항목 ≤ 4행 |
+| VER-05 | AC-05 | `git diff --stat` 완료 로그 7편·선행 req-design·ADR·DCR 폴더 | 성공 | 출력 없음(무변경) |
+| VER-06 | AC-06 | wf-doc §4 grep, worklog-style 존재·링크 | 성공 | 옛 수동 항목 0, 린트 항목 1, worklog-style 링크 1, 파일 40행 |
+| VER-07 | AC-07 | run-tests.ps1, C층 머리말·등록부 grep | 성공 | Red 21/22(T03b만 실패) → Green 22/22. requirements·design `v2`, DCR-007 등록부 행 |
+| VER-08 | AC-08 | decisions.md grep, 닿은 파일 링크 전수 검사 | 성공 | ADR-005·006 approved. 링크 290개 깨짐 0(인라인 코드 예시 2건 제외) |
+| VER-09 | AC-09 | 어절 `len(text.split())`, frontmatter 제외 | 성공 | 3,148 + 3,200 = 6,348 ≤ 6,351 |
+
+### 실패와 미수행 분석
+
+- 없음. 비기능은 VER-03(NFR-03), VER-05(NFR-01), VER-01(NFR-02), VER-09(NFR-04)로 판정.
+
+## 완료 보고
+
+### 완료 상태
+
+- 결과: 완료
+- 완료 판단 근거: TASK-01~07 완료, AC-01~09 9/9 성공, pytest 33·훅 22 통과, 린트 0 오류, 자체 리뷰 문제 0.
+
+### 주요 변경
+
+- wf-doc: 합본 템플릿, §2.1·§2.5·§2.7·§4, `references/worklog-style.md`, `scripts/lint_worklog.py` + pytest 33.
+- wf-implement: §7 아카이빙 시점·린트 소절, §5 린트 1항, §3.3·§3.4·§6 중복 삭제. 훅: 닫힘 정규식 `on-hold`, T03b.
+- 이 작업 기록의 합본 전환, req-design 추적표·DCR-007 검증 행, DCR-007 `completed`, 등록부·status.md 갱신.
+
+### 통합 상태
+
+- 로컬 작업 사본에 반영, 미커밋 — 커밋·push는 사용자 요청 시. 롤백은 [plan.md](./plan.md#마이그레이션과-롤백).
+
+### 남은 위험과 제한
+
+- 상한 상수(600자·300자·12KB)는 초깃값 — 두 사이클 운용 후 조정. 린트는 수동 실행(훅 연동은 범위 밖, ADR-006). Python 없는 환경은 수동 검토로 대체(RISK-03).
+- 완료 로그 7편은 옛 형식 그대로 동결(NFR-01) — 린트 기본 대상이 아니라 영향 없음.
+
+### 후속 작업
+
+- 린트의 훅 연동 검토 — 두 사이클 운용 후, 사용자 결정(ADR-006 후속).
+- DCR-007 실세션 관찰(선택) — 다음 세션 시작 시 재개 안내에 `20260814-multiuser-workflow`가 없는지 확인.
+- README에 린트·pytest 실행 안내 추가 여부 — 사용자 결정.
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement §3.3 구현 — [plan.md](./plan.md) 작업 목록 순서(TASK-01 → 02 → 03 → 04 → 05 → 06 → 07)
-- 시작 조건: 충족 — 기준선 v1, 계획 수립 완료
-- 입력 문서와 기준선: [REQ-DESIGN-worklog-diet v1](./req-design.md), [PLAN-20261009-worklog-diet](./plan.md), [ADR-005](./ADR-005-작업-기록-수명주기.md), [ADR-006](./ADR-006-작업-기록-린트-B층.md), [DCR-007](./DCR-007-훅-닫힘-상태-on-hold.md)
-- 완료된 항목: wf-design 전체(조사·요구·설계·ADR·DCR·승인 v1), 승인 반영(C층 v2 포함), 계획 수립
-- 미완료 항목: TASK-01~07 전부(미착수). 미커밋 변경 없음(커밋 `58a0d7d` 푸시, 2026-10-09)
-- 차단 요인: 없음
-- 다음 행동: TASK-01을 시작한다 — `skills/wf-doc/references/templates.md`의 `## 작업 기록 (work-log)` 절을 req-design FR-03의 H2 8개·H3 구조와 FR-01 필드(결정과 이유·발견 사항·검증·결과 필수/선택, `수행 내용` 선택, `변경 파일` 없음)로 바꾸고, `## 검증 결과`·`## 완료 보고` 절을 합본 포인터로 축소하며 목차를 맞춘다. 완료 시 plan.md TASK-01 상태·완료 시각과 이 기록을 갱신하고 TASK-02로 간다. 커밋은 사용자 요청 시에만.
-- 재개 프롬프트: 작업 20261009-worklog-diet 재개 — docs/work/20261009-worklog-diet/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: wf-design 전체, 승인 반영(C층 v2), 계획 수립, TASK-01~07(2026-10-09 14:58~2026-10-09 15:25)
+- 미완료 항목: 없음
+- 다음 행동: 없음

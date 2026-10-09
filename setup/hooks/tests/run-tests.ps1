@@ -87,6 +87,13 @@ $out = Invoke-Hook 'wf-session-start.ps1' @{ session_id='wf-test-ss2'; transcrip
 Assert-True ($out -eq '') 'T03 session-start silent when all work-logs closed'
 Assert-True (Test-Path (Get-StateFile 'wf-test-ss2')) 'T04 session-start still records baseline without open work'
 
+# T03b: only an on-hold work-log -> silent (DCR-007: on-hold is a closed state for the hook), baseline still recorded
+$ws = New-TestDir 'ss-onhold'
+New-WorkLog $ws '20990103-hold' 'on-hold'
+$t = New-Transcript $ws 5
+$out = Invoke-Hook 'wf-session-start.ps1' @{ session_id='wf-test-ss2b'; transcript_path=$t; cwd=$ws; hook_event_name='SessionStart'; source='startup' }
+Assert-True ($out -eq '' -and (Test-Path (Get-StateFile 'wf-test-ss2b'))) 'T03b session-start silent when only on-hold work-log; baseline recorded'
+
 # T05: no docs/work -> fully silent, no state file (FR-05 guard)
 $ws = New-TestDir 'ss-guard'
 $t = New-Transcript $ws 5

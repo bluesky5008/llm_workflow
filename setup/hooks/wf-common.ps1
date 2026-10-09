@@ -17,7 +17,8 @@ function Get-WfWorkDir([object]$HookInput) {
     return $null
 }
 
-# A work-log counts as open unless its header carries a closed status. Statuses
+# A work-log counts as open unless its header carries a closed status (on-hold
+# included — DCR-007: holds resume only by user decision, not per session). Statuses
 # are backticked ASCII tokens, so no Korean matching is needed; files without a
 # readable header are skipped to avoid false positives.
 function Get-WfOpenWorkLogs([string]$WorkDir) {
@@ -26,7 +27,7 @@ function Get-WfOpenWorkLogs([string]$WorkDir) {
         $log = Join-Path $dir.FullName 'work-log.md'
         if (-not (Test-Path $log)) { continue }
         $head = Get-Content $log -TotalCount 12 -Encoding UTF8
-        $closed = $head | Where-Object { $_ -match '`(completed|superseded|rejected|withdrawn)`' }
+        $closed = $head | Where-Object { $_ -match '`(completed|superseded|rejected|withdrawn|on-hold)`' }
         if (-not $closed) { $open += $dir.Name }
     }
     return ,$open
