@@ -33,7 +33,7 @@
 | [skills/wf-design](./skills/wf-design/SKILL.md) | 요구사항·설계의 의미, ADR/DCR 판단, 코드 역공학의 현행 상태 복원, 승인과 기준선의 효력 |
 | [skills/wf-implement](./skills/wf-implement/SKILL.md) | 승인된 기준선의 구현, 테스트 우선(TDD)과 테스트 실행·증거, 리뷰와 통합 |
 | [skills/wf-doc](./skills/wf-doc/SKILL.md) | 기록할 Markdown 구조, 상태 표기, 식별자, 하이퍼링크, 추적표와 인계 형식 |
-| [skills/wf-tree](./skills/wf-tree/SKILL.md) | 작업 계획의 트리 구조화, 분기 템플릿 제안, 포트폴리오·진행 시각화 |
+| [skills/wf-tree](./skills/wf-tree/SKILL.md) | 작업 계획의 트리 구조화, 필수 게이트, 포트폴리오·진행 시각화(`scripts/render.py`) |
 
 wf-doc은 별도의 실행 단계가 아니라 두 워크플로우 전체에 적용되는 문서 계층입니다. 문서의 현재 상태, 기준선, 문서간 양방향 하이퍼링크, 추적 관계, 검증 증거와 다음 인계 지점을 같은 방식으로 기록합니다.
 
@@ -50,6 +50,8 @@ wf-tree는 선택 계층입니다. 계획을 트리로 수립·시각화하거�
 진행 중인 작업은 [docs/status.md](./docs/status.md)가 한 표로 보여 주고, 각 작업의 계획·기록은 [docs/work/](./docs/work/)의 작업 폴더에 있습니다. 완료된 작업 사이클은 포트폴리오에서 제거되며 작업 폴더와 git 이력이 이력의 정본입니다.
 
 작업 기록의 형식과 분량은 린트로 검사합니다: 저장소 루트에서 `python skills/wf-doc/scripts/lint_worklog.py`(열린 작업 기록 전부와 `docs/status.md`를 검사하며 오류가 있으면 exit 1, 인자로 파일 경로를 주면 그 파일만). 린트 자체의 테스트는 `python -m pytest skills/wf-doc/scripts/tests -q`, 훅 테스트는 `powershell -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1`입니다. 실행 시점은 [wf-implement §7 린트](./skills/wf-implement/SKILL.md#린트), 지적 항목의 교정은 [작업 기록 교정 규칙](./skills/wf-doc/references/worklog-style.md)을 따릅니다.
+
+스킬 문서는 **본문(SKILL.md) · references/ · scripts/** 세 층으로 나뉩니다. 본문에는 항상 따르는 판단 규칙·가드·라우팅·경고와 트리거 문장만 두고, 절차 세부·표기 세칙·템플릿·체크리스트는 references에, 기계적으로 재현 가능한 작업은 scripts에 둡니다. 판정 규칙 R1~R5, 트리거 문장 의무, 본문 어절 상한과 그 조정 절차는 [ADR-010 스킬 문서의 계층 규칙](./docs/work/20261009-skill-diet/ADR-010-스킬-문서-계층-규칙.md)이 정본입니다. `skills/*/SKILL.md`나 `references/*.md`를 바꾸는 커밋 전에는 저장소 루트에서 `python skills/wf-doc/scripts/lint_skill.py`(인자 없음: 스킬 전부, 인자: 지정 SKILL.md)를 실행합니다. 어절 상한·`## 주의` 절·링크·고아 references·큰 표와 코드블록을 검사하며 오류가 있으면 exit 1입니다. 계획 트리는 `python skills/wf-tree/scripts/render.py <plan.md|status.md> [--write]`로 생성합니다(테스트: `python -m pytest skills/wf-tree/scripts/tests -q`).
 
 ## 개요 문서
 
