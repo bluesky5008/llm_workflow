@@ -53,6 +53,8 @@ wf-tree는 선택 계층입니다. 계획을 트리로 수립·시각화하거�
 
 스킬 문서는 **본문(SKILL.md) · references/ · scripts/** 세 층으로 나뉩니다. 본문에는 항상 따르는 판단 규칙·가드·라우팅·경고와 트리거 문장만 두고, 절차 세부·표기 세칙·템플릿·체크리스트는 references에, 기계적으로 재현 가능한 작업은 scripts에 둡니다. 판정 규칙 R1~R5, 트리거 문장 의무, 본문 어절 상한과 그 조정 절차는 [ADR-010 스킬 문서의 계층 규칙](./docs/work/20261009-skill-diet/ADR-010-스킬-문서-계층-규칙.md)이 정본입니다. `skills/*/SKILL.md`나 `references/*.md`를 바꾸는 커밋 전에는 저장소 루트에서 `python skills/wf-doc/scripts/lint_skill.py`(인자 없음: 스킬 전부, 인자: 지정 SKILL.md)를 실행합니다. 어절 상한·`## 주의` 절·링크·고아 references·큰 표와 코드블록을 검사하며 오류가 있으면 exit 1입니다. 계획 트리는 `python skills/wf-tree/scripts/render.py <plan.md|status.md> [--write]`로 생성합니다(테스트: `python -m pytest skills/wf-tree/scripts/tests -q`).
 
+**버전 기준선.** 커밋 `e937c5a`(2026-10-09, 사이클 1~4 완료)에 태그 `v1`을 두었습니다. 이 시점까지가 v1이고, 이후 외부 조사 결과를 적용하는 변경은 v2로 구분합니다. v2 전환 조사의 액션 아이템과 산출물은 [docs/research/20261010-v2-research/](./docs/research/20261010-v2-research/00_action_items.md)에 있습니다.
+
 ## 개요 문서
 
 - [01. 요구사항 정의 + SW 설계](./01_REQUIREMENTS_AND_DESIGN.md)
