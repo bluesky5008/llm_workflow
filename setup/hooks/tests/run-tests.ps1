@@ -44,6 +44,21 @@ function New-Transcript([string]$Dir, [int]$SizeKB) {
     return $p
 }
 
+# Builds a transcript-shaped JSONL line (DES-02 v3 usage signal). Only the
+# fields the hook reads are modelled; the real file carries many more.
+function New-UsageLine([int]$InputTokens, [int]$CacheCreate, [int]$CacheRead, [bool]$Sidechain = $false) {
+    $sc = if ($Sidechain) { 'true' } else { 'false' }
+    return '{"parentUuid":"p","isSidechain":' + $sc + ',"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"ok"}],"usage":{"input_tokens":' + $InputTokens + ',"cache_creation_input_tokens":' + $CacheCreate + ',"cache_read_input_tokens":' + $CacheRead + ',"cache_creation":{"ephemeral_5m_input_tokens":' + $CacheCreate + ',"ephemeral_1h_input_tokens":0},"output_tokens":12,"service_tier":"standard"}},"uuid":"u"}'
+}
+
+function New-ToolResultLine([int]$PayloadBytes) {
+    return '{"parentUuid":"u","isSidechain":false,"type":"user","message":{"role":"user","content":[{"tool_use_id":"t","type":"tool_result","content":"' + ('x' * $PayloadBytes) + '"}]},"uuid":"r"}'
+}
+
+function Write-TranscriptLines([string]$Path, [string[]]$Lines) {
+    [IO.File]::WriteAllText($Path, (($Lines -join "`n") + "`n"), (New-Object Text.UTF8Encoding($false)))
+}
+
 function Get-StateFile([string]$SessionId) {
     return Join-Path $env:TEMP "claude-wf\$SessionId.json"
 }
@@ -63,6 +78,8 @@ New-Item -ItemType Directory -Force $stateDir | Out-Null
 Get-ChildItem $stateDir -Filter 'wf-test-*.json' | Remove-Item -Force
 Remove-Item Env:\CLAUDE_WF_THRESHOLD_KB -ErrorAction SilentlyContinue
 Remove-Item Env:\CLAUDE_WF_REWARN_KB -ErrorAction SilentlyContinue
+Remove-Item Env:\CLAUDE_WF_THRESHOLD_TOKENS -ErrorAction SilentlyContinue
+Remove-Item Env:\CLAUDE_WF_REWARN_TOKENS -ErrorAction SilentlyContinue
 
 try {
 
@@ -148,6 +165,69 @@ $t2 = New-Transcript $ws2 500
 $out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th3'; transcript_path=$t2; cwd=$ws2; hook_event_name='PostToolUse'; tool_name='Bash' }
 Assert-True ($out -eq '') 'T13 threshold no-op without docs/work (guard)'
 
+# ---------- wf-context-threshold.ps1 : usage signal (DES-02 v3, ADR-012) ----------
+# T07..T13 above use zero-byte transcripts (no parseable usage) and therefore
+# exercise the byte-growth fallback. The cases below put real usage lines in.
+
+$env:CLAUDE_WF_THRESHOLD_TOKENS = '100000'
+$env:CLAUDE_WF_REWARN_TOKENS = '10000'
+$env:CLAUDE_WF_THRESHOLD_KB = '100000'   # make the byte fallback unreachable here
+
+# T22: usage above token threshold with negligible byte growth -> inject (usage wins over bytes)
+$ws = New-TestDir 'th-usage'
+New-WorkLog $ws '20990106-open' 'in-progress'
+$t = Join-Path $ws 'transcript.jsonl'
+Write-TranscriptLines $t @((New-UsageLine 2000 5000 3000))     # 10k: below threshold
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th4'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }   # bootstraps state
+Write-TranscriptLines $t @((New-UsageLine 2000 5000 3000), (New-UsageLine 1500 500 110000))   # 112k
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th4'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -match 'hookSpecificOutput' -and $out -match 'context_tokens=112000') 'T22 threshold injects on usage tokens >= threshold and reports the measured value'
+
+# T23: same tokens again -> suppressed by token re-warn interval
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th4'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -eq '') 'T23 threshold token re-warn suppressed without further growth'
+
+# T24: tokens grow past re-warn interval -> inject again
+Write-TranscriptLines $t @((New-UsageLine 1500 500 110000), (New-UsageLine 1500 500 121000))   # 123k (+11k)
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th4'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -match 'hookSpecificOutput') 'T24 threshold re-warns after token re-warn interval'
+
+# T25: context shrank below the last warning (compaction without hook) then re-crossed -> inject (lastWarned reset)
+Write-TranscriptLines $t @((New-UsageLine 1000 500 40000), (New-UsageLine 1000 500 100000))   # 101.5k < lastWarned 123k but >= threshold
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th4'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -match 'hookSpecificOutput') 'T25 threshold treats a shrunken context as a fresh crossing'
+
+# T26: huge byte growth but usage below threshold -> silent (bytes are NOT consulted when usage is readable)
+$ws = New-TestDir 'th-usage-low'
+New-WorkLog $ws '20990107-open' 'in-progress'
+$t = Join-Path $ws 'transcript.jsonl'
+Write-TranscriptLines $t @((New-UsageLine 1000 1000 1000))
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th5'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+$env:CLAUDE_WF_THRESHOLD_KB = '50'
+Write-TranscriptLines $t @((New-UsageLine 1000 1000 1000), (New-ToolResultLine 600000), (New-UsageLine 1000 1000 30000))   # +600KB bytes, 32k tokens
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th5'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -eq '') 'T26 threshold silent when usage is readable and below threshold despite large byte growth'
+$env:CLAUDE_WF_THRESHOLD_KB = '100000'
+
+# T27: last usage line is buried under a large tool_result line -> still found within the tail window
+Write-TranscriptLines $t @((New-UsageLine 1000 1000 30000), (New-UsageLine 1000 1000 150000), (New-ToolResultLine 600000))
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th5'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -match 'context_tokens=152000') 'T27 threshold finds the last usage behind a large tool_result line'
+
+# T28: trailing sidechain (subagent) usage is ignored; main-agent usage decides
+$ws = New-TestDir 'th-sidechain'
+New-WorkLog $ws '20990108-open' 'in-progress'
+$t = Join-Path $ws 'transcript.jsonl'
+Write-TranscriptLines $t @((New-UsageLine 1000 1000 1000))
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th6'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Write-TranscriptLines $t @((New-UsageLine 1000 1000 1000), (New-UsageLine 1000 1000 140000), (New-UsageLine 500 0 2000 $true))
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th6'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -match 'context_tokens=142000') 'T28 threshold skips sidechain usage lines'
+
+Remove-Item Env:\CLAUDE_WF_THRESHOLD_TOKENS -ErrorAction SilentlyContinue
+Remove-Item Env:\CLAUDE_WF_REWARN_TOKENS -ErrorAction SilentlyContinue
+$env:CLAUDE_WF_THRESHOLD_KB = '50'
+
 # ---------- wf-post-compact.ps1 ----------
 
 # T14: open work-log -> inject re-anchor message, reset baseline to current size
@@ -231,6 +311,8 @@ Assert-True ($c.SessionStart -eq 3 -and $c.PostToolUse -eq 1 -and -not $hasOld) 
 } finally {
     Remove-Item Env:\CLAUDE_WF_THRESHOLD_KB -ErrorAction SilentlyContinue
     Remove-Item Env:\CLAUDE_WF_REWARN_KB -ErrorAction SilentlyContinue
+    Remove-Item Env:\CLAUDE_WF_THRESHOLD_TOKENS -ErrorAction SilentlyContinue
+    Remove-Item Env:\CLAUDE_WF_REWARN_TOKENS -ErrorAction SilentlyContinue
 }
 
 Write-Host ''

@@ -47,16 +47,61 @@ function Get-WfTranscriptBytes([object]$HookInput) {
     return [long]0
 }
 
+# DES-02 v3 (ADR-012): current context size in tokens, read from the newest
+# main-agent assistant line of the transcript. Claude Code writes the API
+# usage block on every assistant line; input + cache_creation + cache_read is
+# the prompt size of that call, i.e. the context the model is carrying.
+# Reads only the last $TailBytes of the file (one seek, no full parse) and
+# returns $null when nothing parseable is there, so callers can fall back.
+function Get-WfContextTokens([string]$TranscriptPath, [int]$TailBytes = 1048576) {
+    if (-not ($TranscriptPath -and (Test-Path $TranscriptPath))) { return $null }
+    $fs = [IO.File]::Open($TranscriptPath, 'Open', 'Read', 'ReadWrite')
+    try {
+        $len = $fs.Length
+        if ($len -le 0) { return $null }
+        $take = [int][Math]::Min([long]$TailBytes, $len)
+        $fs.Seek(-$take, 'End') | Out-Null
+        $buf = New-Object byte[] $take
+        $read = 0
+        while ($read -lt $take) {
+            $n = $fs.Read($buf, $read, $take - $read)
+            if ($n -le 0) { break }
+            $read += $n
+        }
+    } finally { $fs.Dispose() }
+    $text = [Text.Encoding]::UTF8.GetString($buf, 0, $read)
+    $lines = $text -split "`n"
+    # usage object may nest one level (cache_creation{...}, server_tool_use{...})
+    $usageRe = [regex]'"usage":\{(?:[^{}]|\{[^{}]*\})*\}'
+    for ($i = $lines.Length - 1; $i -ge 0; $i--) {
+        $line = $lines[$i]
+        if ($line.IndexOf('"type":"assistant"') -lt 0) { continue }
+        if ($line.IndexOf('"isSidechain":true') -ge 0) { continue }
+        $m = $usageRe.Match($line)
+        if (-not $m.Success) { continue }
+        $u = $m.Value
+        $total = [long]0
+        $found = $false
+        foreach ($key in @('"input_tokens":', '"cache_creation_input_tokens":', '"cache_read_input_tokens":')) {
+            $km = [regex]::Match($u, [regex]::Escape($key) + '(\d+)')
+            if ($km.Success) { $total += [long]$km.Groups[1].Value; $found = $true }
+        }
+        if ($found) { return $total }
+    }
+    return $null
+}
+
 function Read-WfState([string]$Path) {
     if (Test-Path $Path) { return (Get-Content $Path -Raw -Encoding UTF8 | ConvertFrom-Json) }
     return $null
 }
 
-function Write-WfState([string]$Path, [long]$BaselineBytes, [object]$LastWarnedBytes) {
+function Write-WfState([string]$Path, [long]$BaselineBytes, [object]$LastWarnedBytes, [object]$LastWarnedTokens = $null) {
     $state = @{
-        baselineBytes   = $BaselineBytes
-        lastWarnedBytes = $LastWarnedBytes
-        updatedAt       = (Get-Date).ToString('o')
+        baselineBytes    = $BaselineBytes
+        lastWarnedBytes  = $LastWarnedBytes
+        lastWarnedTokens = $LastWarnedTokens
+        updatedAt        = (Get-Date).ToString('o')
     }
     $json = ConvertTo-Json -InputObject $state -Compress
     [IO.File]::WriteAllText($Path, $json, (New-Object Text.UTF8Encoding($false)))

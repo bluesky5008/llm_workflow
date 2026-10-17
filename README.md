@@ -75,7 +75,7 @@ powershell -ExecutionPolicy Bypass -File .\setup\setup_claude.ps1
 스크립트는 세션 핸드오프 훅 3종([setup/hooks/](./setup/hooks/))도 `~/.claude/settings.json`에 등록합니다. 기존 설정과 사용자 훅은 보존됩니다.
 
 - **세션 시작 재개 주입** — 새 세션·`/clear`·재개 시 미완료 작업 기록(`docs/work/`)이 있으면 재개 지시를 주입합니다.
-- **컨텍스트 임계값 경고** — transcript 성장량이 임계값(기본 1500KB, 환경 변수 `CLAUDE_WF_THRESHOLD_KB`·`CLAUDE_WF_REWARN_KB`로 조정)을 넘으면 다음 계획 항목 경계에서 세션 인계를 수행하라는 지시를 주입합니다.
+- **컨텍스트 임계값 경고** — transcript의 마지막 assistant `usage`에서 읽은 실제 컨텍스트 토큰이 임계값(기본 130000, 환경 변수 `CLAUDE_WF_THRESHOLD_TOKENS`·`CLAUDE_WF_REWARN_TOKENS`로 조정)을 넘으면 다음 계획 항목 경계에서 세션 인계를 수행하라는 지시를 주입합니다. usage를 읽을 수 없으면 transcript 성장량(기본 1500KB, `CLAUDE_WF_THRESHOLD_KB`·`CLAUDE_WF_REWARN_KB`)으로 폴백하며, 주입 문구 끝의 `signal=usage|bytes`로 어느 신호였는지 알 수 있습니다.
 - **컴팩션 사후 재정렬** — 자동 요약 직후 작업 기록을 정본으로 재확인하라는 지시를 주입합니다.
 
 훅은 fail-open이며(오류 시 조용히 통과) `docs/work/`가 없는 저장소에서는 아무 동작도 하지 않습니다. 제거하려면 `~/.claude/settings.json`의 `hooks`에서 이 저장소 경로가 포함된 항목을 삭제합니다.
