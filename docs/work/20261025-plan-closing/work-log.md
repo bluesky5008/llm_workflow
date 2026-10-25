@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261025-plan-closing`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `[REQ-DESIGN-plan-closing](./req-design.md) v1` (승인일 2026-10-25)
 > 작성일: 2026-10-25
 > 최종 갱신: 2026-10-25
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: plan 갱신 시점과 종결 커밋 규칙의 wf-design·wf-implement 진행을 기록한다.
-- 현재 결론 또는 상태: v1 승인(2026-10-25, Q-01·02 (A)). [PLAN](./plan.md) 3/4.
-- 다음 행동: TASK-04. 상세는 [인계](#인계).
+- 현재 결론 또는 상태: 완료(2026-10-25 23:53) — TASK-01~04, AC-01~07 7/7. 구현 커밋 `25b53ae`, 이 종결 커밋과 함께 push 대상.
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -26,7 +26,7 @@
 ## 기준선과 현재 계획
 
 - 기준선: [REQ-DESIGN-plan-closing](./req-design.md) v1(2026-10-25)
-- 계획: [PLAN-20261025-plan-closing](./plan.md) — TASK-01~04, 3/4 완료
+- 계획: [PLAN-20261025-plan-closing](./plan.md)(completed)
 
 ## 수행 기록
 
@@ -68,6 +68,14 @@
 - 검증: `lint_skill.py` 0 오류(K4 앵커 통과), `유지` 전량(TST-01 47·02 68·04 16·05 13), plan 트리 재생성
 - 결과: 완료 — 2026-10-25 23:49
 
+### 2026-10-25 — TASK-04
+
+- 발견 사항: 옛 시점 문구는 `status.md` 트리 주석뿐 — 종결 변경의 트리 재생성(FR-03 첫 적용)으로 해소, 이미 제거된 작업이 사라짐. AC-06의 "push 뒤 무변경"은 FR-05상 문서에 쓸 수 없어 git이 정본.
+- 결정과 이유: closing.md 자기 적용 — 관문 승인 후 ① 구현 커밋 `25b53ae`, ② clean 재실행, ③ 이 종결 갱신, ④ `git diff --name-only 25b53ae`가 `docs/`뿐임을 확인 후 ⑤ 종결 커밋, ⑥ push.
+- Red: 해당 없음 — 통합(문서 규칙 변경)
+- 검증: ② `25b53ae` clean 23:52 — TST-01 47·02 68·04 16·05 13, `regression_guard.py .` exit 0, 린트 2종 0 오류
+- 결과: 완료 — 2026-10-25 23:53
+
 ## 설계와 달라진 점
 
 DES-03의 §3.6 포인터는 두지 않고 종결 절차 링크를 §7 아카이빙 한 곳에만 둠(경미 — 본문 어절 여유 4, 종결은 §7 소관). 그 밖에 없음.
@@ -83,7 +91,7 @@ DES-03의 §3.6 포인터는 두지 않고 종결 절차 링크를 §7 아카이
 ### 결과 요약
 
 - 총계: 7 (성공 7 / 실패 0 / 미수행 0)
-- 기준: `66e4907` · 워킹트리 dirty(TASK-03 전이 23:49)
+- 기준: `66e4907` · 워킹트리 dirty(TASK-03 전이 23:49), 이후 `25b53ae` clean(23:52)
 - 명령: `python skills/wf-doc/scripts/lint_skill.py`, `python skills/wf-doc/scripts/lint_worklog.py`
 - 명령: `유지` 4행(TST-01 `run-tests.ps1` 47, TST-02 68, TST-04 16, TST-05 13)
 - 커버리지: N/A — 문서 규칙 변경
@@ -98,7 +106,7 @@ DES-03의 §3.6 포인터는 두지 않고 종결 절차 링크를 §7 아카이
 | VER-03 | AC-03 | 통독(closing.md §2 6단계·④ 명령·§3·§4) | 성공 | — | TASK-02 |
 | VER-04 | AC-04 | 통독(templates.md 3곳) | 성공 | — | TASK-03 |
 | VER-05 | AC-05 | 린트 2종 + `유지` 4행 | 성공 | — | 0 오류(wf-tree 1,193·wf-implement 2,850), 47·68·16·13(23:49 `66e4907`+dirty) |
-| VER-06 | AC-06 | 트리 TASK마다 재생성(plan `generated` 4회), 종결 단계 ④ `git diff --name-only <구현 SHA>` | 성공 | — | 종결 변경에서 ④ 결과 기입 |
+| VER-06 | AC-06 | 트리 TASK마다 재생성(plan `generated` 4회), 종결 단계 ④ `git diff --name-only <구현 SHA>` | 성공 | — | plan `generated` 23:46·23:48·23:49·23:52; ④ `git diff --name-only 25b53ae` → `docs/`만 |
 | VER-07 | AC-07 | `decisions.md`·ADR-016·ADR-003 대조 | 성공 | — | ADR-016 `approved`, ADR-003 관련 1행 |
 
 ### 실패와 미수행 분석
@@ -109,19 +117,37 @@ DES-03의 §3.6 포인터는 두지 않고 종결 절차 링크를 §7 아카이
 
 | 대상 | 현재 상태 → 제안 | 분류·증거 | 유일 검증 여부 | 승인 |
 |---|---|---|---|---|
+| 재정비 관문 | 변경 없음 — 보호 스코프 무변경(문서 규칙), `유지` 4행 SHA만 `25b53ae`로 갱신 | 통합 23:52 | — | 완료 보고 관문(변경 없음 보고) |
 
 ## 완료 보고
 
-초안 — 완료 보고 관문 승인(2026-10-25 23:51, "승인 — 커밋·push까지"), closing.md ① 진행. AC-01~07 7/7. 종결은 [closing.md](../../../skills/wf-implement/references/closing.md) 순서를 자기 적용한다.
+### 완료 상태
+
+- 결과: 완료
+- 완료 판단 근거: TASK-01~04 `completed`, AC-01~07 7/7, 린트 2종 0 오류, `유지` 전량 통과(clean `25b53ae`), 자체 리뷰(옛 문구 검색). wf-implement §5 충족
+
+### 주요 변경
+
+- 트리 생성 시점: 최초 작성 · 상태 전이(plan TASK `completed`·작업 종결, status 행 추가·제거) · 요청 시
+- wf-implement §3.2 완료 전이 시 요약·트리 갱신, §7 종결 시 plan 확정, `references/closing.md`(종결 6단계, ADR-016)
+- wf-doc 템플릿 노트 3곳
+
+### 통합 상태
+
+- 구현 커밋 `25b53ae`, 이 종결 커밋과 함께 `origin/main` push 대상(승인 2026-10-25 23:51). push 결과의 정본은 git
+
+### 남은 위험과 제한
+
+- 종결 커밋의 문서 전용 여부는 사람이 ④로 확인한다(기계 검사는 ADR-016 후속)
+- wf-implement 본문 2,850/2,850어절 — 다음 본문 추가는 상쇄 또는 상한 조정 필요
+
+### 후속 작업
+
+- 종결 커밋 기계 검사(닫힌 기록의 대장 `+dirty` 셀 검출 등)
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement — [PLAN](./plan.md) TASK-04부터
-- 시작 조건: 충족 — req-design v1·ADR-016 approved
-- 입력 문서와 기준선: [req-design](./req-design.md), [ADR-016](./ADR-016-작업-종결-커밋-규칙.md)
-- 완료된 항목: 설계·승인(v1), §3.1 재확인, 계획(트리), TASK-01~03
-- 미완료 항목: TASK-04~04
-- 차단 요인: 없음
-- 미커밋 변경: 이 작업 폴더 3파일, `decisions.md`·`status.md` 행, regression-guard `plan.md` 트리 재생성(DES-06 — 구현 커밋에 포함)
-- 다음 행동: TASK-04 종결 중 — 관문 승인(23:51, 커밋·push). closing.md ① 구현 커밋 → ② clean 재실행 → ③ 종결 갱신 → ④ docs 전용 확인 → ⑤ 종결 커밋 → ⑥ push.
-- 재개 프롬프트: 작업 20261025-plan-closing 재개 — docs/work/20261025-plan-closing/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: TASK-01~04, AC-01~07, ADR-016 적용
+- 미완료 항목: 없음
+- 다음 행동: 없음
