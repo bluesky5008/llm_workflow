@@ -72,15 +72,16 @@ powershell -ExecutionPolicy Bypass -File .\setup\setup_claude.ps1
 
 스크립트는 `~/.claude/skills/`에 junction을 만들고 [CLAUDE.global.md](./setup/CLAUDE.global.md)의 워크플로우 규칙을 `~/.claude/CLAUDE.md`에 설치합니다. 재실행해도 안전하며(이미 올바른 junction은 건너뛰고, 다른 곳을 가리키면 다시 연결합니다), junction 방식이므로 `git pull`만 하면 스킬이 최신화됩니다. 설치 후 새 세션에서 `/wf-design` 또는 `/wf-doc`으로 확인합니다.
 
-스크립트는 [setup/hooks/](./setup/hooks/)의 훅 5종(세션 핸드오프 3종, 회귀 보호 2종)도 `~/.claude/settings.json`에 등록합니다. 기존 설정과 사용자 훅은 보존됩니다.
+스크립트는 [setup/hooks/](./setup/hooks/)의 훅 6종(세션 핸드오프 3종, 회귀 보호 2종, 승인 게이트 1종)도 `~/.claude/settings.json`에 등록합니다. 기존 설정과 사용자 훅은 보존됩니다.
 
 - **세션 시작 재개 주입** — 새 세션·`/clear`·재개 시 미완료 작업 기록(`docs/work/`)이 있으면 재개 지시를 주입합니다.
 - **컨텍스트 임계값 경고** — transcript의 마지막 assistant `usage`에서 읽은 실제 컨텍스트 토큰이 임계값(기본 130000, 환경 변수 `CLAUDE_WF_THRESHOLD_TOKENS`·`CLAUDE_WF_REWARN_TOKENS`로 조정)을 넘으면 다음 계획 항목 경계에서 세션 인계를 수행하라는 지시를 주입합니다. usage를 읽을 수 없으면 transcript 성장량(기본 1500KB, `CLAUDE_WF_THRESHOLD_KB`·`CLAUDE_WF_REWARN_KB`)으로 폴백하며, 주입 문구 끝의 `signal=usage|bytes`로 어느 신호였는지 알 수 있습니다.
 - **컴팩션 사후 재정렬** — 자동 요약 직후 작업 기록을 정본으로 재확인하라는 지시를 주입합니다.
 - **보호 테스트 편집 확인** — 파일 편집 도구가 테스트 대장(`docs/test-register.md`) `유지` 행의 테스트 파일이나 Claude 설정 파일(`~/.claude/settings*.json`, `<프로젝트>/.claude/settings*.json`)을 바꾸려 하면 실행 전에 사용자 확인을 요청합니다. 대장을 읽지 못하면 확인을 요청합니다(`guard=error`).
 - **종료 시 대장 정합 검사** — 응답을 마치려 할 때 [regression_guard.py](./skills/wf-doc/scripts/regression_guard.py)를 호출해, `유지` 테스트 파일이나 `유지` 행이 작업 기록 `### 테스트 대장 변경`에 기록 없이 바뀌었으면 종료를 1회 막습니다. Python이 필요하며 없으면 이 검사만 건너뜁니다.
+- **승인 게이트** — 파일 편집 도구가 제품 코드(기본 `docs/` 밖, 루트 `.wf-gate.json`의 `product`·`exclude` glob로 조정)를 바꾸려 할 때 기준선이 승인되지 않은 열린 작업 기록이 있으면 실행 전에 사용자 확인을 요청합니다. 판정은 [approval_gate.py](./skills/wf-doc/scripts/approval_gate.py)가 하며, 판정 오류나 Python 부재 시에도 확인을 요청합니다(`gate=error`).
 
-훅은 fail-open이며(오류 시 조용히 통과) `docs/work/`가 없는 저장소에서는 아무 동작도 하지 않습니다. 회귀 보호 2종은 `docs/test-register.md`가 없는 저장소에서 무동작이며, 편집 확인만 대장 판독 오류 시 통과 대신 확인을 요청합니다. 제거하려면 `~/.claude/settings.json`의 `hooks`에서 이 저장소 경로가 포함된 항목을 삭제합니다(회귀 보호만 끄려면 `wf-test-guard`·`wf-stop-gate` 항목).
+훅은 fail-open이며(오류 시 조용히 통과) `docs/work/`가 없는 저장소에서는 아무 동작도 하지 않습니다. 회귀 보호 2종은 `docs/test-register.md`가 없는 저장소에서 무동작이며, 편집 확인만 대장 판독 오류 시 통과 대신 확인을 요청합니다. 승인 게이트도 판정 오류 시 확인을 요청합니다. 제거하려면 `~/.claude/settings.json`의 `hooks`에서 이 저장소 경로가 포함된 항목을 삭제합니다(회귀 보호만 끄려면 `wf-test-guard`·`wf-stop-gate` 항목, 승인 게이트만 끄려면 `wf-approval-gate` 항목).
 
 **macOS / Linux** — symlink로 연결하고 규칙을 복사합니다.
 

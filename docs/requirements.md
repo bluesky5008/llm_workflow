@@ -3,15 +3,15 @@
 > 문서 유형: `requirements`
 > 작업 ID: `20260809-claude-hooks`
 > 상태: `approved`
-> 기준선: `v4` (승인일 2026-10-25; v3 2026-10-18; v2 2026-10-09; v1 2026-08-09)
+> 기준선: `v5` (승인일 2026-10-26; v4 2026-10-25; v3 2026-10-18; v2 2026-10-09; v1 2026-08-09)
 > 작성일: 2026-08-09
-> 최종 갱신: 2026-10-25
-> 관련 문서: [DESIGN-llm-workflow: 설계](./design.md), [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md), [DCR-013: 컨텍스트 신호 v3와 재개 경량화](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md)
+> 최종 갱신: 2026-10-26
+> 관련 문서: [DESIGN-llm-workflow: 설계](./design.md), [DCR-019: C층에 승인 게이트 훅 추가](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md), [ADR-018: 승인 게이트의 판정](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md), [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md), [DCR-013: 컨텍스트 신호 v3와 재개 경량화](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md)
 
 ## 요약
 
-- 목적: Claude Code 훅으로 세션 핸드오프의 세 지점(재개 진입, 절단 신호, 컴팩션 안전망)과 회귀 보호의 두 지점(보호 대상 편집 확인, 종료 시 대장 정합)을 자동화하는 C층 기능의 요구사항을 정의한다.
-- 현재 결론 또는 상태: 기준선 v4(2026-10-25) — [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)로 FR-06·07, AC-07~09, NFR-01 예외 1건 추가, 구현은 작업 `20261025-regression-guard`. v3(2026-10-18) — [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md)로 FR-02의 측정 신호를 transcript usage 토큰으로 교체(가정·Q-01·RISK-02·AC-02 갱신), 구현은 작업 `20261018-context-signal-v2`에서 통합 중. v2: [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md)(FR-01·AC-01 "열린"). v1 구현·검증 결과는 [추적성](#추적성) 참조(실세션 관찰 2건 미수행).
+- 목적: Claude Code 훅으로 세션 핸드오프의 세 지점(재개 진입, 절단 신호, 컴팩션 안전망)과 회귀 보호의 두 지점(보호 대상 편집 확인, 종료 시 대장 정합), 승인 게이트(v5, 기준선 미승인 작업의 제품 코드 편집 확인)를 자동화하는 C층 기능의 요구사항을 정의한다.
+- 현재 결론 또는 상태: 기준선 v5(2026-10-26) — [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md)로 훅 6종(+ 승인 게이트), FR-08, AC-10~12, FR-05 무동작 조건, NFR-01 예외 확장(FR-08) 추가, 구현은 작업 `20261026-approval-gate`. v4(2026-10-25) — [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)로 FR-06·07, AC-07~09, NFR-01 예외 1건 추가, 구현은 작업 `20261025-regression-guard`. v3(2026-10-18) — [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md)로 FR-02의 측정 신호를 transcript usage 토큰으로 교체(가정·Q-01·RISK-02·AC-02 갱신), 구현은 작업 `20261018-context-signal-v2`에서 통합 중. v2: [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md)(FR-01·AC-01 "열린"). v1 구현·검증 결과는 [추적성](#추적성) 참조(실세션 관찰 2건 미수행).
 - 다음 행동: 없음 — 후속 작업은 [작업 기록 완료 보고](./work/20260809-claude-hooks/work-log.md#완료-보고) 참조.
 
 ## 문서 연결
@@ -23,6 +23,7 @@
 | input | change | [DCR-007: 훅 닫힘 상태에 on-hold 추가](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) | FR-01, AC-01 | 승인(2026-10-09), 기준선 v1 → v2 |
 | input | change | [DCR-013: 컨텍스트 신호 v3와 재개 경량화](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md) | FR-02, AC-02, RISK-02, 가정, Q-01 | 승인(2026-10-18), 기준선 v2 → v3. 결정 [ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) |
 | input | change | [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md) | 요약, 문제와 목적, 시나리오 4·5, 범위, FR-06·07, NFR-01, AC-07~09, 제약, 추적성 | 승인(2026-10-25), 기준선 v3 → v4. 결정 [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) |
+| input | change | [DCR-019: C층에 승인 게이트 훅 추가](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) | 요약, 범위, FR-05, FR-08, NFR-01, AC-10~12, 추적성 | 승인(2026-10-26), 기준선 v4 → v5. 결정 [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) |
 
 이 문서는 저장소를 관통하는 현행 요구사항 문서다. 첫 기준선은 세션 핸드오프 C층(Claude Code 훅 자동화)만 다루며, 이후 작업이 절을 누적한다. 스킬 4종(wf-design·wf-implement·wf-doc·wf-tree) 자체의 요구사항은 역공학으로 복원되기 전까지 스킬 문서를 정본으로 본다.
 
@@ -55,6 +56,7 @@ v4: 회귀 보호 규칙(wf-implement 주의 ④, 진행 중 기존 테스트 �
 - `setup_claude.ps1`의 훅 설치 로직(멱등, 기존 설정 보존)
 - README의 설치 안내 갱신
 - v4: 회귀 보호 훅 2종(편집 확인, 종료 정합 래퍼)과 메시지·설치 등록. 판정 스크립트 자체는 B층(작업 [20261025-regression-guard](./work/20261025-regression-guard/req-design.md)) 소유
+- v5: 승인 게이트 훅 1종(편집 확인 래퍼, 훅 6종)과 메시지·설치 등록. 판정 스크립트 `approval_gate.py`와 제품 코드 선언 `.wf-gate.json`의 판독은 B층(작업 [20261026-approval-gate](./work/20261026-approval-gate/req-design.md)) 소유
 
 ### 제외
 
@@ -70,15 +72,16 @@ v4: 회귀 보호 규칙(wf-implement 주의 ④, 진행 중 기존 테스트 �
 - FR-02: 세션의 컨텍스트 사용량이 설정 가능한 임계값을 초과하면, "다음 계획 항목 경계에서 wf-implement 세션 인계를 수행하라"는 지시를 모델 컨텍스트로 주입해야 한다. 임계값 미만에서는 주입하지 않는다.
 - FR-03: 자동 컴팩션에 대한 2단 안전망을 제공해야 한다. (a) 사전 — FR-02의 임계값 경고가 통상적인 컴팩션 발생점보다 먼저 발화하도록 보수적인 기본 임계값을 둔다. (b) 사후 — 컴팩션 직후 세션이 이어질 때, 작업 기록을 정본으로 삼아 진행 상태를 재확인하라는 지시를 주입한다. (조사 결과 컴팩션 직전 주입은 훅 능력상 불가능하다 — [가정과 미해결 질문](#가정과-미해결-질문) Q-02 해소 참조.)
 - FR-04: 훅 설치는 `setup_claude.ps1` 재실행만으로 완료되어야 하며, 기존 `settings.json`의 다른 설정과 사용자가 추가한 훅을 보존해야 한다.
-- FR-05: 워크플로우를 사용하지 않는 저장소(`docs/work/` 없음)에서는 모든 훅이 컨텍스트를 주입하지 않아야 한다(무동작). v4: FR-06·07의 훅은 `docs/test-register.md`가 없으면 무동작이다.
+- FR-05: 워크플로우를 사용하지 않는 저장소(`docs/work/` 없음)에서는 모든 훅이 컨텍스트를 주입하지 않아야 한다(무동작). v4: FR-06·07의 훅은 `docs/test-register.md`가 없으면 무동작이다. v5: FR-08의 훅은 `docs/work/`가 없으면 무동작이다.
 - FR-06 (v4): 모델이 파일 편집 도구로 보호 대상을 바꾸려 하면 실행 전에 사용자 확인을 요청해야 한다. 보호 대상은 대장 `유지` 행의 `테스트 파일`과 Claude 게이트 설정 파일(`~/.claude/settings*.json`, `<cwd>/.claude/settings*.json`)이다. 미등록 파일·대장 자체는 확인 없이 진행한다. 권한 자동 승인 모드에서 확인이 사람에게 닿지 않는 것이 확인되면 그 모드에서만 차단한다([ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 결정 1).
 - FR-07 (v4): 모델이 응답을 마치려 할 때 B층 판정 스크립트를 호출해, 위반(기록 없는 `유지` 테스트 파일 변경 또는 `유지` 행 축소)이 있으면 종료를 1회 막고 그 내용과 함께 되돌리거나 기록하라고 지시해야 한다. 재진입(`stop_hook_active`)이면 통과한다. 테스트는 실행하지 않는다.
+- FR-08 (v5): 모델이 파일 편집 도구로 제품 코드를 바꾸려 할 때, 열린 작업 기록 중 기준선이 승인되지 않은 것이 있으면 실행 전에 사용자 확인을 요청해야 한다. 제품 코드는 기본이 저장소 루트 아래 `docs/` 밖 전부이고, 루트의 선택 선언 `.wf-gate.json`(`{"product":[…],"exclude":[…]}` glob, `exclude` 우선)이 덮어쓴다. 기준선은 작업 기록 머리말 `기준선`의 링크 문서가 모두 상태 `approved`·`completed`이고 그 `## 승인 기록`에 `응답`과 따옴표 인용이 있는 행이 있을 때만 승인된 것으로 본다(링크 없음은 미승인). 경량 표지(`기준선: N/A — 경량 경로`) 작업은 기계 조건 — (a) 제품 코드 변경 파일(미추적 포함)과 대상의 합집합 5개 이하, (b) 대상이 민감 파일(게이트 설정·의존성 선언·`.wf-gate.json`)이 아님, (c) 대상이 새 파일이면 테스트 — 을 어길 때 확인을 요청한다. 이유에는 작업 ID·사유와 wf-design §8 포인터가 있어야 한다. 차단(`deny`)은 두지 않는다([ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) 결정 4, 정본 [REQ-DESIGN-approval-gate](./work/20261026-approval-gate/req-design.md) FR-01~05).
 
 ## 비기능 요구사항
 
-- NFR-01 (fail-open): 훅 스크립트의 오류·타임아웃이 세션 진행을 차단해서는 안 된다. 오류 시 주입 없이 통과한다. 예외(v4): FR-06 가드는 대장이 있는데 읽지 못하면 확인을 요청한다(fail-to-ask, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 결정 3). FR-07은 판정 스크립트의 부재·오류·타임아웃에서 통과한다.
+- NFR-01 (fail-open): 훅 스크립트의 오류·타임아웃이 세션 진행을 차단해서는 안 된다. 오류 시 주입 없이 통과한다. 예외(v4): FR-06 가드는 대장이 있는데 읽지 못하면 확인을 요청한다(fail-to-ask, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 결정 3). FR-07은 판정 스크립트의 부재·오류·타임아웃에서 통과한다. 예외(v5): FR-08 가드도 판정 스크립트의 오류·타임아웃·Python 부재에서 확인을 요청한다(fail-to-ask, [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) 결정 4). 훅 입력 파싱 실패 등 바깥 예외는 무출력이다.
 - NFR-02 (하네스 중립 보존): skills/ 본문을 변경하지 않는다. 훅이 주입하는 지시는 스킬이 이미 규정한 절차(세션 인계, 재개 절차)를 가리키는 포인터여야 하며 새 규범을 만들지 않는다.
-- NFR-03 (성능): 프롬프트/툴 사용마다 실행되는 훅은 체감 지연을 만들지 않아야 한다(단순 파일 크기 확인 수준의 작업만 수행).
+- NFR-03 (성능): 프롬프트/툴 사용마다 실행되는 훅은 체감 지연을 만들지 않아야 한다(단순 파일 크기 확인 수준의 작업만 수행). v5: FR-08 훅은 제품 경로 편집에서만 판정 스크립트(Python)를 호출하며 추가 지연 중앙값 ≤ 300ms(실측 175.5ms, [REQ-DESIGN-approval-gate](./work/20261026-approval-gate/req-design.md) NFR-02).
 - NFR-04 (인코딩): 주입 텍스트의 한글이 손상되지 않아야 한다.
 
 ## 인수 조건
@@ -92,6 +95,9 @@ v4: 회귀 보호 규칙(wf-implement 주의 ④, 진행 중 기존 테스트 �
 - AC-07 (v4): `유지` 행 테스트 파일·Claude 설정 파일의 Edit/Write 입력에 확인 요청(`ask`)이 출력되고, 미등록 파일·대장 자체에는 무출력이며, 대장 표를 읽지 못하면 확인 요청, `테스트 파일` 열이 없으면 무출력이다.
 - AC-08 (v4): 판정 스크립트가 위반(exit 1)이면 종료 차단과 그 출력이 이유로 나오고, 위반 없음·`stop_hook_active`·Python 부재·스크립트 오류에서는 무출력이다.
 - AC-09 (v4): `docs/test-register.md`가 없는 저장소에서 두 회귀 보호 훅이 무출력이다.
+- AC-10 (v5): 기준선이 승인되지 않은 열린 작업(링크 없음, 상태 미승인, 응답 인용 없음, 경량 표지의 기계 조건 위반)이 있을 때 제품 코드 경로의 Edit/Write 입력에 확인 요청(`ask`, 이유에 메시지·대상·판정 출력)이 출력되고, 열린 작업이 없거나 모든 열린 작업의 기준선이 승인되었으면 무출력이다.
+- AC-11 (v5): `docs/work/`가 없는 저장소, 그리고 `.wf-gate.json`이 없는 저장소의 `docs/` 경로에서 승인 게이트는 판정 스크립트(Python)를 호출하지 않고 무출력이다. `.wf-gate.json`이 있으면 `docs/` 경로도 판정을 호출한다.
+- AC-12 (v5): 판정 스크립트의 내부 오류(exit 2)·Python 부재에서 확인 요청(`ask`, 이유에 `gate=error`)이 출력되고, 훅 입력을 읽지 못하는 등 바깥 예외에서는 무출력이다.
 
 ## 제약과 의존성
 
@@ -123,6 +129,7 @@ v4: 회귀 보호 규칙(wf-implement 주의 ④, 진행 중 기존 테스트 �
 | FR-05 | [DES-01](./design.md#컴포넌트와-책임), [DES-02](./design.md#컴포넌트와-책임) | [TASK-02~04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
 | FR-06 | [DES-06](./design.md#컴포넌트와-책임) | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | [VER-03·05·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
 | FR-07 | [DES-07](./design.md#컴포넌트와-책임) | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | [VER-04·05·08·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
+| FR-08 | [DES-08](./design.md#컴포넌트와-책임) | [20261026-approval-gate](./work/20261026-approval-gate/work-log.md) | AC-10, AC-11, AC-12 | [TASK-01·02](./work/20261026-approval-gate/work-log.md#수행-기록) — TST-01 T47~T55, TST-02 `test_approval_gate.py` 16건 | 테스트 통과, 통합 대기 |
 
 ## 승인 기록
 
@@ -130,6 +137,7 @@ v4: 회귀 보호 규칙(wf-implement 주의 ④, 진행 중 기존 테스트 �
 - 2026-10-09 — [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) 재승인으로 기준선 v2. 응답: "권장안 전체 승인"([REQ-DESIGN-worklog-diet](./work/20261009-worklog-diet/req-design.md#승인-기록) 관문, Q-02 포함).
 - 2026-10-18 — [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md) 재승인으로 기준선 v3. 응답: "좋은 제안입니다. 승인하겠습니다." [ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) 동시 승인.
 - 2026-10-25 — [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md) 승인으로 기준선 v4. 응답: Q-01 A·Q-03 B·Q-04 A 선택, Q-02 3층 구조 채택 후 반영본 "승인"([REQ-DESIGN-regression-guard](./work/20261025-regression-guard/req-design.md#승인-기록) 관문). [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 동시 승인.
+- 2026-10-26 — [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) 승인으로 기준선 v5. 응답: Q-01 "docs/ 밖 + glob 선언", Q-02 "상태 + 응답 인용", Q-03 "5개", "승인"([REQ-DESIGN-approval-gate](./work/20261026-approval-gate/req-design.md#승인-기록) 관문). [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) 동시 승인.
 
 ## 변경 이력
 
@@ -140,3 +148,4 @@ v4: 회귀 보호 규칙(wf-implement 주의 ④, 진행 중 기존 테스트 �
 | 2026-10-09 | FR-01·AC-01 "미완료" → "열린"(`on-hold` 제외), 기준선 v2 | [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) 사용자 재승인 | approved, v1 → v2 | 사용자(승인) |
 | 2026-10-18 | FR-02 측정 신호를 usage 토큰으로 교체 — 가정·Q-01·RISK-02·AC-02 갱신, 기준선 v3 | [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md) 사용자 재승인, [ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) | approved, v2 → v3 | 사용자(승인) |
 | 2026-10-25 | 회귀 보호 훅 추가 — 요약·문제와 목적·시나리오 4·5·범위, FR-05 보강, FR-06·07, NFR-01 예외, AC-07~09, 제약, 추적성, 기준선 v4 | [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md) 사용자 승인, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) | approved, v3 → v4 | 사용자(승인) |
+| 2026-10-26 | 승인 게이트 훅 추가 — 요약·범위(훅 6종), FR-05 보강, FR-08, NFR-01 예외 확장, AC-10~12, 추적성, 기준선 v5 | [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) 사용자 승인, [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) | approved, v4 → v5 | 사용자(승인) |

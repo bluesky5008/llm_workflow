@@ -3,22 +3,22 @@
 > 문서 유형: `design`
 > 작업 ID: `20260809-claude-hooks`
 > 상태: `approved`
-> 기준선: `v4` (승인일 2026-10-25; v3 2026-10-18; v2 2026-10-09; v1 2026-08-09)
+> 기준선: `v5` (승인일 2026-10-26; v4 2026-10-25; v3 2026-10-18; v2 2026-10-09; v1 2026-08-09)
 > 작성일: 2026-08-09
-> 최종 갱신: 2026-10-25
-> 관련 문서: [REQ-llm-workflow: 요구사항](./requirements.md), [ADR-014: 회귀 보호 훅의 강제 방식](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md), [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md), [ADR-012: 컨텍스트 신호 usage 파싱](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md), [DCR-013: 컨텍스트 신호 v3와 재개 경량화](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md), [ADR-001: 컨텍스트 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md)(대체됨)
+> 최종 갱신: 2026-10-26
+> 관련 문서: [REQ-llm-workflow: 요구사항](./requirements.md), [ADR-018: 승인 게이트의 판정](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md), [DCR-019: C층에 승인 게이트 훅 추가](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md), [ADR-014: 회귀 보호 훅의 강제 방식](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md), [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md), [ADR-012: 컨텍스트 신호 usage 파싱](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md), [DCR-013: 컨텍스트 신호 v3와 재개 경량화](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md), [ADR-001: 컨텍스트 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md)(대체됨)
 
 ## 요약
 
-- 목적: C층 — Claude Code 훅 5종(세션 핸드오프 3, 회귀 보호 2)과 설치 로직의 설계를 확정한다.
-- 현재 결론 또는 상태: 기준선 v4(2026-10-25) — [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)로 DES-06·07 추가, DES-04 등록 확장, 출력 계약에 권한 결정·종료 차단 추가([ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md)). 구현은 [WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md). v3(2026-10-18) — [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md)로 DES-02의 신호를 2단(usage 토큰 1차, 바이트 성장 폴백)으로 교체. v1·v2 구현·검증은 [추적성](#추적성), v3 통합은 [WORK-20261018-context-signal-v2](./work/20261018-context-signal-v2/work-log.md).
-- 다음 행동: v4 구현 완료([WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md), 2026-10-25). 후속은 `bypassPermissions` 모드 ask 도달 관찰, v3 후속은 [ADR-012 후속 작업](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md#후속-작업).
+- 목적: C층 — Claude Code 훅 6종(세션 핸드오프 3, 회귀 보호 2, 승인 게이트 1 — v5)과 설치 로직의 설계를 확정한다.
+- 현재 결론 또는 상태: 기준선 v5(2026-10-26) — [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md)로 DES-08 추가, DES-04 등록 6개, B층 계약에 `approval_gate.py` 추가([ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md)). 구현은 [WORK-20261026-approval-gate](./work/20261026-approval-gate/work-log.md). v4(2026-10-25) — [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)로 DES-06·07 추가, DES-04 등록 확장, 출력 계약에 권한 결정·종료 차단 추가([ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md)). 구현은 [WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md). v3(2026-10-18) — [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md)로 DES-02의 신호를 2단(usage 토큰 1차, 바이트 성장 폴백)으로 교체. v1·v2 구현·검증은 [추적성](#추적성), v3 통합은 [WORK-20261018-context-signal-v2](./work/20261018-context-signal-v2/work-log.md).
+- 다음 행동: v5 통합은 [WORK-20261026-approval-gate](./work/20261026-approval-gate/work-log.md) 인계. v4 구현 완료([WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md), 2026-10-25). 후속은 `bypassPermissions` 모드 ask 도달 관찰, v3 후속은 [ADR-012 후속 작업](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md#후속-작업).
 
 ## 문서 연결
 
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
-| input | baseline | [REQ-llm-workflow: 요구사항](./requirements.md) | FR-01~07, AC-01~09 | 이 설계의 입력 요구사항 |
+| input | baseline | [REQ-llm-workflow: 요구사항](./requirements.md) | FR-01~08, AC-01~12 | 이 설계의 입력 요구사항 |
 | input | decision | [ADR-001: 컨텍스트 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md) | document | DES-02의 신호 결정 |
 | input | change | [DCR-007: 훅 닫힘 상태에 on-hold 추가](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) | DES-01, 열린 작업 판정 | 승인(2026-10-09), 기준선 v1 → v2 |
 | input | decision | [ADR-012: 컨텍스트 신호 usage 파싱](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) | document | DES-02 v3의 신호 결정. ADR-001 대체 |
@@ -26,15 +26,18 @@
 | input | decision | [ADR-014: 회귀 보호 훅의 강제 방식](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) | document | DES-06·07의 강제 방식, NFR-01 예외 |
 | input | change | [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md) | 설계 목표와 제약, 시스템 경계, DES-04·06·07, 데이터와 인터페이스, 실패 흐름, 검증 전략 | 승인(2026-10-25), 기준선 v3 → v4 |
 | input | related | [REQ-DESIGN-regression-guard](./work/20261025-regression-guard/req-design.md) | DES-04(B층 판정 스크립트), DES-08(대장 판독 규칙) | DES-07이 호출하는 판정과 DES-06이 따르는 판독 규칙의 정본 |
+| input | decision | [ADR-018: 승인 게이트의 판정](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) | document | DES-08의 판정 원천·배치·출력, NFR-01 예외 확장 |
+| input | change | [DCR-019: C층에 승인 게이트 훅 추가](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) | DES-04·08, 데이터와 인터페이스, 흐름, 검증 전략, 대안과 결정, RISK-08~10 | 승인(2026-10-26), 기준선 v4 → v5 |
+| input | related | [REQ-DESIGN-approval-gate](./work/20261026-approval-gate/req-design.md) | DES-01(B층 판정 스크립트), DES-02(경량 기계 조건), DES-09(`.wf-gate.json`) | DES-08이 호출하는 판정의 정본 |
 
 ## 설계 목표와 제약
 
-- **fail-open:** 훅의 어떤 실패도 세션을 막지 않는다. 실패 시 A층(수동 경로)이 그대로 남는다. 예외(v4): DES-06 가드는 대장이 있는데 읽지 못하면 확인 요청(fail-to-ask) — 가드의 실패 결과는 "주입 포기"가 아니라 "보호 포기"이기 때문이다([ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 결정 3).
+- **fail-open:** 훅의 어떤 실패도 세션을 막지 않는다. 실패 시 A층(수동 경로)이 그대로 남는다. 예외(v4): DES-06 가드는 대장이 있는데 읽지 못하면 확인 요청(fail-to-ask) — 가드의 실패 결과는 "주입 포기"가 아니라 "보호 포기"이기 때문이다([ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 결정 3). v5: DES-08 가드도 판정 오류·타임아웃·Python 부재에서 확인 요청([ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) 결정 4).
 - **출력 계약 확장(v4):** C층 훅이 주입 외에 권한 결정(`permissionDecision`)과 종료 차단(`decision: block`)을 반환한다(DES-06·07).
 - **판정의 하네스 중립(v4):** 종료 시 판정은 B층 스크립트(Python 표준 라이브러리 + git)가 하고 DES-07은 호출·출력 변환만 한다. 다른 하네스 어댑터가 같은 판정을 재사용한다.
 - **하네스 중립 보존:** skills/ 본문 무변경. 훅이 주입하는 지시는 스킬이 규정한 절차를 가리키는 포인터일 뿐 새 규범을 만들지 않는다.
 - **문서화된 능력만 사용(v3에서 완화):** 훅 이벤트·필드·출력 계약은 Claude Code 공식 문서에 있는 것만 쓴다(조사 2026-08-09, 재확인 2026-10-18, [hooks 문서](https://code.claude.com/docs/en/hooks.md)). 문서화된 필드(`transcript_path`)로 접근하되 **내부 형식이 비문서화된 데이터**(transcript JSONL)에 의존하는 부분은 fail-open 폴백과 계약 테스트로 감싼다([ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md)).
-- **환경:** Windows PowerShell 5.1. 한글 텍스트는 인코딩 안전 경로로만 다룬다. v4: DES-07만 Python·git을 호출한다(부재 시 통과).
+- **환경:** Windows PowerShell 5.1. 한글 텍스트는 인코딩 안전 경로로만 다룬다. v4: DES-07만 Python·git을 호출한다(부재 시 통과). v5: DES-08도 호출한다(부재 시 확인 요청).
 - **전역 설치:** `~/.claude/settings.json`에 등록되어 모든 저장소에서 발화하므로, 스크립트가 저장소 사용 여부를 스스로 가드한다(FR-05).
 
 ## 시스템 경계와 구조
@@ -61,17 +64,19 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 - DES-01: **`wf-session-start.ps1`** — `SessionStart`(matcher `startup|resume|clear`). `<cwd>/docs/work/*/work-log.md`의 공통 머리말 `> 상태:`를 읽어 닫힘 계열(`completed`, `superseded`, `rejected`, `withdrawn`, `on-hold` — v2에서 `on-hold` 추가, [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md)) 이외의 열린 작업 기록을 찾는다. 있으면 작업 ID·경로 목록과 "재개 절차(인계 절의 '다음 행동')를 먼저 적용하라"는 지시를 `additionalContext`로 주입한다. 동시에 상태 파일에 현재 transcript 크기를 기준점으로 기록한다(DES-02의 입력). 미완료 기록이 없으면 기준점만 기록하고 무주입.
 - DES-02 (v3, [ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md)): **`wf-context-threshold.ps1`** — `PostToolUse`(matcher `*`). **1차 신호:** transcript 꼬리(1MB)에서 끝에서부터 `"type":"assistant"`이고 `"isSidechain":true`가 아닌 줄의 `"usage":{…}`를 찾아 `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`를 현재 컨텍스트 토큰으로 삼고, 절대값 임계를 넘으면 "다음 계획 항목 경계에서 wf-implement 세션 인계를 수행하라"는 지시를 주입한다(기준점 불필요). 주입 후 상태 파일에 경고 시점 토큰을 기록하고 재경고 간격만큼 더 커지기 전까지 재주입하지 않되, 마지막 경고보다 컨텍스트가 작아졌으면(훅 없이 컴팩션) 억제를 해제한다. **폴백(v1, [ADR-001](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md)):** usage를 읽지 못하면 transcript 크기의 성장량(현재 크기 − 기준점)으로 같은 판정을 한다. 주입 문구 끝에 ASCII 1줄 `(context_tokens=N threshold=N signal=usage)` 또는 `(transcript_growth_kb=N threshold_kb=N signal=bytes)`를 붙여 어느 신호였는지 드러낸다. `UserPromptSubmit`이 아닌 `PostToolUse`를 쓰는 이유: 자동 실행 중에는 사용자 프롬프트 없이 툴 사용만 이어지므로 그 경로에서 발화해야 한다.
 - DES-03: **`wf-post-compact.ps1`** — `SessionStart`(matcher `compact`). 컴팩션 직후 "요약은 손실 압축이다. 진행 중 작업 기록의 인계 절과 대조해 상태를 재확인하고, 요약과 문서가 다르면 문서를 정본으로 삼아라"는 지시를 주입하고, 상태 파일의 기준점을 현재 transcript 크기로 재설정한다(컴팩션 후 컨텍스트가 줄었으므로 성장량 계산을 다시 시작).
-- DES-04: **`setup_claude.ps1` 훅 설치 로직** — `~/.claude/settings.json`을 JSON으로 읽어 `hooks` 키에 위 3개 항목(v4: + `PreToolUse` DES-06, `Stop` DES-07 — 5개)을 병합한다. 파일·키가 없으면 만들고, 기존의 무관한 설정과 사용자 훅은 보존한다. 자기 항목의 식별은 스크립트 경로 문자열 매칭으로 하며, 재실행 시 중복 등록하지 않고 경로가 다르면(저장소 이동) 갱신한다.
+- DES-04: **`setup_claude.ps1` 훅 설치 로직** — `~/.claude/settings.json`을 JSON으로 읽어 `hooks` 키에 위 3개 항목(v4: + `PreToolUse` DES-06, `Stop` DES-07 — 5개; v5: + `PreToolUse` DES-08 — 6개, `PreToolUse`는 같은 matcher의 2개 항목으로 DES-06 다음 DES-08)을 병합한다. 파일·키가 없으면 만들고, 기존의 무관한 설정과 사용자 훅은 보존한다. 자기 항목의 식별은 스크립트 경로 문자열 매칭으로 하며, 재실행 시 중복 등록하지 않고 경로가 다르면(저장소 이동) 갱신한다.
 - DES-05: **메시지 파일 분리** — 주입할 한글 텍스트는 `.ps1` 소스에 리터럴로 넣지 않고 `setup/hooks/messages/*.md`(UTF-8)에서 `Get-Content -Encoding UTF8`로 읽는다. 출력 전 `[Console]::OutputEncoding`을 UTF-8로 설정한다. PS 5.1이 BOM 없는 `.ps1`의 한글 리터럴을 오독하는 문제를 원천 회피한다.
 - DES-06 (v4, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md)): **`wf-test-guard.ps1`** — `PreToolUse`(matcher `Edit|Write|MultiEdit|NotebookEdit`). 대장 부재 시 무출력. `tool_input.file_path`(NotebookEdit는 `notebook_path`)를 `cwd` 기준 상대 경로로 정규화(`\`→`/`, 대소문자 무시)하고, 대장 `유지` 행의 `테스트 파일` 패턴([REQ-DESIGN-regression-guard DES-08](./work/20261025-regression-guard/req-design.md#설계) 판독 규칙, 한글 토큰은 코드포인트로 구성) 또는 Claude 게이트 설정 경로 상수(`~/.claude/settings.json`·`settings.local.json`, `<cwd>/.claude/` 같은 두 파일)와 일치하면 `permissionDecision: "ask"`와 이유(`messages/test-guard.md` + TST ID)를 출력한다. 권한 자동 승인 모드에서 `ask`가 사람에게 닿지 않는 것이 확인되면 그 모드에서만 `deny`. 대장 표를 찾지 못하는 등 판독 오류는 `ask`(이유에 `guard=error`), `테스트 파일` 열 부재는 무출력.
 - DES-07 (v4): **`wf-stop-gate.ps1`** — `Stop`. 대장 부재 또는 `stop_hook_active` 참이면 무출력. `$PSScriptRoot` 기준 저장소의 `skills/wf-doc/scripts/regression_guard.py <cwd>`를 `python`으로 호출(timeout 10초)해 exit 1이면 `{"decision":"block","reason":"<messages/stop-gate.md> <스크립트 출력>"}`, 그 밖(exit 0·2, Python 부재, timeout, 예외)은 무출력 exit 0.
+- DES-08 (v5, [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md)): **`wf-approval-gate.ps1`** — `PreToolUse`(matcher `Edit|Write|MultiEdit|NotebookEdit`, DES-06 다음 항목). 입력 처리는 DES-06과 같다. 선필터: `<cwd>/docs/work/` 없음, 대상이 `cwd` 밖, 또는 `<cwd>/.wf-gate.json`이 없고 대상이 `docs/` 아래면 판정 스크립트를 부르지 않고 무출력. 그 외 `$env:CLAUDE_WF_GATE_SCRIPT` 또는 `$PSScriptRoot` 기준 저장소의 `skills/wf-doc/scripts/approval_gate.py`를 `python <판정> <cwd> <대상>`으로 호출(5초 제한)해 exit 1이면 `permissionDecision: "ask"`와 이유(`messages/approval-gate.md` + 대상 상대 경로 + 판정 출력), exit 2·타임아웃·Python 부재면 `ask`(이유에 `gate=error (...)`, fail-to-ask), exit 0이면 무출력. 바깥 예외(입력 파싱 실패 등)는 무출력 exit 0. `deny`는 없다 — 미도달이 확인된 모드가 생기면 그 모드만 별도 DCR(ADR-018 결정 4). 제품 코드·승인 판정·경량 기계 조건은 B층이 판정한다(아래 계약).
 
 ## 데이터와 인터페이스
 
 - **훅 등록(설정 계약):** exec form을 사용한다 — `command: "powershell.exe"`, `args: ["-NoProfile","-ExecutionPolicy","Bypass","-File","<저장소>\\setup\\hooks\\<스크립트>.ps1"]`, `timeout: 10`(초). 셸 파싱과 프로필 로드를 배제한다.
 - **훅 입력:** 문서화된 공통 필드만 사용 — `session_id`, `transcript_path`, `cwd`, `hook_event_name`, (SessionStart의) `source`. v4: (PreToolUse의) `tool_name`·`tool_input`·`permission_mode`, (Stop의) `stop_hook_active`. stdin은 UTF-8로 읽는다.
-- **훅 출력:** 주입 시 `{"hookSpecificOutput":{"hookEventName":"<이벤트>","additionalContext":"<텍스트>"}}` 한 줄. 무주입 시 출력 없이 exit 0. v4: DES-06은 `{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask|deny","permissionDecisionReason":"<텍스트>"}}`, DES-07은 `{"decision":"block","reason":"<텍스트>"}`.
+- **훅 출력:** 주입 시 `{"hookSpecificOutput":{"hookEventName":"<이벤트>","additionalContext":"<텍스트>"}}` 한 줄. 무주입 시 출력 없이 exit 0. v4: DES-06은 `{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask|deny","permissionDecisionReason":"<텍스트>"}}`, DES-07은 `{"decision":"block","reason":"<텍스트>"}`. v5: DES-08은 DES-06과 같은 `PreToolUse` 형식으로 `ask`만 낸다.
 - **B층 판정 스크립트 계약(v4, DES-07이 의존):** `python regression_guard.py <저장소 루트>` → exit 0 위반 없음(무출력), exit 1 위반(`TST-NN: <사유> <파일>` 행들), exit 2 내부 오류. 정본은 [REQ-DESIGN-regression-guard DES-04](./work/20261025-regression-guard/req-design.md#설계).
+- **B층 승인 판정 계약(v5, DES-08이 의존):** `python approval_gate.py <저장소 루트> <대상 경로>` → exit 0 통과(무출력), exit 1 확인 필요(`<작업 ID>: <사유>` 행들), exit 2 내부 오류(`.wf-gate.json` 손상 포함). 제품 코드는 기본 `docs/` 밖 전부, 루트 `.wf-gate.json` `{"product":[…],"exclude":[…]}`이 덮어쓴다(`exclude` 우선). 정본은 [REQ-DESIGN-approval-gate DES-01](./work/20261026-approval-gate/req-design.md#설계)(경량 기계 조건 DES-02, 선언 DES-09).
 - **상태 파일:** `%TEMP%\claude-wf\<session_id>.json` — `{ "baselineBytes": n, "lastWarnedBytes": n|null, "lastWarnedTokens": n|null, "updatedAt": "ISO8601" }`(v3에서 `lastWarnedTokens` 추가, 구 파일은 필드 부재를 null로 처리). 없으면 그 자리에서 재생성(기준점=현재 크기). 오래된 파일은 무해하며 청소는 범위 밖.
 - **설정값(v3):** 1차 신호 임계값 `CLAUDE_WF_THRESHOLD_TOKENS`(기본 130000 = 200K 창의 65%), 재경고 간격 `CLAUDE_WF_REWARN_TOKENS`(기본 20000). 폴백 임계값 `CLAUDE_WF_THRESHOLD_KB`(기본 1500), `CLAUDE_WF_REWARN_KB`(기본 300). 모두 환경 변수로 재정의 가능, 기본값은 스크립트 상수. 130000의 근거: [ADR-001](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md) 보정이 겨냥한 50~70% 구간의 중앙이며, 경고 후 실제 인계는 다음 계획 항목 경계에서 일어나므로 그 사이의 성장 여유와 "마지막 usage는 직전 호출 기준"인 과소 추정분을 둔다. 1M 창 모델이 주력이면 환경 변수로 올린다. 실세션 2주 관찰 후 1회 보정([ADR-012 후속 작업](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md#후속-작업)).
 - **열린 작업 판정(DES-01):** work-log 머리말의 `> 상태:` 값이 닫힘 계열(위 5종)이 아니면 열린 작업. 보류(`on-hold`)는 사용자 지시로만 재개되므로 닫힘으로 취급한다(v2). 머리말을 읽을 수 없는 파일은 건너뛴다(오탐 방지).
@@ -79,10 +84,11 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 ## 정상·실패·복구 흐름
 
 - **정상:** 이벤트 → 가드 통과 → 판정 → (필요시) 주입 → exit 0.
-- **가드(모든 스크립트 공통, FR-05):** `<cwd>/docs/work/`가 없으면 즉시 무출력 exit 0. v4: DES-06·07은 추가로 `<cwd>/docs/test-register.md`가 없으면 무출력 exit 0.
+- **가드(모든 스크립트 공통, FR-05):** `<cwd>/docs/work/`가 없으면 즉시 무출력 exit 0. v4: DES-06·07은 추가로 `<cwd>/docs/test-register.md`가 없으면 무출력 exit 0. v5: DES-08은 추가로 대상이 `cwd` 밖이거나, `<cwd>/.wf-gate.json`이 없고 대상이 `docs/` 아래면 판정 스크립트를 부르지 않고 무출력 exit 0(매 편집의 Python 기동을 제품 경로로 한정).
 - **실패(v4 회귀 보호):** DES-06은 대장이 있는데 판독 오류·예외면 `ask`(fail-to-ask), DES-07은 모든 실패에서 무출력 exit 0. DES-07 재진입(`stop_hook_active`)은 통과하므로 차단은 연속 1회뿐이다.
+- **실패(v5 승인 게이트):** DES-08은 판정 exit 2·타임아웃·Python 부재에서 `ask`(fail-to-ask, 이유에 `gate=error`), 훅 입력 파싱 실패 등 바깥 예외에서 무출력 exit 0.
 - **실패(NFR-01):** 스크립트 전체를 try/catch로 감싸고 catch에서 무출력 exit 0. stdin JSON 파싱 실패, transcript 부재, 상태 파일 손상 모두 동일 — 주입 포기가 유일한 실패 결과이며 A층 수동 경로가 유지된다.
-- **타임아웃:** 훅별 `timeout: 10`초. 모든 작업이 파일 stat·꼬리 1MB 1회 읽기·정규식·소형 JSON 읽기/쓰기이므로 통상 수십 밀리초 이내다(NFR-03; v3 실측 4~74ms, powershell.exe 기동 비용에 묻힘).
+- **타임아웃:** 훅별 `timeout: 10`초. 모든 작업이 파일 stat·꼬리 1MB 1회 읽기·정규식·소형 JSON 읽기/쓰기이므로 통상 수십 밀리초 이내다(NFR-03; v3 실측 4~74ms, powershell.exe 기동 비용에 묻힘). v5: DES-08의 판정 호출은 훅 안에서 5초 제한(훅 `timeout: 10`초 안). 판정 추가 지연 실측 중앙값 175.5ms(제품 경로 429ms − `docs/` 경로 253.5ms, 10회, 2026-10-26 — REQ-DESIGN-approval-gate NFR-02 ≤ 300ms).
 - **동시성:** PostToolUse가 짧은 간격으로 겹쳐도 상태 파일은 마지막 쓰기 승리로 충분하다(값이 단조 증가 크기이므로 경합 손실의 영향은 재경고 시점이 약간 밀리는 정도).
 
 ## 보안과 품질 속성
@@ -104,9 +110,11 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 - **설치 로직:** 임시 디렉터리를 홈으로 위장한 병합 함수 테스트(미설치/기설치/무관 키 보존 — AC-03).
 - **실세션 확인:** 이 저장소에서 세션 시작·`/compact` 후 주입 여부를 관찰(AC-01, AC-06).
 - **v4 회귀 보호:** T29~ — DES-06 확인 요청/미등록 통과/판독 오류 확인 요청/열 부재 무출력(AC-07), DES-07 위반 차단/무위반·재진입·Python 부재 통과(AC-08, 판정 스크립트는 가짜 스크립트로 대체 가능), 대장 부재 무출력(AC-09), 설치 등록 5종. 대장 판독은 공유 견본 대장으로 B층 pytest와 결과 일치를 고정. 실세션: 이 저장소에서 `유지` 테스트 파일 편집 시도 1회와 권한 자동 승인 모드 1회.
+- **v5 승인 게이트:** TST-01 T47~T55(9건) — `CLAUDE_WF_GATE_SCRIPT` 스텁 판정으로 exit 1 → `ask`·exit 0 → 무출력(AC-10), `docs/work/` 없음·선언 없는 `docs/` 경로 → 판정 미호출 무출력, 선언이 있으면 `docs/` 경로도 판정 호출(AC-11), exit 2·Python 부재 → `ask`(gate=error)·입력 파싱 실패 → 무출력(AC-12), 실제 판정 1건. 설치 T45·T46은 `PreToolUse` 2개 항목(테스트 가드, 승인 게이트) 기대로 갱신. B층 판정은 TST-02 `test_approval_gate.py` 16건. 지연 10회 중앙값 측정, 설치 후 승인된 작업의 제품 파일 편집 통과를 실세션에서 관찰.
 
 ## 대안과 결정
 
+- [ADR-018: 승인 게이트의 판정](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) (v5) — 작업 기록 `기준선` 링크 문서의 상태 + 승인 기록의 응답 인용으로 판정, 판정은 B층 Python·PS 어댑터는 `docs/` 선필터 후 호출, 출력은 `ask`만(`deny` 보류). 대안(PS 재구현, status.md 판정, req-design 존재만, `deny` 병용) 비교는 ADR 참조.
 - [ADR-014: 회귀 보호 훅의 강제 방식](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) (v4) — 편집 시 `ask` + 종료 시 diff 판정의 두 겹, 판정은 하네스 중립 B층, 가드만 fail-to-ask, 보호 3층. 대안(규칙 유지, `deny`만, Bash 파싱, 종료 시 재실행, PS1 내부 판정) 비교는 ADR 참조.
 - [ADR-012: 컨텍스트 사용량 신호를 transcript usage 파싱으로 교체](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) (v3) — 실제 컨텍스트 토큰을 1차 신호로, 바이트 프록시를 폴백으로. 대안(임계값 상향, statusline 브리지, resume `context_tokens`, 마일스톤 카운트) 비교는 ADR 참조.
 - [ADR-001: 컨텍스트 사용량 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md) (v1·v2, 대체됨) — transcript 크기 성장 프록시(기준점 보정). 폴백 경로의 근거로 유지.
@@ -127,6 +135,9 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 - RISK-04: 훅 API의 필드·계약 변경. 완화: 문서화된 필드만 사용, fail-open, 스크립트가 저장소 정본이라 일괄 수정 용이.
 - RISK-06(v4): 권한 자동 승인 모드에서 `ask`가 사람에게 닿지 않아 DES-06이 무력화. 완화: 구현 첫 단계에서 실측, 닿지 않으면 그 모드만 `deny`([ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 후속 작업).
 - RISK-07(v4): DES-06(PS1)과 B층 판정(Python)의 대장 판독 불일치. 완화: 공유 견본 대장을 양쪽 테스트가 판독.
+- RISK-08(v5): 자기 승인 — 에이전트가 기준선 문서의 상태와 승인 기록의 응답 인용을 직접 쓰면 DES-08이 통과한다. 완화: 완전 차단 불가. "조용한 자기 승인"이 "기록된 승인"이 되어 사후 감사로 드러나고, 승인 기록은 사람이 보는 승인 요청 직후에만 쓰는 규칙에 의존([ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) 감수할 단점).
+- RISK-09(v5): 판정 기동 지연 — 제품 경로 편집마다 Python을 기동한다. 실측 추가분 중앙값 175.5ms(≤ 300ms). 완화: `docs/` 선필터, 초과 시 PS 판정(ADR-018 대안 B)으로 DCR.
+- RISK-10(v5): 열린 작업이 둘 이상이면 승인된 작업의 편집도 다른 미승인 작업 때문에 확인을 받는다(확인 소음). 완화: 보수적 기본값으로 감수, 이유에 미승인 작업 ID를 표시.
 - RISK-05(v3): transcript 형식 변경으로 usage 파싱이 실패해 폴백(바이트 프록시, 작업 유형 의존 오차)으로 내려감. 완화: 계약 테스트, `signal=` 표기로 가시화, 설정 가능 임계값·재경고 간격, "다음 경계에서" 지시(요구사항 RISK-02 v3와 동일 계열). v1·v2의 "프록시 부정확성"은 1차 신호에서 해소.
 
 ## 추적성
@@ -140,6 +151,7 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 | [FR-05](./requirements.md#기능-요구사항) | DES-01, DES-02, DES-03 | [TASK-02~04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
 | [FR-06](./requirements.md#기능-요구사항) | DES-06, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | [VER-03·05·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
 | [FR-07](./requirements.md#기능-요구사항) | DES-07, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | [VER-04·05·08·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
+| [FR-08](./requirements.md#기능-요구사항) | DES-08, DES-04, DES-05 | [20261026-approval-gate](./work/20261026-approval-gate/work-log.md) | AC-10, AC-11, AC-12 | [TASK-01·02](./work/20261026-approval-gate/work-log.md#수행-기록) — TST-01 T47~T55, TST-02 16건 | 테스트 통과, 통합 대기 |
 
 ## 승인 기록
 
@@ -147,6 +159,7 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 - 2026-10-09 — [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) 재승인으로 기준선 v2. 응답: "권장안 전체 승인"([REQ-DESIGN-worklog-diet](./work/20261009-worklog-diet/req-design.md#승인-기록) 관문, Q-02 포함).
 - 2026-10-18 — [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md) 재승인으로 기준선 v3. 응답: "좋은 제안입니다. 승인하겠습니다." [ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) 동시 승인, [ADR-001](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md) `superseded`.
 - 2026-10-25 — [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md) 승인으로 기준선 v4. 응답: Q-01 A·Q-03 B·Q-04 A 선택, Q-02 3층 구조 채택 후 반영본 "승인"([REQ-DESIGN-regression-guard](./work/20261025-regression-guard/req-design.md#승인-기록) 관문). [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) 동시 승인.
+- 2026-10-26 — [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) 승인으로 기준선 v5. 응답: Q-01 "docs/ 밖 + glob 선언", Q-02 "상태 + 응답 인용", Q-03 "5개", "승인"([REQ-DESIGN-approval-gate](./work/20261026-approval-gate/req-design.md#승인-기록) 관문). [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) 동시 승인.
 
 ## 변경 이력
 
@@ -157,13 +170,14 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 | 2026-10-09 | DES-01·열린 작업 판정의 닫힘 계열에 `on-hold` 추가, 기준선 v2 | [DCR-007](./work/20261009-worklog-diet/DCR-007-훅-닫힘-상태-on-hold.md) 사용자 재승인 | approved, v1 → v2 | 사용자(승인) |
 | 2026-10-18 | DES-02를 2단 신호(usage 토큰 1차·바이트 폴백)로 교체, 제약 완화, 상태 파일·설정값·RISK-05·검증 전략 갱신, 기준선 v3 | [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md) 사용자 재승인, [ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) | approved, v2 → v3 | 사용자(승인) |
 | 2026-10-25 | 회귀 보호 훅 추가 — 설계 목표와 제약(fail-open 예외·출력 계약·판정 중립), 시스템 경계, DES-04 등록 5종, DES-06·07 신설, 입력·출력·B층 계약, 가드·실패 흐름, 보안, 검증 전략, ADR-014, RISK-06·07, 추적성, 기준선 v4 | [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md) 사용자 승인, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) | approved, v3 → v4 | 사용자(승인) |
+| 2026-10-26 | 승인 게이트 훅 추가 — 요약, DES-04 등록 6개, DES-08 신설, 출력·B층 승인 판정 계약, 가드·실패·타임아웃 흐름, 검증 전략, ADR-018, RISK-08~10, 추적성, 기준선 v5 | [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) 사용자 승인, [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) | approved, v4 → v5 | 사용자(승인) |
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: 없음 — v4 구현 완료([WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md))
-- 시작 조건: 충족 — v4 승인(2026-10-25)
-- 입력 문서와 기준선: [REQ-llm-workflow](./requirements.md) v4, 이 문서 v4, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md), [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)
-- 완료된 항목: v1~v3 구현·검증, v4 설계·ADR·DCR 승인
+- 다음 단계 또는 워크플로우: v5 통합 — [WORK-20261026-approval-gate](./work/20261026-approval-gate/work-log.md) (v4 구현 완료 [WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md))
+- 시작 조건: 충족 — v5 승인(2026-10-26)
+- 입력 문서와 기준선: [REQ-llm-workflow](./requirements.md) v5, 이 문서 v5, [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md), [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md), [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md), [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)
+- 완료된 항목: v1~v4 구현·검증, v5 설계·ADR·DCR 승인
 - 미완료 항목: v4 `bypassPermissions` 모드 관찰, 실세션 관찰 [VER-06·VER-07](./work/20260809-claude-hooks/work-log.md#검증), 기본값 130000의 실세션 보정(ADR-012 후속)
 - 차단 요인: 없음
-- 다음 행동: [WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md) 인계의 다음 행동
+- 다음 행동: [WORK-20261026-approval-gate](./work/20261026-approval-gate/work-log.md) 인계의 다음 행동

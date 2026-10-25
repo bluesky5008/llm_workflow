@@ -460,17 +460,87 @@ $settings = Join-Path $dir 'settings.json'
 Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
 $h = (Get-Content $settings -Raw -Encoding UTF8 | ConvertFrom-Json).hooks
 $pre = @($h.PreToolUse | Where-Object { $_ }); $stop = @($h.Stop | Where-Object { $_ })
-$preOk = $pre.Count -eq 1 -and $pre[0].matcher -eq 'Edit|Write|MultiEdit|NotebookEdit' -and $pre[0].hooks[0].args[-1] -like '*\wf-test-guard.ps1'
+$preOk = $pre.Count -eq 2 -and @($pre | Where-Object { $_.matcher -ne 'Edit|Write|MultiEdit|NotebookEdit' }).Count -eq 0 -and $pre[0].hooks[0].args[-1] -like '*\wf-test-guard.ps1' -and $pre[1].hooks[0].args[-1] -like '*\wf-approval-gate.ps1'
 $stopOk = $stop.Count -eq 1 -and -not $stop[0].PSObject.Properties['matcher'] -and $stop[0].hooks[0].args[-1] -like '*\wf-stop-gate.ps1'
-Assert-True ($preOk -and $stopOk) 'T45 install registers 1 PreToolUse guard + 1 Stop gate entry'
+Assert-True ($preOk -and $stopOk) 'T45 install registers 2 PreToolUse entries (test guard, approval gate) + 1 Stop gate entry'
 
 # T46: rerun keeps exactly one of each
 Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
 $h = (Get-Content $settings -Raw -Encoding UTF8 | ConvertFrom-Json).hooks
-Assert-True (@($h.PreToolUse | Where-Object { $_ }).Count -eq 1 -and @($h.Stop | Where-Object { $_ }).Count -eq 1) 'T46 rerun does not duplicate guard entries'
+Assert-True (@($h.PreToolUse | Where-Object { $_ }).Count -eq 2 -and @($h.Stop | Where-Object { $_ }).Count -eq 1) 'T46 rerun does not duplicate guard entries'
 }
 
+# ---------- wf-approval-gate.ps1 (DES-08 v5, ADR-018) ----------
+
+# Fake judges stand in for approval_gate.py via CLAUDE_WF_GATE_SCRIPT.
+$gFake1 = New-FakeJudge 'gate1' 1 '20260101-gate: fake unapproved baseline'
+$gFake0 = New-FakeJudge 'gate0' 0 ''
+$gFake2 = New-FakeJudge 'gate2' 2 'gate=error (boom)'
+
+function Invoke-Gate([string]$Cwd, [string]$Target) {
+    return Invoke-Hook 'wf-approval-gate.ps1' @{ session_id='wf-test-ag'; cwd=$Cwd; hook_event_name='PreToolUse'; tool_name='Edit'; tool_input=@{ file_path=$Target }; permission_mode='default' }
+}
+
+$wsAg = New-TestDir 'ag-repo'
+New-WorkLog $wsAg '20260101-gate' 'in-progress'
+
+# T47: judge exit 1 -> ask, reason carries the judge output
+$env:CLAUDE_WF_GATE_SCRIPT = $gFake1
+$out = Invoke-Gate $wsAg (Join-Path $wsAg 'src\a.py')
+Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match '20260101-gate: fake unapproved') 'T47 gate asks with the judge output on exit 1'
+
+# T48: judge exit 0 -> silent
+$env:CLAUDE_WF_GATE_SCRIPT = $gFake0
+$out = Invoke-Gate $wsAg (Join-Path $wsAg 'src\a.py')
+Assert-True ($out -eq '') 'T48 gate silent when the judge passes'
+
+# T49: judge exit 2 -> ask (fail-to-ask)
+$env:CLAUDE_WF_GATE_SCRIPT = $gFake2
+$out = Invoke-Gate $wsAg (Join-Path $wsAg 'src\a.py')
+Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match 'gate=error') 'T49 gate asks on judge internal error'
+
+# T50: python not on PATH -> ask (fail-to-ask)
+$env:CLAUDE_WF_GATE_SCRIPT = $gFake0
+$savedPath = $env:PATH
+$env:PATH = "$env:SystemRoot\System32;$env:SystemRoot\System32\WindowsPowerShell\v1.0"
+try { $out = Invoke-Gate $wsAg (Join-Path $wsAg 'src\a.py') } finally { $env:PATH = $savedPath }
+Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match 'gate=error') 'T50 gate asks when python is absent'
+
+# T51: no docs/work -> silent without calling the judge
+$env:CLAUDE_WF_GATE_SCRIPT = $gFake1
+$wsNo = New-TestDir 'ag-none'
+$out = Invoke-Gate $wsNo (Join-Path $wsNo 'src\a.py')
+Assert-True ($out -eq '') 'T51 gate silent without docs/work'
+
+# T52: docs/ path without .wf-gate.json -> silent without calling the judge
+$out = Invoke-Gate $wsAg (Join-Path $wsAg 'docs\notes.md')
+Assert-True ($out -eq '') 'T52 gate skips docs/ paths when no declaration exists'
+
+# T53: docs/ path with .wf-gate.json -> judge is called
+Set-Content -Path (Join-Path $wsAg '.wf-gate.json') -Value '{"product": ["docs/tools/*"]}' -Encoding ASCII
+$out = Invoke-Gate $wsAg (Join-Path $wsAg 'docs\tools\b.py')
+Remove-Item (Join-Path $wsAg '.wf-gate.json')
+Assert-True ($out -match '"permissionDecision":"ask"') 'T53 gate consults the judge for docs/ paths when a declaration exists'
+Remove-Item Env:\CLAUDE_WF_GATE_SCRIPT -ErrorAction SilentlyContinue
+
+# T54: real approval_gate.py - open work whose baseline doc is a draft -> ask naming the work
+$kBaseline = K 0xAE30,0xC900,0xC120                       # baseline field
+$kApproval = K 0xC2B9,0xC778,0x20,0xAE30,0xB85D            # approval-record heading
+$wsReal = New-TestDir 'ag-real'
+$dReal = Join-Path $wsReal 'docs\work\20260101-real'
+New-Item -ItemType Directory -Force $dReal | Out-Null
+$utf8 = New-Object Text.UTF8Encoding($false)
+[IO.File]::WriteAllText((Join-Path $dReal 'work-log.md'), "# WORK`n`n> ${kState}: ``in-progress```n> ${kBaseline}: ``[R](./req-design.md)```n`n## x`n", $utf8)
+[IO.File]::WriteAllText((Join-Path $dReal 'req-design.md'), "# R`n`n> ${kState}: ``draft```n`n## $kApproval`n`n- none`n", $utf8)
+$out = Invoke-Gate $wsReal (Join-Path $wsReal 'src\a.py')
+Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match '20260101-real' -and $out -match 'req-design.md') 'T54 gate asks on a real unapproved baseline'
+
+# T55: unreadable hook input -> silent (outer fail-open)
+$out = [string](@('not json' | & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $hooksDir 'wf-approval-gate.ps1')) -join "`n")
+Assert-True ($out -eq '') 'T55 gate silent on unreadable hook input'
+
 } finally {
+    Remove-Item Env:\CLAUDE_WF_GATE_SCRIPT -ErrorAction SilentlyContinue
     Remove-Item Env:\CLAUDE_WF_THRESHOLD_KB -ErrorAction SilentlyContinue
     Remove-Item Env:\CLAUDE_WF_REWARN_KB -ErrorAction SilentlyContinue
     Remove-Item Env:\CLAUDE_WF_THRESHOLD_TOKENS -ErrorAction SilentlyContinue

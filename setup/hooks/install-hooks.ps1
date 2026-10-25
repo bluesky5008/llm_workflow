@@ -53,7 +53,8 @@ function Install-WfHooks([string]$SettingsPath, [string]$HooksDir) {
             (New-WfEntry '*' (Join-Path $HooksDir 'wf-context-threshold.ps1'))
         )
         PreToolUse   = @(
-            (New-WfEntry 'Edit|Write|MultiEdit|NotebookEdit' (Join-Path $HooksDir 'wf-test-guard.ps1'))
+            (New-WfEntry 'Edit|Write|MultiEdit|NotebookEdit' (Join-Path $HooksDir 'wf-test-guard.ps1')),
+            (New-WfEntry 'Edit|Write|MultiEdit|NotebookEdit' (Join-Path $HooksDir 'wf-approval-gate.ps1'))
         )
         Stop         = @(
             (New-WfEntry '' (Join-Path $HooksDir 'wf-stop-gate.ps1'))
