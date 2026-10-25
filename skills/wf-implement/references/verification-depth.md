@@ -92,3 +92,5 @@
 | (b) 요구사항 변경 | 기준선의 의미가 바뀌어야 한다 | [wf-design 설계 변경](../../wf-design/references/design-change.md)으로 DCR을 올린다. 승인되면 해당 행을 `대체`로 전이한다 |
 
 테스트를 고쳐 통과시키는 것도, 인수 조건을 다시 읽어 통과시키는 것도 이 절차 밖에서는 하지 않는다.
+
+테스트를 쓰기 전에 인수 조건이 둘 이상으로 읽히면 이 표가 아니라 [wf-design DCR 시작 조건](../../wf-design/references/design-change.md#2-변경-시작-조건)으로 멈춘다.
