@@ -3,7 +3,7 @@
 > 상태: 작업 목록(조사 트랙). wf-design 승인 대상이 아니며 스킬·docs 정본을 편집하지 않는다. 각 사이클은 wf-design 정식 경로로 착수한다.
 > 입력: [대조 문서 §2·§4](./00_trends_vs_workflow.md#2-개발-중-회귀-테스트-관리), [회귀 테스트 노트](./02_regression_notes.md), 2026-10-25 추가 확인(속성 기반 테스트, Claude Code 훅 차단 사양).
 > 대상: `skills/wf-implement/SKILL.md`, `skills/wf-implement/references/verification-depth.md`·`review-checklist.md`, `skills/wf-doc/references/templates.md`(작업 기록·테스트 대장), `skills/wf-doc/scripts/lint_worklog.py`, `setup/hooks/`, `docs/test-register.md`.
-> 작성 2026-10-25. 갱신 2026-10-25 — 레거시 테스트 정비 보강안(R-13~R-16)과 전체 순서 반영, 사이클 1 착수([20261025-regression-guard](../../work/20261025-regression-guard/req-design.md)).
+> 작성 2026-10-25. 갱신 2026-10-26 — 사이클 1 완료([20261025-regression-guard](../../work/20261025-regression-guard/req-design.md), `66e4907`), 사이클 2 착수([20261026-test-quality](../../work/20261026-test-quality/req-design.md)). 이전 갱신 2026-10-25 — 레거시 테스트 정비 보강안(R-13~R-16)과 전체 순서 반영.
 
 ## 전체 순서
 
