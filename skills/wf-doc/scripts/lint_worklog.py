@@ -19,7 +19,7 @@ from collections import namedtuple
 from urllib.parse import unquote
 
 # ---- 상한과 어휘(초깃값: 2026-10-09 측정값. 두 사이클 운용 후 조정 가능) ----
-MAX_ENTRY_LINES = 8          # 수행 기록 항목 하나의 비어 있지 않은 행 수
+MAX_ENTRY_LINES = 9          # 수행 기록 항목 하나의 비어 있지 않은 행 수(2026-10-25 `Red` 필드로 8→9)
 MAX_ENTRY_CHARS = 600        # 수행 기록 항목 하나의 글자 수(행 길이 합)
 MAX_BULLET_CHARS = 300       # 불릿 한 줄의 글자 수
 WARN_FILE_BYTES = 12 * 1024  # 초과 시 경고
@@ -35,6 +35,8 @@ HEAD_FIELDS = ["문서 유형", "작업 ID", "상태", "기준선", "작성일",
 H2_ORDER = ["요약", "문서 연결", "기준선과 현재 계획", "수행 기록", "설계와 달라진 점",
             "검증 결과", "완료 보고", "인계"]
 ENTRY_REQUIRED = ["결정과 이유", "검증", "결과"]
+# 제목에 `TASK-`가 있는 항목의 `Red`: `<명령> · <SHA | HEAD+dirty> · <실패 이유>` 또는 `해당 없음 — <이유>`
+RED_SHA_RE = re.compile(r"^(?:[0-9a-f]{7,40}(?:\+dirty)?|HEAD\+dirty)$")
 HANDOFF_OPEN = ["다음 단계 또는 워크플로우", "시작 조건", "입력 문서와 기준선", "완료된 항목",
                 "미완료 항목", "차단 요인", "다음 행동"]
 RESUME_RE = re.compile(r'^작업 (\S+) 재개 — (\S+)의 인계 절을 읽고 "다음 행동"부터 진행하라\.$')
@@ -185,6 +187,14 @@ def lint_worklog_file(path, root=None):
         for name in ENTRY_REQUIRED:
             if name not in got:
                 E(i, "L3", "수행 기록 항목 '%s'에 필수 필드 없음: %s" % (title, name))
+        if "TASK-" in title:
+            red = got.get("Red")
+            parts = (red or "").strip().split(" · ", 2)
+            if red is None:
+                E(i, "L3", "수행 기록 항목 '%s'에 필수 필드 없음: Red" % title)
+            elif not (red.strip().startswith("해당 없음 — ") or
+                      (len(parts) == 3 and all(parts) and RED_SHA_RE.match(parts[1].strip("`")))):
+                E(i, "L3", "수행 기록 항목 '%s'의 Red 형식이 다름: `<명령> · <SHA|HEAD+dirty> · <이유>` 또는 `해당 없음 — <이유>`" % title)
         if len(block) > MAX_ENTRY_LINES:
             E(i, "L3", "수행 기록 항목 '%s' %d행 (상한 %d)" % (title, len(block), MAX_ENTRY_LINES))
         chars = sum(len(t) for _, t in block)

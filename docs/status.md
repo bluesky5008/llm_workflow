@@ -5,13 +5,13 @@
 > 상태: `in-progress`
 > 기준선: `N/A — 포트폴리오. 최초 생성(범위) 승인은 [REQ-DESIGN-plan-relocation v1](./work/20261009-plan-relocation/req-design.md#승인-기록) 승인 관문이 겸함(2026-10-09)`
 > 작성일: 2026-10-09
-> 최종 갱신: 2026-10-18
+> 최종 갱신: 2026-10-25
 > 관련 문서: [wf-tree 포트폴리오 생성과 갱신](../skills/wf-tree/SKILL.md#8-포트폴리오-생성과-갱신), [wf-implement 작업 기록과 저장 위치](../skills/wf-implement/SKILL.md#7-작업-기록과-저장-위치), [결정 등록부](./decisions.md)
 
 ## 요약
 
 - 목적: 이 저장소에서 진행 중인 작업만 한 표로 조망한다. 완료 작업은 싣지 않으며, 이력은 `docs/work/` 각 폴더와 git이 정본이다.
-- 현재 결론 또는 상태: 진행 중 0건·보류 1건. `20261018-context-signal-v2`(DCR-013, 임계 훅 신호 v3)는 완료 보고 종결로 행 제거(2026-10-18 01:55). 사이클 4(`20261009-skill-diet`)는 완료 보고 종결로 행 제거(2026-10-09 20:19). 사이클 3(`20261009-test-lifecycle`)은 완료 보고 종결로 행 제거(2026-10-09 16:45). (사이클 1·2 작업은 완료 보고 종결로 행 제거 — 트리는 온디맨드 규칙에 따라 재생성하지 않음, 생성 일시 참조)
+- 현재 결론 또는 상태: 진행 1건·보류 1건. `20261025-regression-guard`(v2 테스트 사이클 1, 회귀 보호의 강제) v1 승인·계획 수립(2026-10-25), TASK-01~03 완료·TASK-04 대기. `20261018-context-signal-v2`(DCR-013, 임계 훅 신호 v3)는 완료 보고 종결로 행 제거(2026-10-18 01:55). 사이클 4(`20261009-skill-diet`)는 완료 보고 종결로 행 제거(2026-10-09 20:19). 사이클 3(`20261009-test-lifecycle`)은 완료 보고 종결로 행 제거(2026-10-09 16:45). (사이클 1·2 작업은 완료 보고 종결로 행 제거 — 트리는 온디맨드 규칙에 따라 재생성하지 않음, 생성 일시 참조)
 - 다음 행동: 아래 작업 목록의 `다음 행동` 열.
 
 ## 문서 연결
@@ -25,6 +25,7 @@
 | input | related | [WORK-20261009-worklog-diet: 작업 기록](./work/20261009-worklog-diet/work-log.md) | document | 포함했던 작업(사이클 2, 완료 — 행 제거됨). 이 문서의 행 정합은 그 작업의 린트(L8)가 검사 |
 | input | related | [WORK-20261009-skill-diet: 작업 기록](./work/20261009-skill-diet/work-log.md) | document | 포함했던 작업(사이클 4, 완료 — 행 제거됨). 스킬 본문 다이어트·린트·render.py |
 | input | related | [WORK-20261018-context-signal-v2: 작업 기록](./work/20261018-context-signal-v2/work-log.md) | document | 포함했던 작업(완료 — 행 제거됨). 임계 훅 신호 v3·세션 재개 경량화, DCR-013 |
+| output | related | [WORK-20261025-regression-guard: 작업 기록](./work/20261025-regression-guard/work-log.md) | document | 포함 작업(진행 중). 회귀 보호의 강제, ADR-014·DCR-015 |
 
 ## 목표와 범위
 
@@ -36,6 +37,7 @@
 
 | 작업 ID | 제목 | 상태 | 계획·기록 | 의존 | 다음 행동 |
 |---|---|---|---|---|---|
+| 20261025-regression-guard | 회귀 보호의 강제(v2 테스트 사이클 1) | in-progress | [work-log](./work/20261025-regression-guard/work-log.md) | — | TASK-04(충돌 출구) — [plan](./work/20261025-regression-guard/plan.md) 3/8 |
 | 20260814-multiuser-workflow | 다인 사용 시나리오 토론 | on-hold | [work-log](./work/20260814-multiuser-workflow/work-log.md) | 20261009-plan-relocation | 재개 조건은 작업 기록 인계 절 — plan-relocation 완료 후 Q-04 재검토 |
 
 ## 계획 트리
@@ -66,6 +68,9 @@
 | 2026-10-09 | `20261009-skill-diet` 행 제거(완료 보고 종결, 2026-10-09 20:19) | wf-implement §7 포트폴리오 행의 추가·제거 |
 | 2026-10-18 | `20261018-context-signal-v2` 행 추가(wf-design 설계 변경 착수, 작업 기록 시작) | wf-implement §7 포트폴리오 행의 추가·제거 |
 | 2026-10-18 | `20261018-context-signal-v2` 행 제거(완료 보고 종결, 2026-10-18 01:55) | wf-implement §7 포트폴리오 행의 추가·제거 |
+| 2026-10-25 | `20261025-regression-guard` 행 추가(wf-design 착수, 작업 기록 시작) | wf-implement §7 포트폴리오 행의 추가·제거 |
+| 2026-10-25 | `20261025-regression-guard` 상태 awaiting-approval → approved(v1, ADR-014·DCR-015 승인, C층 v4) | 사용자 승인 관문 |
+| 2026-10-25 | `20261025-regression-guard` 상태 approved → in-progress(plan.md 작성) | wf-implement §3.2 |
 
 ## 인계
 

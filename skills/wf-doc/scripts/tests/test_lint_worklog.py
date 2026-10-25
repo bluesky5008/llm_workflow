@@ -76,6 +76,7 @@ ENTRY = """### 2026-01-01 — TASK-01
 
 - 결정과 이유: 없음
 - 검증: `python -m pytest -q` 3 passed
+- Red: 해당 없음 — 견본
 - 결과: 완료 — 2026-01-01 10:00
 """
 
@@ -202,6 +203,32 @@ def test_l3_too_many_chars(tmp_path):
     entry = entry.replace("- 결정과 이유: 없음", "- 결정과 이유: " + "나" * 290)
     found = codes(run(tmp_path, good(entries=entry)))
     assert "L3" in found and "L5" not in found
+
+
+def test_l3_nine_lines_allowed(tmp_path):
+    entry = ENTRY + "".join("- 메모 %d: 짧은 줄\n" % i for i in range(5))
+    assert "L3" not in codes(run(tmp_path, good(entries=entry)))
+
+
+def test_l3_task_entry_without_red(tmp_path):
+    entry = ENTRY.replace("- Red: 해당 없음 — 견본\n", "")
+    assert "L3" in codes(run(tmp_path, good(entries=entry)))
+
+
+def test_l3_red_bad_format(tmp_path):
+    entry = ENTRY.replace("해당 없음 — 견본", "테스트가 실패했음")
+    assert "L3" in codes(run(tmp_path, good(entries=entry)))
+
+
+def test_l3_red_command_sha_reason_allowed(tmp_path):
+    for sha in ("abc1234", "abc1234+dirty", "HEAD+dirty"):
+        entry = ENTRY.replace("해당 없음 — 견본", "`python -m pytest -q` · %s · 단언 실패(0 == 1)" % sha)
+        assert "L3" not in codes(run(tmp_path, good(entries=entry))), sha
+
+
+def test_l3_non_task_entry_needs_no_red(tmp_path):
+    entry = ENTRY.replace("TASK-01", "착수").replace("- Red: 해당 없음 — 견본\n", "")
+    assert "L3" not in codes(run(tmp_path, good(entries=entry)))
 
 
 def test_l3_optional_fields_allowed(tmp_path):
