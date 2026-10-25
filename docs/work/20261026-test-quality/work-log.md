@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261026-test-quality`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `[REQ-DESIGN-test-quality](./req-design.md) v1` (승인일 2026-10-26)
 > 작성일: 2026-10-26
 > 최종 갱신: 2026-10-26
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: v2 테스트 사이클 2(R-06~R-09, D-3)의 wf-design·wf-implement 진행을 기록한다.
-- 현재 결론 또는 상태: TASK-01~05 완료, TASK-06 통합 수행 — AC-01~08 성공, 완료 보고 관문 대기.
-- 다음 행동: 완료 보고 관문 응답(커밋·push 범위, 대장 변경).
+- 현재 결론 또는 상태: 완료(2026-10-26 00:31) — TASK-01~06, AC-01~09 9/9. 구현 커밋 `7bb0ff2`, 이 종결 커밋과 함께 push 대상.
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -26,7 +26,7 @@
 ## 기준선과 현재 계획
 
 - 기준선: [REQ-DESIGN-test-quality](./req-design.md) v1(2026-10-26)
-- 계획: [PLAN-20261026-test-quality](./plan.md)(in-progress, 5/6)
+- 계획: [PLAN-20261026-test-quality](./plan.md)(completed)
 
 ## 수행 기록
 
@@ -81,6 +81,14 @@
 - 검증: killed 4(R1 속성, R2 예제+속성, W2·W3 예제) / survived 2(R3·W1) / 동치 0. 해시 render.py 529e1092·lint_worklog.py 3dbb4ba7 전후 동일, `git status` 두 파일 무변경
 - 결과: 완료 — 2026-10-26 00:27
 
+### 2026-10-26 — TASK-06
+
+- 발견 사항: 전체 스위트에서 TST-03만 기존 `격리`(pptx) 실패 5건. `.hypothesis/`는 git 무시 대상.
+- 결정과 이유: ADR-009 대체 관계에 관련 1행. 자체 리뷰 수정 없음(새 테스트 냄새 표 통과, 단언 실패 가능성은 R1·R2 kill). 완료 보고 관문 "커밋 + push" — closing.md ①~⑥.
+- Red: 해당 없음 — 통합·종결
+- 검증: 통합 00:27 전체 스위트(47·68·15·TST-03 3/8). 구현 커밋 `7bb0ff2` clean `유지` 전량 47·68·16·15(00:30). 린트 2종 0 오류
+- 결과: 완료 — 2026-10-26 00:31
+
 ## 설계와 달라진 점
 
 - DES-09 후보 불변식 중 `plain` 멱등성은 반례("`` `x")가 있어 제외하고 2건(파싱 왕복, `build_tree` 1회 출현)으로 확정 — 계획 범위(2~3개) 안의 선택, 경미(§4.1).
@@ -96,7 +104,7 @@
 ### 결과 요약
 
 - 총계: 138 (성공 133 / 실패 5 / 미수행 0) — 실패 5건은 전부 TST-03 `격리` 행(환경)
-- 기준: `3cf621e` · 워킹트리 dirty(통합 00:27, 종결 ②에서 clean 재실행)
+- 기준: `3cf621e` · 워킹트리 dirty(통합 00:27). `유지` 전량은 `7bb0ff2` · clean(00:30)
 - 명령:
   - `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 47/47
   - `python -m pytest skills/wf-doc/scripts/tests -q` 68(TST-04 16건 포함)
@@ -118,12 +126,11 @@
 | VER-06 | AC-06 | 수동 뮤턴트 6개 러너(바이트 복원 + `git hash-object` 대조) | 성공 | — | `3cf621e`+dirty · R1·R2·W2·W3 killed, R3·W1 survived, 해시 529e1092·3dbb4ba7 전후 동일 · TASK-05 |
 | VER-07 | AC-07 | 미설치 실행(수집 오류) → 설치 후 TST-05 ×2, §4 R-09 문단, README, 대장 | 성공 | — | `3cf621e`+dirty · 15 passed ×2 · TASK-04 |
 | VER-08 | AC-08 | `lint_skill.py`·`lint_worklog.py` 0 오류, `유지` 4행, ADR-017·등록부·ADR-009 관련 행 | 성공 | — | `3cf621e`+dirty · 00:27 |
-| VER-09 | AC-09 | closing.md 순서, TASK마다 plan·트리 갱신 | 미수행 | — | 종결 ①~⑥에서 확인 — 커밋·push 승인 대기 |
+| VER-09 | AC-09 | closing.md 순서, TASK마다 plan·트리 갱신 | 성공 | — | ① `7bb0ff2` · ② clean 00:30 · ④ `git diff --name-only 7bb0ff2` 전부 `docs/` · plan 트리 TASK마다 재생성(00:21~00:31) |
 
 ### 실패와 미수행 분석
 
 - TST-03 5건 실패: 기존 `격리`(환경 — `ModuleNotFoundError: pptx`), 마지막 성공 기록 없음, 이 작업 변경과 무관.
-- VER-09: 종결 커밋 전이라 미수행.
 
 ### 테스트 대장 변경
 
@@ -137,8 +144,8 @@
 
 ### 완료 상태
 
-- 결과: 진행 중 — 완료 보고 관문(커밋·push 범위, 대장 변경 일괄 승인) 대기
-- 완료 판단 근거: AC-01~08 성공, AC-09는 종결에서 확인
+- 결과: 완료
+- 완료 판단 근거: AC-01~09 9/9 성공, `유지` 4행 clean 통과(`7bb0ff2`), 린트 2종 0 오류, 대장 변경 승인
 
 ### 주요 변경
 
@@ -148,7 +155,7 @@
 
 ### 통합 상태
 
-- 완료 보고 관문 응답(2026-10-26 00:29): "커밋 + push" — 대장 변경 3행 일괄 승인, closing.md ①~⑥, origin/main
+- 구현 커밋 `7bb0ff2`, 이 종결 커밋과 함께 origin/main push 대상(승인 2026-10-26 00:29, 완료 보고 관문 "커밋 + push" — 대장 변경 3행 일괄 승인)
 
 ### 남은 위험과 제한
 
@@ -164,11 +171,7 @@
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement 종결 — [closing.md](../../../skills/wf-implement/references/closing.md) ①~⑥
-- 시작 조건: 충족 — v1·ADR-017 승인(2026-10-26)
-- 입력 문서와 기준선: [REQ-DESIGN-test-quality](./req-design.md) v1, [PLAN](./plan.md)
-- 완료된 항목: §4.1 조사, 요구사항·설계, ADR-017, 승인 기록, 계획(6 TASK)·트리, 등록부·status 행, 04 문서 머리말, TASK-01~05, TASK-06 통합·자체 리뷰·검증 결과
-- 미완료 항목: TASK-06 종결(①~⑥)
-- 차단 요인: 없음
-- 다음 행동: 완료 보고 관문 응답 대기(커밋·push 범위, 대장 변경 일괄). 승인 시 closing.md ① 구현 커밋(06·07 미추적 파일 제외) → ② clean `유지` 전량 → ③ 대장 SHA·재정비 기록, plan·work-log 종결, status 행 제거·트리 → ④ → ⑤ → ⑥. 미커밋: 작업 폴더, `skills/`, README, test-register, ADR-009, decisions·status·04 머리말
-- 재개 프롬프트: 작업 20261026-test-quality 재개 — docs/work/20261026-test-quality/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: TASK-01~06, AC-01~09, ADR-017 적용, ADR-009 관련 1행, TST-05 13→15
+- 미완료 항목: 없음
+- 다음 행동: 없음
