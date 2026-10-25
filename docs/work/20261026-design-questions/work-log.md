@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261026-design-questions`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `[REQ-DESIGN-design-questions](./req-design.md) v1` (승인일 2026-10-26)
 > 작성일: 2026-10-26
 > 최종 갱신: 2026-10-26
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: v2 설계 사이클 A(D-01~D-04)의 wf-design·wf-implement 진행을 기록한다.
-- 현재 결론 또는 상태: v1 승인, 구현 중.
-- 다음 행동: [plan](./plan.md) TASK-01.
+- 현재 결론 또는 상태: 완료(2026-10-26 08:49) — TASK-01~05, AC-01~07 7/7. 구현 커밋 `96b249c`, 이 종결 커밋과 함께 push 대상.
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -27,7 +27,7 @@
 ## 기준선과 현재 계획
 
 - 기준선: [REQ-DESIGN-design-questions](./req-design.md) v1 (승인일 2026-10-26)
-- 계획: [PLAN-20261026-design-questions](./plan.md) TASK-01~05
+- 계획: [PLAN-20261026-design-questions](./plan.md)(completed)
 
 ## 수행 기록
 
@@ -81,7 +81,7 @@
 - 발견 사항: `유지` 4행 통과(08:36 — TST-01 56, TST-02 86(TST-04 16 포함), TST-05 15). 테스트 파일 변경 없음 → 재정비 관문 변경 없음. 코드 파일 변경 없음 → 변경 범위 뮤테이션 대상 없음.
 - 결정과 이유: 자체 리뷰(diff) — 본문 §2·§4.1 링크가 §3.1 고위험 가정 확인과 충돌하지 않음(interview §2 7항목이 보안·데이터·인터페이스·호환성 포함). 줄바꿈 경고는 autocrlf 정규화(내용 diff 없음).
 - 검증: 위 테스트 출력, `lint_skill.py`·`lint_worklog.py` 0 오류
-- 결과: 진행 — 커밋·push 승인 대기(2026-10-26 08:37)
+- 결과: 완료 — 2026-10-26 08:48 (커밋·push 승인 대기 08:37 → 승인 08:40, 아래 종결 항목)
 
 ### 2026-10-26 — 완료 보고 관문 승인
 
@@ -91,29 +91,96 @@
 - 검증: `lint_worklog.py` 0 오류
 - 결과: 완료 — 2026-10-26 08:40
 
+### 2026-10-26 — 종결(closing ①~④)
+
+- Red: 해당 없음 — 종결 절차
+- 발견 사항: 재개 시 `git status --short`가 인계 절 미커밋 변경 한 줄과 일치(skills/ 7파일, docs/). ① 구현 커밋 `96b249c`. ② clean 08:47 — TST-01 56/56, TST-02 86 passed(TST-04 16 포함), TST-04 16 passed, TST-05 15 passed. ④ `git diff --name-only 96b249c` 전부 `docs/`.
+- 결정과 이유: 대장 `유지` 4행 SHA를 `96b249c`로, 재정비 기록 1행(변경 없음). 05 머리말에 사이클 A 완료. req-design 추적표는 승인 기준선이라 수정하지 않고 결과는 아래 인수 조건별 결과에 둔다.
+- 검증: 위 테스트 출력, `lint_worklog.py`·`lint_skill.py` 0 오류
+- 결과: 완료 — 2026-10-26 08:49
+
 ## 설계와 달라진 점
 
-- 없음 — 구현 전.
+- 없음 — §6.2 예시의 templates 이관은 승인된 Q-04 (A)·DES-01대로.
 
 ## 검증 결과
 
-- `유지` 4행: TST-01 56/56, TST-02 86 passed, TST-04 16(TST-02에 포함), TST-05 15 passed · 0410724+dirty · 2026-10-26 08:36. clean 재실행은 구현 커밋 뒤(closing ②).
-- 린트: `lint_skill.py` 0 오류(K3 wf-design 2,174/2,189, wf-implement 2,850, wf-doc 2,337, wf-tree 1,193), `lint_worklog.py` 0 오류.
-- AC-01~05·07: grep 기대 문구, NFR-04 앵커 8개, 본문 하네스 명칭 0, `git diff --stat 0410724 -- skills/wf-implement/SKILL.md` 비어 있음. AC-06: req-design 질문 표·점검 문단·적대 검토 표.
-- 재정비 관문: 테스트 변경 없음. 뮤테이션: 코드 파일 변경 없음 — 대상 없음.
+### 범위와 환경
+
+- 대상 기준선 또는 구현: [REQ-DESIGN-design-questions](./req-design.md) v1, TASK-01~05
+- 실행 환경: Windows 11, Python 3.14.2, pytest, hypothesis 6.170.9, PowerShell 5.1
+- 제외 항목: TST-03(`격리`, `pptx` 미설치 — 기존, 무관). 코드 파일 변경 없음 → 변경 범위 뮤테이션 대상 없음
+
+### 결과 요약
+
+- 총계: 157 (성공 157 / 실패 0 / 미수행 0) — `유지` 4행(TST-04 16건은 TST-02에 포함, 중복 집계 안 함)
+- 기준: `0410724` · 워킹트리 dirty(통합 08:36). `유지` 전량은 `96b249c` · clean(08:47)
+- 명령:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 56/56
+  - `python -m pytest skills/wf-doc/scripts/tests -q` 86(TST-04 16건 포함)
+  - `python -m pytest skills/wf-doc/scripts/tests/test_lint_skill.py -q` 16
+  - `python -m pytest skills/wf-tree/scripts/tests -q` 15
+- 커버리지: N/A — 커버리지 도구 미사용
+- 뮤테이션: N/A — 코드 파일 변경 없음
+- 산출물: 없음
+
+### 인수 조건별 결과
+
+| 검증 ID | 인수 조건 | 방법·명령 | 결과 | 분류 | 증거 |
+|---|---|---|---|---|---|
+| VER-01 | AC-01 | grep `interview.md` 필수 문구, wf-design §2·§4.1 링크, `lint_skill.py` K4·K5 | 성공 | — | TASK-02·03 · 0 오류 |
+| VER-02 | AC-02 | grep templates.md 질문 표 6열·`답`·사실 질문 규칙 | 성공 | — | TASK-01 |
+| VER-03 | AC-03 | grep design-change §2 시작 조건·verification-depth §6 링크·인계 질문 한 줄, `git diff --stat 0410724 96b249c -- skills/wf-implement/SKILL.md` | 성공 | — | TASK-01·03·04 · diff 비어 있음 |
+| VER-04 | AC-04 | grep `adversarial-review.md` FR-08~11·13 문구, §4.5 링크, approval-request §1, templates `## 적대 검토`, design-change §3G | 성공 | — | TASK-01~03 |
+| VER-05 | AC-05 | `lint_skill.py` K3, grep §6.2 링크 | 성공 | — | wf-design 2,189 → 2,174, wf-implement 2,850·wf-doc 2,337·wf-tree 1,193 무변경 |
+| VER-06 | AC-06 | req-design 질문 표·점검 문단·적대 검토 표 검토 | 성공 | — | [적대 검토](./req-design.md#적대-검토) 2라운드, 지적 19 |
+| VER-07 | AC-07 | NFR-04 앵커 8개 grep, 하네스 명칭 grep, 린트 2종, `유지` 4행, ADR-020·등록부, closing.md | 성공 | — | 앵커 8/8 · 명칭 0 · ① `96b249c` · ② clean 08:47 · ④ 전부 `docs/` |
+
+### 실패와 미수행 분석
+
+- 실패 없음. 적대 검토 2라운드의 남음·신규 7건은 작성자 수정 후 검토자 재확인 없음(승인 요청에 공개, 승인됨).
+- 질문 단계·적대 검토의 실사용 효과(다음 작업에서 질문 수·지적 수용률)는 이 작업에서 측정하지 않았다.
+
+### 테스트 대장 변경
+
+| 대상 | 현재 상태 → 제안 | 분류·증거 | 유일 검증 여부 | 승인 |
+|---|---|---|---|---|
+| 없음 | — | 변경 없음 — 테스트 파일·보호 스코프 무변경. Breaking 0 · Stale 0 · Missing 0 | — | 완료 보고 관문(변경 없음 보고, 2026-10-26 08:40) |
 
 ## 완료 보고
 
-- 미작성 — 구현 전.
+### 완료 상태
+
+- 결과: 완료
+- 완료 판단 근거: AC-01~07 성공, `유지` 4행 clean 통과(`96b249c`), 린트 2종 0 오류, 대장 변경 없음 보고
+
+### 주요 변경
+
+- wf-design `references/interview.md`(질문 단계)·`references/adversarial-review.md`(근거 강제 적대 검토) 신설
+- wf-design 본문 §2·§4.1·§4.5·§6.2 연결(2,174어절), approval-request §1, design-change §2·§3G·§5
+- wf-doc templates — 질문 표 6열·적대 검토 절·결정 등록부 형식·인계 질문 행, verification-depth §6 링크
+- ADR-020 `approved`·등록부 행
+
+### 통합 상태
+
+- 구현 커밋 `96b249c`, 이 종결 커밋과 함께 origin push 대상(승인 2026-10-26 08:40, 완료 보고 관문 "승인을 기록하고 인계 준비"). 설치본은 저장소 심볼릭 링크라 동기화 불필요
+
+### 남은 위험과 제한
+
+- 적대 검토는 하네스별 실행 주체에 의존한다 — 새 맥락 검토자가 없는 환경에서는 미수행 기록으로 남는다.
+- 2라운드 상한 뒤 남은 지적은 검토자 재확인 없이 승인 관문으로 넘어간다.
+- 질문·적대 검토는 문서 규칙이라 기계 강제 없음(린트 검사 범위 제외).
+- 적대 검토 1회 비용 약 119k~150k 토큰(시험 실행).
+
+### 후속 작업
+
+- `bypassPermissions` 모드에서 승인 게이트 `ask` 도달 관찰(사용자, 20261026-approval-gate에서 이월)
+- 다음 정식 작업에서 질문 단계·적대 검토 실사용 관찰(질문 수, 지적 수용률, 토큰)
+- 질문 표·적대 검토 표 린트는 범위 제외 — 필요 시 별도 작업
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement [plan](./plan.md) TASK-05
-- 시작 조건: 충족 — v1·ADR-020 승인(2026-10-26)
-- 입력 문서와 기준선: [REQ-DESIGN-design-questions](./req-design.md) v1, [ADR-020](./ADR-020-설계-질문과-적대-검토.md) `approved`
-- 완료된 항목: §4.1 조사, 요구사항·설계·ADR 초안, 적대 검토 2라운드, 승인 게이트 실세션 관찰(해소), 승인, 계획, TASK-01~04
-- 미완료 항목: TASK-05 종결(구현 커밋·clean 재실행·종결 커밋·push)
-- 차단 요인: 없음 — 커밋·push 승인 2026-10-26 08:40(응답 "승인을 기록하고 인계 준비")
-- 미커밋 변경: skills/ 7파일(수정 5·신설 2, TASK-01~04) + docs/(05 머리말, decisions·status, 이 작업 폴더 4파일) — 전부 구현 커밋 대상
-- 다음 행동: [TASK-05](./plan.md#task-05-통합과-종결) — 승인 기록됨, closing.md ①~⑥(구현 커밋 → clean `유지` 재실행 → 대장 SHA·plan·작업 기록·status 종결 갱신 → 종결 커밋 → push). 파일: docs/test-register.md, 이 작업 문서, docs/status.md. 적용 항목: NFR-06, AC-07. 마지막 검증: `유지` 4행 · 0410724+dirty · 통과.
-- 재개 프롬프트: 작업 20261026-design-questions 재개 — docs/work/20261026-design-questions/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: TASK-01~05, AC-01~07, ADR-020 `approved`, 승인 게이트 실세션 관찰(해소)
+- 미완료 항목: 없음
+- 다음 행동: 없음
