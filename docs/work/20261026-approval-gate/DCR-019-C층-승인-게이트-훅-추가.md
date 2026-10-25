@@ -2,7 +2,7 @@
 
 > 문서 유형: `dcr`
 > 작업 ID: `20261026-approval-gate`
-> 상태: `approved`
+> 상태: `completed`
 > 기준선: `v4 → v5` (승인일 2026-10-26) ([REQ-llm-workflow](../../requirements.md)·[DESIGN-llm-workflow](../../design.md))
 > 작성일: 2026-10-26
 > 최종 갱신: 2026-10-26
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: C층 훅 기준선에 6번째 훅(PreToolUse 승인 게이트)과 B층 판정 계약을 추가한다.
-- 현재 결론 또는 상태: 승인(2026-10-26). REQ·DESIGN v5 반영은 구현 TASK.
-- 다음 행동: 구현 TASK에서 REQ·DESIGN v5 반영.
+- 현재 결론 또는 상태: 완료(2026-10-26) — REQ·DESIGN v5 반영(구현 커밋 `d3a4d01`).
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -93,8 +93,9 @@
 | 2026-10-26 | 최초 작성 — FR-08, DES-08, B층 계약, AC-10~12, RISK-08~10 제안 | REQ-DESIGN-approval-gate, ADR-018 | draft → awaiting-approval | Claude(작성) |
 | 2026-10-26 | 승인 — FR-08에 `.wf-gate.json` 덮어쓰기 반영 | 사용자 승인 관문 응답 | awaiting-approval → approved | 사용자(승인) |
 | 2026-10-26 | 변경 항목에 REQ NFR-03(v5 예외) 추가 — 적용 중 발견한 누락, 승인된 REQ-DESIGN-approval-gate NFR-02 범위의 문서 보완 | wf-implement §4.1 경미 | — | Claude(작성) |
+| 2026-10-26 | 완료 — REQ·DESIGN v5 반영(TASK-05), 구현 커밋 `d3a4d01` | wf-implement 종결 | approved → completed | Claude(작성) |
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement 구현 TASK에서 REQ·DESIGN v5 반영
-- 다음 행동: 구현 TASK
+- 다음 단계 또는 워크플로우: 없음
+- 다음 행동: 없음

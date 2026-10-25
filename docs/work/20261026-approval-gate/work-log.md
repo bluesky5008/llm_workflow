@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261026-approval-gate`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `[REQ-DESIGN-approval-gate](./req-design.md) v1` (승인일 2026-10-26)
 > 작성일: 2026-10-26
 > 최종 갱신: 2026-10-26
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: v2 설계 사이클 B(D-05~D-08)의 wf-design·wf-implement 진행을 기록한다.
-- 현재 결론 또는 상태: TASK-01~05 완료, TASK-06 통합 수행 — AC-01~08 성공, 완료 보고 관문 대기.
-- 다음 행동: 완료 보고 관문 응답(커밋·push 범위, 대장 변경, 05 포함 여부).
+- 현재 결론 또는 상태: 완료(2026-10-26 01:20) — TASK-01~06, AC-01~09 9/9(AC-06 실세션 관찰은 후속). 구현 커밋 `d3a4d01`, 이 종결 커밋과 함께 push 대상.
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -27,7 +27,7 @@
 ## 기준선과 현재 계획
 
 - 기준선: [REQ-DESIGN-approval-gate](./req-design.md) v1(2026-10-26)
-- 계획: [PLAN-20261026-approval-gate](./plan.md)(in-progress, 5/6)
+- 계획: [PLAN-20261026-approval-gate](./plan.md)(completed)
 
 ## 수행 기록
 
@@ -83,6 +83,14 @@
 - 검증: TST-02 84 ×2(01:14), `lint_worklog.py`·`lint_skill.py` 0 오류, v5 표기 requirements 8·design 10곳
 - 결과: 완료 — 2026-10-26 01:14
 
+### 2026-10-26 — TASK-06
+
+- 발견 사항: 통합 뮤테이션 예측 3/3 적중 — G1(인용 없는 `응답`)·G2(상한 경계 5) survived, G3(exit 2 무출력) T49 kill. 해시 전후 동일.
+- 결정과 이유: survived 2건은 이번 작업 새 동작의 Missing이라 테스트 추가(재정비 관문) 후 kill 재확인. 자체 리뷰 추가 수정 없음. 완료 보고 관문 "커밋 + push", 05 "포함".
+- Red: `python -m pytest skills/wf-doc/scripts/tests -q` · 7ec8c02+dirty · 뮤턴트 G1·G2 적용 상태에서 추가 테스트 2건 실패(01:16)
+- 검증: 통합 01:17 전체 스위트(56·86·15·TST-03 3/8). 구현 커밋 `d3a4d01` clean `유지` 전량 56·86·16·15(01:19). 린트 2종 0 오류
+- 결과: 완료 — 2026-10-26 01:20
+
 ## 설계와 달라진 점
 
 - DCR-019 변경 항목에 REQ NFR-03(v5: 판정 호출은 제품 경로만, 추가 지연 ≤ 300ms) 행을 추가 — 적용 중 발견한 누락, 승인된 NFR-02 범위의 문서 보완(§4.1 경미).
@@ -99,7 +107,7 @@
 ### 결과 요약
 
 - 총계: 165 (성공 160 / 실패 5 / 미수행 0) — 실패 5건은 전부 TST-03 `격리` 행(환경)
-- 기준: `7ec8c02` · 워킹트리 dirty(통합 01:17). `유지` 전량은 종결 ②에서 clean 재실행
+- 기준: `7ec8c02` · 워킹트리 dirty(통합 01:17). `유지` 전량은 `d3a4d01` · clean(01:19)
 - 명령:
   - `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 56/56
   - `python -m pytest skills/wf-doc/scripts/tests -q` 86(TST-04 16건 포함)
@@ -121,13 +129,12 @@
 | VER-06 | AC-06 | 지연 10회 중앙값, 이 저장소 제품 경로 훅 직접 실행 | 성공 | — | 판정 추가 175.5ms ≤ 300ms, 승인 작업 무출력. 실세션 관찰(새 세션부터 적용)·`bypassPermissions`는 미수행 — 아래 |
 | VER-07 | AC-07 | `lint_skill.py`, grep | 성공 | — | wf-design 2,288 → 2,189어절, 앵커 유지 · TASK-04 |
 | VER-08 | AC-08 | grep templates.md ADR·승인 기록 문장 | 성공 | — | TASK-04 |
-| VER-09 | AC-09 | C층 v5·ADR·DCR·등록부·린트·`유지`·closing.md | 미수행 | — | 종결 ①~⑥에서 확인 — 커밋·push 승인 대기 |
+| VER-09 | AC-09 | C층 v5·ADR·DCR·등록부·린트·`유지`·closing.md | 성공 | — | ① `d3a4d01` · ② clean 01:19 · ④ `git diff --name-only d3a4d01` 전부 `docs/` · C층 v5 표기 18곳 |
 
 ### 실패와 미수행 분석
 
 - TST-03 5건 실패: 기존 `격리`(환경), 이 작업과 무관.
 - VER-06 중 실세션 관찰: 훅은 새 세션부터 적용되어 이 세션에서는 결론 불가. 다음 정식 작업의 설계 단계(미승인)에서 제품 파일 편집 확인이 뜨는지 관찰하는 것을 후속으로 둔다. `bypassPermissions` 도달은 사용자 수행.
-- VER-09: 종결 커밋 전이라 미수행.
 
 ### 테스트 대장 변경
 
@@ -141,8 +148,8 @@
 
 ### 완료 상태
 
-- 결과: 진행 중 — 완료 보고 관문(커밋·push 범위, 대장 변경 일괄 승인) 대기
-- 완료 판단 근거: AC-01~08 성공(AC-06 실세션 관찰은 미수행으로 공개), AC-09는 종결에서 확인
+- 결과: 완료
+- 완료 판단 근거: AC-01~09 성공(AC-06의 실세션 관찰은 미수행으로 공개·후속), `유지` 4행 clean 통과(`d3a4d01`), 린트 0 오류, 대장 변경 승인
 
 ### 주요 변경
 
@@ -152,7 +159,7 @@
 
 ### 통합 상태
 
-- 완료 보고 관문 응답(2026-10-26 01:18): "커밋 + push", 05 "포함" — 대장 변경 3행 일괄 승인, closing.md ①~⑥, origin/main. 훅은 전역 설치됨(01:07, 새 세션부터)
+- 구현 커밋 `d3a4d01`, 이 종결 커밋과 함께 origin/main push 대상(승인 2026-10-26 01:18, 완료 보고 관문 "커밋 + push", 05 "포함" — 대장 변경 3행 일괄 승인). 훅은 전역 설치됨(01:07, 새 세션부터)
 
 ### 남은 위험과 제한
 
@@ -170,11 +177,7 @@
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement 종결 — [closing.md](../../../skills/wf-implement/references/closing.md) ①~⑥
-- 시작 조건: 충족 — v1·ADR-018·DCR-019 승인(2026-10-26)
-- 입력 문서와 기준선: [REQ-DESIGN-approval-gate](./req-design.md) v1, [PLAN](./plan.md)
-- 완료된 항목: §4.1 조사, 요구사항·설계, ADR-018·DCR-019, 승인 기록, 계획·트리, 등록부·status 행, 05 머리말
-- 미완료 항목: TASK-06 종결(①~⑥)
-- 차단 요인: 없음
-- 다음 행동: 완료 보고 관문 응답 대기(커밋·push, 대장 변경 일괄, 05 포함 여부). 승인 시 closing.md ① 구현 커밋(06·07 제외) → ② clean `유지` 전량 → ③ 대장 SHA·재정비 기록, plan·work-log 종결, status 행 제거·트리 → ④~⑥
-- 재개 프롬프트: 작업 20261026-approval-gate 재개 — docs/work/20261026-approval-gate/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: TASK-01~06, AC-01~09, ADR-018·DCR-019 적용(C층 v5), TST-01 56·TST-02 86, 훅 설치
+- 미완료 항목: 없음
+- 다음 행동: 없음
