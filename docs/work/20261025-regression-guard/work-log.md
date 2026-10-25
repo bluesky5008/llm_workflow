@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261025-regression-guard`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `[REQ-DESIGN-regression-guard](./req-design.md) v1` (승인일 2026-10-25), C층 REQ·DESIGN-llm-workflow v4
 > 작성일: 2026-10-25
 > 최종 갱신: 2026-10-25
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: v2 테스트 사이클 1(액션 아이템 R-01~R-05)의 wf-design·wf-implement 진행을 기록한다.
-- 현재 결론 또는 상태: v1 승인(2026-10-25, Q-02 3층 구조). [PLAN](./plan.md) TASK-01~07 완료(7/8).
-- 다음 행동: TASK-08. 상세는 [인계](#인계).
+- 현재 결론 또는 상태: 완료(2026-10-25 23:30) — TASK-01~08, AC-01~10 10/10. 커밋 `fe003ec` 푸시, `유지` 4행 clean 재실행으로 대장 SHA 갱신.
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -27,7 +27,7 @@
 ## 기준선과 현재 계획
 
 - 기준선: [REQ-DESIGN-regression-guard](./req-design.md) v1(2026-10-25), [REQ-llm-workflow](../../requirements.md)·[DESIGN-llm-workflow](../../design.md) v4
-- 계획: [PLAN-20261025-regression-guard](./plan.md) — TASK-01~08, 7/8 완료
+- 계획: [PLAN-20261025-regression-guard](./plan.md)(completed)
 
 ## 수행 기록
 
@@ -108,6 +108,14 @@
 - 검증: TST-01 47/47(Green·전이 23:14), `유지` 전량 23:14(TST-02 68·04 16·05 13), `setup_claude.ps1` 구문 오류 0(실행은 TASK-08)
 - 결과: 완료 — 2026-10-25 23:16
 
+### 2026-10-25 — TASK-08
+
+- 발견 사항: 실설치 후 같은 세션에 훅 반영. 관찰 ①② — 권한 모드 `auto`에서 ask가 사람에게 도달·승인(transcript `PreToolUse:Edit` ask TST-05, `user_temporary`). ③ 미기록 TST-05 변경으로 종료 1회 차단, 되돌린 뒤 판정 exit 0. 외부 orca 훅 보존.
+- 결정과 이유: `deny`는 미적용(ADR-014 결정 1 조건 불충족). 자체 리뷰 수정 2 — setup Python 탐지를 실행 방식으로(WindowsApps 스텁 오판), stop-gate cwd 끝 `\` 제거(인자 따옴표 깨짐).
+- Red: 해당 없음 — 통합(새 동작 없음, 리뷰 수정은 한 줄 방어)
+- 검증: 전체 스위트(23:16), `유지` 2회(23:17), 커밋 `fe003ec` clean 재실행(23:26) 47·68·16·13, 린트 2종 0 오류
+- 결과: 완료 — 2026-10-25 23:28
+
 ## 설계와 달라진 점
 
 없음 — 경미한 구현 결정(`CLAUDE_WF_GUARD_SCRIPT` 테스트 대체, 설정 파일 사유 `settings`, `setup_claude.ps1` Python 탐지)은 TASK-05~07 수행 기록. 자동 승인 모드 `deny`는 ADR-014 결정 1의 조건(ask 미도달)이 관찰되지 않아 미적용.
@@ -123,7 +131,7 @@
 ### 결과 요약
 
 - 총계: 10 (성공 10 / 실패 0 / 미수행 0)
-- 기준: `90af250` · 워킹트리 dirty(전체 스위트 23:16, `유지` 2회 23:17)
+- 기준: `90af250` · 워킹트리 dirty(전체 스위트 23:16, `유지` 2회 23:17), 이후 `fe003ec` clean(`유지` 23:26)
 - 명령: `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 47/47
 - 명령: `python -m pytest skills/wf-doc/scripts/tests skills/wf-tree/scripts/tests -q` 81 passed
 - 명령: `python docs/presentation/tests/test_make_pptx.py` 3/8(TST-03 격리, `pptx` 미설치 — 환경, 기존)
@@ -164,17 +172,33 @@
 
 ## 완료 보고
 
-초안 — 완료 보고 관문 승인 대기. AC-01~10 10/10 성공(위 표). 남은 위험: `bypassPermissions`에서 ask 도달 미관찰, 훅 timeout 10초와 래퍼 내부 10초 대기가 같아 판정이 길면 하네스가 먼저 끊음(결과는 통과 — fail-open과 같음), Codex·SEMCo-Work 어댑터는 범위 밖. 종결 전 필요: 커밋 후 clean 재실행으로 `유지` 행 SHA 갱신 — 기록이 닫히면 `### 테스트 대장 변경`이 무효가 되어, 미커밋 SHA 기준이면 판정이 TST-01·02 변경을 위반으로 낸다.
+### 완료 상태
+
+- 결과: 완료
+- 완료 판단 근거: TASK-01~08 `completed`, AC-01~10 10/10, 린트 2종 0 오류, 전체 스위트(TST-03 격리 제외)·`유지` 전량 통과, 자체 리뷰 전 항목(수정 2·재검증), 재정비 관문 일괄 승인. wf-implement §5 전부 충족
+
+### 주요 변경
+
+- 대장 `테스트 파일` 열·마지막 성공 셀 형식(R-01), `regression_guard.py` 하네스 중립 판정(R-03 핵심), `Red` 필드·L3(R-05), 충돌 출구 §6(R-04)
+- Claude 어댑터: `wf-test-guard.ps1`(PreToolUse ask), `wf-stop-gate.ps1`(Stop block 1회), 설치 등록 5종, README
+
+### 통합 상태
+
+- 커밋 `90af250`(TASK-01~03)·`fe003ec`(TASK-04~08)와 종결 커밋을 `origin/main`에 푸시(사용자 승인 23:26). 사용자 PC에 `setup_claude.ps1` 실설치
+
+### 남은 위험과 제한
+
+- `bypassPermissions` 모드의 ask 도달 미관찰 — 닿지 않으면 그 모드만 `deny`(ADR-014 결정 1)
+- 훅 timeout 10초와 래퍼 대기 10초가 같아 판정이 길면 하네스가 먼저 끊음(결과는 통과)
+- Codex·SEMCo-Work 어댑터는 범위 밖. 이 기록은 L9 크기 경고(>12KB) — 오류 아님
+
+### 후속 작업
+
+- `bypassPermissions` 관찰, 다른 하네스 어댑터(B층 스크립트 호출), 임계 훅 `signal=bytes` 반복 발화(ADR-012 후속)
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement — [PLAN](./plan.md) TASK-08부터
-- 시작 조건: 충족 — req-design v1, ADR-014·DCR-015 approved, C층 v4
-- 입력 문서와 기준선: [req-design](./req-design.md) v1, [REQ-llm-workflow](../../requirements.md)·[DESIGN-llm-workflow](../../design.md) v4, [PLAN](./plan.md)
-- 완료된 항목: 설계·승인(v1), §3.1 재확인(`유지` 전량 통과 22:27), 계획(TASK-01~08, 트리), TASK-01~07
-- 미완료 항목: TASK-08
-- 차단 요인: 없음
-- 미커밋 변경: TASK-04(`verification-depth.md` §6, wf-implement 주의 절)·TASK-05~07(`setup/` 훅 2종·wf-common·메시지·러너·설치·setup, README, 대장 TST-01 행)와 plan·이 기록 — TASK-03까지 사용자 지시로 커밋 `90af250`·push(2026-10-25 22:58). `docs/research/20261025-aidlc-trends/06·07`은 병렬 세션 산출물이라 커밋 제외(22:43 이 기록 덮어쓰기와 같은 시각)
-- 관찰: 임계 훅이 `signal=bytes`(usage 파싱 폴백)로 반복 발화(직전 세션 2회, 그 전 세션 1517→2482KB 여러 차례, 이번 세션 1553KB 경고 후 사용자 지시로 TASK-06까지 진행, 2473KB) — ADR-012 후속 관찰 대상
-- 다음 행동: TASK-08 — 사용자 일괄 승인 대기(대장 변경 표, Breaking 1 포함)·커밋 지시 대기. 승인 후: 대장 `## 재정비 기록` 1행, 커밋→clean `유지` 재실행→SHA 갱신, plan·status·REQ/DESIGN 추적성 갱신, 기록 종결. 관찰 ①②③ 완료(23:23).
-- 재개 프롬프트: 작업 20261025-regression-guard 재개 — docs/work/20261025-regression-guard/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: TASK-01~08, AC-01~10, ADR-014·DCR-015 적용, TST-01·02 보호 스코프 확장
+- 미완료 항목: 없음
+- 다음 행동: 없음

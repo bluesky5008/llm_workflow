@@ -12,7 +12,7 @@
 
 - 목적: C층 — Claude Code 훅 5종(세션 핸드오프 3, 회귀 보호 2)과 설치 로직의 설계를 확정한다.
 - 현재 결론 또는 상태: 기준선 v4(2026-10-25) — [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)로 DES-06·07 추가, DES-04 등록 확장, 출력 계약에 권한 결정·종료 차단 추가([ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md)). 구현은 [WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md). v3(2026-10-18) — [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md)로 DES-02의 신호를 2단(usage 토큰 1차, 바이트 성장 폴백)으로 교체. v1·v2 구현·검증은 [추적성](#추적성), v3 통합은 [WORK-20261018-context-signal-v2](./work/20261018-context-signal-v2/work-log.md).
-- 다음 행동: v4 구현 — [WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md). v3 후속은 [ADR-012 후속 작업](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md#후속-작업).
+- 다음 행동: v4 구현 완료([WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md), 2026-10-25). 후속은 `bypassPermissions` 모드 ask 도달 관찰, v3 후속은 [ADR-012 후속 작업](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md#후속-작업).
 
 ## 문서 연결
 
@@ -138,8 +138,8 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 | [FR-03](./requirements.md#기능-요구사항) | DES-02, DES-03 | [TASK-03, TASK-04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02, AC-06 | [VER-02, VER-06](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-06 미수행) |
 | [FR-04](./requirements.md#기능-요구사항) | DES-04 | [TASK-05](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-03 | [VER-03](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
 | [FR-05](./requirements.md#기능-요구사항) | DES-01, DES-02, DES-03 | [TASK-02~04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
-| [FR-06](./requirements.md#기능-요구사항) | DES-06, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | 미수행 | 구현 전 |
-| [FR-07](./requirements.md#기능-요구사항) | DES-07, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | 미수행 | 구현 전 |
+| [FR-06](./requirements.md#기능-요구사항) | DES-06, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | [VER-03·05·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
+| [FR-07](./requirements.md#기능-요구사항) | DES-07, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | [VER-04·05·08·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
 
 ## 승인 기록
 
@@ -160,10 +160,10 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement — v4 구현([WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md))
+- 다음 단계 또는 워크플로우: 없음 — v4 구현 완료([WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md))
 - 시작 조건: 충족 — v4 승인(2026-10-25)
 - 입력 문서와 기준선: [REQ-llm-workflow](./requirements.md) v4, 이 문서 v4, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md), [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md)
 - 완료된 항목: v1~v3 구현·검증, v4 설계·ADR·DCR 승인
-- 미완료 항목: v4 구현·검증, 실세션 관찰 [VER-06·VER-07](./work/20260809-claude-hooks/work-log.md#검증), 기본값 130000의 실세션 보정(ADR-012 후속)
+- 미완료 항목: v4 `bypassPermissions` 모드 관찰, 실세션 관찰 [VER-06·VER-07](./work/20260809-claude-hooks/work-log.md#검증), 기본값 130000의 실세션 보정(ADR-012 후속)
 - 차단 요인: 없음
 - 다음 행동: [WORK-20261025-regression-guard](./work/20261025-regression-guard/work-log.md) 인계의 다음 행동

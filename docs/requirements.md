@@ -121,8 +121,8 @@ v4: 회귀 보호 규칙(wf-implement 주의 ④, 진행 중 기존 테스트 �
 | FR-03 | [DES-02](./design.md#컴포넌트와-책임), [DES-03](./design.md#컴포넌트와-책임) | [TASK-03, TASK-04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02, AC-06 | [VER-02, VER-06](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-06 미수행) |
 | FR-04 | [DES-04](./design.md#컴포넌트와-책임) | [TASK-05](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-03 | [VER-03](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
 | FR-05 | [DES-01](./design.md#컴포넌트와-책임), [DES-02](./design.md#컴포넌트와-책임) | [TASK-02~04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
-| FR-06 | [DES-06](./design.md#컴포넌트와-책임) | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | 미수행 | 구현 전 |
-| FR-07 | [DES-07](./design.md#컴포넌트와-책임) | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | 미수행 | 구현 전 |
+| FR-06 | [DES-06](./design.md#컴포넌트와-책임) | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | [VER-03·05·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
+| FR-07 | [DES-07](./design.md#컴포넌트와-책임) | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | [VER-04·05·08·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
 
 ## 승인 기록
 
