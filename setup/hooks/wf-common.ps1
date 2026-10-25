@@ -1,7 +1,8 @@
-# Shared helpers for llm_workflow session-handoff hooks (DES-01..DES-03, DES-05).
+# Shared helpers for llm_workflow hooks (DES-01..DES-03, DES-05; v4 DES-06).
 # ASCII-only source: PS 5.1 misreads Korean literals in BOM-less UTF-8 scripts.
 # Korean text lives in messages/*.md and is read with explicit UTF-8 encoding.
-# Every hook is fail-open: callers wrap everything in try/catch and exit 0.
+# Every hook is fail-open: callers wrap everything in try/catch and exit 0
+# (sole exception: the DES-06 guard asks when the register is unreadable).
 
 function Read-WfHookInput {
     $reader = New-Object IO.StreamReader([Console]::OpenStandardInput(), (New-Object Text.UTF8Encoding($false)))
@@ -111,12 +112,85 @@ function Get-WfMessage([string]$Name) {
     return (Get-Content (Join-Path $PSScriptRoot "messages\$Name") -Raw -Encoding UTF8)
 }
 
-# Emits the documented hook output contract as UTF-8 bytes, bypassing console
+# Emits a hook output contract object as UTF-8 bytes, bypassing console
 # code-page translation so Korean text survives on any system locale.
-function Write-WfContext([string]$EventName, [string]$Text) {
-    $payload = @{ hookSpecificOutput = @{ hookEventName = $EventName; additionalContext = $Text } }
-    $json = ConvertTo-Json -InputObject $payload -Compress -Depth 5
+function Write-WfJson([object]$Payload) {
+    $json = ConvertTo-Json -InputObject $Payload -Compress -Depth 5
     $writer = New-Object IO.StreamWriter([Console]::OpenStandardOutput(), (New-Object Text.UTF8Encoding($false)))
     $writer.Write($json)
     $writer.Flush()
+}
+
+function Write-WfContext([string]$EventName, [string]$Text) {
+    Write-WfJson @{ hookSpecificOutput = @{ hookEventName = $EventName; additionalContext = $Text } }
+}
+
+# DES-06 (v4): PreToolUse permission decision (ask | deny) with its reason.
+function Write-WfPermission([string]$Decision, [string]$Reason) {
+    Write-WfJson @{ hookSpecificOutput = @{ hookEventName = 'PreToolUse'; permissionDecision = $Decision; permissionDecisionReason = $Reason } }
+}
+
+# Lower-case, forward-slash form used for every path and glob comparison (DES-08).
+function ConvertTo-WfKey([string]$Path) {
+    return $Path.Trim().Replace('\', '/').ToLowerInvariant()
+}
+
+# Protection layer 2 (ADR-014): the gate settings files this adapter declares.
+function Get-WfGateSettingsPaths([string]$Cwd) {
+    return @(
+        (Join-Path $HOME '.claude\settings.json'),
+        (Join-Path $HOME '.claude\settings.local.json'),
+        (Join-Path $Cwd '.claude\settings.json'),
+        (Join-Path $Cwd '.claude\settings.local.json')
+    )
+}
+
+function ConvertFrom-WfCodePoints([int[]]$CodePoints) {
+    return -join ($CodePoints | ForEach-Object { [char]$_ })
+}
+
+function Split-WfRow([string]$Row) {
+    return @($Row.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+}
+
+# DES-08 register reading rules, the same as skills/wf-doc/scripts/regression_guard.py
+# (parse_register) and pinned by the shared fixture tests/fixtures/test-register.sample.md:
+# first table under the register H2 outside code fences, columns found by header
+# prefix, keep rows are those whose state starts with the keep token, globs split on ';'.
+# Returns @{ <row ID> = @(<globs>) } for keep rows (empty when the test-file column
+# is absent) and throws when the table cannot be read.
+function Get-WfKeptTestFiles([string]$RegisterPath) {
+    $kRegister = ConvertFrom-WfCodePoints 0xB300,0xC7A5
+    $kTestFile = ConvertFrom-WfCodePoints 0xD14C,0xC2A4,0xD2B8,0x20,0xD30C,0xC77C
+    $kState    = ConvertFrom-WfCodePoints 0xC0C1,0xD0DC
+    $kLastOk   = ConvertFrom-WfCodePoints 0xB9C8,0xC9C0,0xB9C9,0x20,0xC131,0xACF5
+    $kKeep     = ConvertFrom-WfCodePoints 0xC720,0xC9C0
+    $fence = $false; $inside = $false; $table = @()
+    foreach ($t in [IO.File]::ReadAllLines($RegisterPath, [Text.Encoding]::UTF8)) {
+        if ($t.TrimStart().StartsWith('```')) { $fence = -not $fence; continue }
+        if ($fence) { continue }
+        if ($t.StartsWith('## ')) {
+            if ($table.Count -gt 0) { break }
+            $inside = ($t.Substring(3).Trim() -eq $kRegister)
+        } elseif ($inside -and $t.StartsWith('|')) {
+            $table += $t
+        } elseif ($table.Count -gt 0) { break }
+    }
+    if ($table.Count -lt 2) { throw 'register table not found' }
+    $head = Split-WfRow $table[0]
+    $fi = $null; $si = $null; $li = $null
+    for ($i = 0; $i -lt $head.Count; $i++) {
+        if ($null -eq $fi -and $head[$i].StartsWith($kTestFile)) { $fi = $i }
+        if ($null -eq $si -and $head[$i].StartsWith($kState)) { $si = $i }
+        if ($null -eq $li -and $head[$i].StartsWith($kLastOk)) { $li = $i }
+    }
+    if ($null -eq $si -or $null -eq $li) { throw 'register table lacks state/last-success columns' }
+    $kept = @{}
+    foreach ($t in ($table | Select-Object -Skip 2)) {
+        $c = Split-WfRow $t
+        if ($c.Count -ne $head.Count) { throw "row column count differs from header: $($c[0])" }
+        if ($null -eq $fi -or -not $c[$si].StartsWith($kKeep)) { continue }
+        $kept[$c[0]] = @($c[$fi].Split(';') | Where-Object { $_.Trim() } | ForEach-Object { ConvertTo-WfKey $_ })
+    }
+    return $kept
 }

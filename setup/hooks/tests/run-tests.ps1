@@ -256,6 +256,153 @@ $t = New-Transcript $ws 40
 $out = Invoke-Hook 'wf-post-compact.ps1' @{ session_id='wf-test-pc3'; transcript_path=$t; cwd=$ws; hook_event_name='SessionStart'; source='compact' }
 Assert-True ($out -eq '' -and -not (Test-Path (Get-StateFile 'wf-test-pc3'))) 'T17 post-compact no-op without docs/work (guard)'
 
+# ---------- wf-test-guard.ps1 ----------
+
+# Korean tokens built from code points (ASCII-only source, RISK-05).
+function K([int[]]$CodePoints) { return -join ($CodePoints | ForEach-Object { [char]$_ }) }
+$kRegister = K 0xB300,0xC7A5                              # register section heading
+$kTestFile = K 0xD14C,0xC2A4,0xD2B8,0x20,0xD30C,0xC77C    # test-file column
+$kState    = K 0xC0C1,0xD0DC                              # state column
+$kLastOk   = K 0xB9C8,0xC9C0,0xB9C9,0x20,0xC131,0xACF5    # last-success column
+$kKeep     = K 0xC720,0xC9C0                              # keep state
+$kExpect   = K 0xD310,0xB3C5,0x20,0xAE30,0xB300            # expectation section heading
+$fixture = Join-Path (Split-Path (Split-Path $hooksDir)) 'skills\wf-doc\scripts\tests\fixtures\test-register.sample.md'
+
+function New-GuardRepo([string]$Name, [string]$RegisterText) {
+    $ws = New-TestDir $Name
+    if ($RegisterText) {
+        New-Item -ItemType Directory -Force (Join-Path $ws 'docs') | Out-Null
+        [IO.File]::WriteAllText((Join-Path $ws 'docs\test-register.md'), $RegisterText, (New-Object Text.UTF8Encoding($false)))
+    }
+    return $ws
+}
+
+function Invoke-Guard([string]$Cwd, [string]$Tool, [hashtable]$ToolInput) {
+    return Invoke-Hook 'wf-test-guard.ps1' @{ session_id='wf-test-tg'; cwd=$Cwd; hook_event_name='PreToolUse'; tool_name=$Tool; tool_input=$ToolInput; permission_mode='default' }
+}
+
+$fixtureText = [IO.File]::ReadAllText($fixture, [Text.Encoding]::UTF8)
+$wsFix = New-GuardRepo 'tg-fixture' $fixtureText
+
+# T29: Edit on a keep-row test file (absolute path) -> ask, reason names the row
+$out = Invoke-Guard $wsFix 'Edit' @{ file_path=(Join-Path $wsFix 'setup\hooks\tests\run-tests.ps1') }
+Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match 'TST-01') 'T29 guard asks before editing a keep-row test file'
+
+# T30: Write on the project gate settings file -> ask
+$out = Invoke-Guard $wsFix 'Write' @{ file_path=(Join-Path $wsFix '.claude\settings.local.json') }
+Assert-True ($out -match '"permissionDecision":"ask"') 'T30 guard asks before writing project .claude settings'
+
+# T31: Edit on the user-level gate settings file -> ask (path string only, nothing is written)
+$out = Invoke-Guard $wsFix 'Edit' @{ file_path=(Join-Path $HOME '.claude\settings.json') }
+Assert-True ($out -match '"permissionDecision":"ask"') 'T31 guard asks before editing ~/.claude settings'
+
+# T32: unregistered file and the register itself -> silent
+$outA = Invoke-Guard $wsFix 'Edit' @{ file_path=(Join-Path $wsFix 'setup\hooks\wf-common.ps1') }
+$outB = Invoke-Guard $wsFix 'Edit' @{ file_path=(Join-Path $wsFix 'docs\test-register.md') }
+Assert-True ($outA -eq '' -and $outB -eq '') 'T32 guard silent for unregistered files and the register itself'
+
+# T33: register without the test-file column -> nothing is protected, silent
+$noCol = "## $kRegister`n`n| ID | $kState | $kLastOk |`n|---|---|---|`n| TST-01 | $kKeep | 2026-01-02 10:00 $([char]0xB7) abc1234 |`n"
+$ws = New-GuardRepo 'tg-nocol' $noCol
+$out = Invoke-Guard $ws 'Edit' @{ file_path=(Join-Path $ws 'setup\hooks\tests\run-tests.ps1') }
+Assert-True ($out -eq '') 'T33 guard silent when the register has no test-file column'
+
+# T34: register present but its table cannot be read -> ask with guard=error (fail-to-ask)
+$ws = New-GuardRepo 'tg-broken' "# no register table here`n"
+$out = Invoke-Guard $ws 'Edit' @{ file_path=(Join-Path $ws 'a.txt') }
+Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match 'guard=error') 'T34 guard asks with guard=error when the register is unreadable'
+
+# T35: no register -> silent even for gate settings (unrelated repo, AC-05)
+$ws = New-GuardRepo 'tg-none' $null
+$out = Invoke-Guard $ws 'Write' @{ file_path=(Join-Path $ws '.claude\settings.json') }
+Assert-True ($out -eq '') 'T35 guard silent without docs/test-register.md'
+
+# T36: NotebookEdit reads notebook_path
+$out = Invoke-Guard $wsFix 'NotebookEdit' @{ notebook_path=(Join-Path $wsFix 'skills\wf-doc\scripts\tests\nb.py') }
+Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match 'TST-02') 'T36 guard reads notebook_path for NotebookEdit'
+
+# T37: shared fixture expectations match regression_guard.py (DES-08); relative paths as given
+$expectBlock = ($fixtureText -replace "`r`n", "`n").Split(@("`n## $kExpect`n"), 'None')[1].Split(@("`n## "), 'None')[0]
+$cases = @($expectBlock.Trim().Split("`n") | Select-Object -Skip 2)
+$mismatch = @()
+foreach ($line in $cases) {
+    $c = $line.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() }
+    $out = Invoke-Guard $wsFix 'Edit' @{ file_path=$c[0] }
+    $got = '-'
+    if ($out -match '"permissionDecision":"ask"') { $got = (([regex]::Matches($out, 'TST-\d+') | ForEach-Object { $_.Value }) -join ',') }
+    if ($got -ne $c[1]) { $mismatch += "$($c[0]): expected $($c[1]) got $got" }
+}
+Assert-True ($cases.Count -eq 8 -and $mismatch.Count -eq 0) ('T37 guard matches the shared fixture expectations ' + ($mismatch -join '; '))
+
+# ---------- wf-stop-gate.ps1 ----------
+
+# Fake judge scripts stand in for regression_guard.py via CLAUDE_WF_GUARD_SCRIPT.
+$fakeDir = New-TestDir 'sg-fakes'
+function New-FakeJudge([string]$Name, [int]$Code, [string]$Line) {
+    $p = Join-Path $fakeDir "$Name.py"
+    Set-Content -Path $p -Value @("import sys", "print('$Line')", "sys.exit($Code)") -Encoding ASCII
+    return $p
+}
+$fake1 = New-FakeJudge 'exit1' 1 'TST-07: fake violation tests/a.py'
+$fake0 = New-FakeJudge 'exit0' 0 ''
+$fake2 = New-FakeJudge 'exit2' 2 'regression_guard: boom'
+
+function Invoke-StopGate([string]$Cwd, [bool]$Active = $false) {
+    return Invoke-Hook 'wf-stop-gate.ps1' @{ session_id='wf-test-sg'; cwd=$Cwd; hook_event_name='Stop'; stop_hook_active=$Active }
+}
+
+$wsSg = New-GuardRepo 'sg-repo' $fixtureText
+
+# T38: judge exit 1 -> block once, reason carries the judge output
+$env:CLAUDE_WF_GUARD_SCRIPT = $fake1
+$out = Invoke-StopGate $wsSg
+Assert-True ($out -match '"decision":"block"' -and $out -match 'TST-07: fake violation') 'T38 stop-gate blocks with the judge output on exit 1'
+
+# T39: judge exit 0 -> silent
+$env:CLAUDE_WF_GUARD_SCRIPT = $fake0
+$out = Invoke-StopGate $wsSg
+Assert-True ($out -eq '') 'T39 stop-gate silent when the judge finds nothing'
+
+# T40: judge exit 2 (internal error) -> silent (fail-open)
+$env:CLAUDE_WF_GUARD_SCRIPT = $fake2
+$out = Invoke-StopGate $wsSg
+Assert-True ($out -eq '') 'T40 stop-gate silent on judge internal error'
+
+# T41: re-entry (stop_hook_active) -> silent even on violation
+$env:CLAUDE_WF_GUARD_SCRIPT = $fake1
+$out = Invoke-StopGate $wsSg $true
+Assert-True ($out -eq '') 'T41 stop-gate passes when stop_hook_active is set'
+
+# T42: no register -> silent even on violation (AC-05)
+$ws = New-GuardRepo 'sg-none' $null
+$out = Invoke-StopGate $ws
+Assert-True ($out -eq '') 'T42 stop-gate silent without docs/test-register.md'
+
+# T43: python not on PATH -> silent (fail-open)
+$savedPath = $env:PATH
+$env:PATH = "$env:SystemRoot\System32;$env:SystemRoot\System32\WindowsPowerShell\v1.0"
+try { $out = Invoke-StopGate $wsSg } finally { $env:PATH = $savedPath }
+Assert-True ($out -eq '') 'T43 stop-gate silent when python is absent'
+Remove-Item Env:\CLAUDE_WF_GUARD_SCRIPT -ErrorAction SilentlyContinue
+
+# T44: real regression_guard.py in a scratch git repo - keep-row test file edited after
+# its last-success SHA with no record -> block naming the row
+$ws = New-TestDir 'sg-real'
+& git -C $ws init -q
+& git -C $ws config user.email 't@example.com'
+& git -C $ws config user.name 't'
+New-Item -ItemType Directory -Force (Join-Path $ws 'tests') | Out-Null
+Set-Content -Path (Join-Path $ws 'tests\t1.py') -Value 'x = 1' -Encoding ASCII
+& git -C $ws add -A
+& git -C $ws commit -q -m init
+$sha = (& git -C $ws rev-parse --short HEAD).Trim()
+$reg = "## $kRegister`n`n| ID | $kTestFile | $kState | $kLastOk |`n|---|---|---|---|`n| TST-01 | tests/*.py | $kKeep | 2026-01-02 10:00 $([char]0xB7) $sha |`n"
+New-Item -ItemType Directory -Force (Join-Path $ws 'docs') | Out-Null
+[IO.File]::WriteAllText((Join-Path $ws 'docs\test-register.md'), $reg, (New-Object Text.UTF8Encoding($false)))
+Set-Content -Path (Join-Path $ws 'tests\t1.py') -Value 'x = 2' -Encoding ASCII
+$out = Invoke-StopGate $ws
+Assert-True ($out -match '"decision":"block"' -and $out -match 'TST-01' -and $out -match 'tests/t1.py') 'T44 stop-gate blocks on a real unrecorded keep-row test change'
+
 # ---------- install-hooks.ps1 ----------
 
 $installPath = Join-Path $hooksDir 'install-hooks.ps1'
@@ -306,6 +453,21 @@ Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
 $c = Get-WfEntryCounts $settings
 $hasOld = (Get-Content $settings -Raw -Encoding UTF8) -match 'old-repo'
 Assert-True ($c.SessionStart -eq 3 -and $c.PostToolUse -eq 1 -and -not $hasOld) 'T21 stale wf entries retargeted to current hooks dir'
+
+# T45: fresh install also registers the regression-guard hooks (PreToolUse guard, Stop gate)
+$dir = New-TestDir 'inst-guard'
+$settings = Join-Path $dir 'settings.json'
+Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
+$h = (Get-Content $settings -Raw -Encoding UTF8 | ConvertFrom-Json).hooks
+$pre = @($h.PreToolUse | Where-Object { $_ }); $stop = @($h.Stop | Where-Object { $_ })
+$preOk = $pre.Count -eq 1 -and $pre[0].matcher -eq 'Edit|Write|MultiEdit|NotebookEdit' -and $pre[0].hooks[0].args[-1] -like '*\wf-test-guard.ps1'
+$stopOk = $stop.Count -eq 1 -and -not $stop[0].PSObject.Properties['matcher'] -and $stop[0].hooks[0].args[-1] -like '*\wf-stop-gate.ps1'
+Assert-True ($preOk -and $stopOk) 'T45 install registers 1 PreToolUse guard + 1 Stop gate entry'
+
+# T46: rerun keeps exactly one of each
+Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
+$h = (Get-Content $settings -Raw -Encoding UTF8 | ConvertFrom-Json).hooks
+Assert-True (@($h.PreToolUse | Where-Object { $_ }).Count -eq 1 -and @($h.Stop | Where-Object { $_ }).Count -eq 1) 'T46 rerun does not duplicate guard entries'
 }
 
 } finally {
@@ -313,6 +475,7 @@ Assert-True ($c.SessionStart -eq 3 -and $c.PostToolUse -eq 1 -and -not $hasOld) 
     Remove-Item Env:\CLAUDE_WF_REWARN_KB -ErrorAction SilentlyContinue
     Remove-Item Env:\CLAUDE_WF_THRESHOLD_TOKENS -ErrorAction SilentlyContinue
     Remove-Item Env:\CLAUDE_WF_REWARN_TOKENS -ErrorAction SilentlyContinue
+    Remove-Item Env:\CLAUDE_WF_GUARD_SCRIPT -ErrorAction SilentlyContinue
 }
 
 Write-Host ''

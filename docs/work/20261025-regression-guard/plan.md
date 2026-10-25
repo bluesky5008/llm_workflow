@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: 승인된 v1(FR-01~08)을 8개 TASK로 구현한다. 순서는 R-01(대장 스키마)부터 — 이후 모든 판독기가 그 스키마를 읽는다.
-- 현재 결론 또는 상태: TASK-01~03 완료(3/8).
-- 다음 행동: TASK-04.
+- 현재 결론 또는 상태: TASK-01~07 완료(7/8).
+- 다음 행동: TASK-08.
 
 ## 문서 연결
 
@@ -96,7 +96,8 @@
 
 ### TASK-04: 명세·테스트 충돌 출구 (R-04)
 
-- 상태: pending
+- 상태: completed
+- 완료: 2026-10-25 23:02
 - 상위: 없음
 - 목표: `verification-depth.md` §6 신설, 주의 ④에서 링크.
 - 관련 요구사항과 설계: FR-05, NFR-01, DES-05, AC-06
@@ -108,7 +109,8 @@
 
 ### TASK-05: Claude 편집 확인 훅 `wf-test-guard.ps1` (R-02)
 
-- 상태: pending
+- 상태: completed
+- 완료: 2026-10-25 23:08
 - 상위: 없음
 - 목표: DESIGN-llm-workflow DES-06.
 - 관련 요구사항과 설계: req-design FR-03, DES-03·07·08; REQ-llm-workflow FR-06, AC-07·09
@@ -120,7 +122,8 @@
 
 ### TASK-06: Claude 종료 래퍼 `wf-stop-gate.ps1` (R-03 어댑터)
 
-- 상태: pending
+- 상태: completed
+- 완료: 2026-10-25 23:11
 - 상위: 없음
 - 목표: DESIGN-llm-workflow DES-07.
 - 관련 요구사항과 설계: req-design FR-04, DES-04; REQ-llm-workflow FR-07, AC-08·09
@@ -132,7 +135,8 @@
 
 ### TASK-07: 설치 등록과 README (DES-04)
 
-- 상태: pending
+- 상태: completed
+- 완료: 2026-10-25 23:16
 - 상위: 없음
 - 목표: `Install-WfHooks`가 PreToolUse·Stop을 멱등 등록, README 훅 설명 5종과 해제 방법.
 - 관련 요구사항과 설계: REQ-llm-workflow FR-04, DESIGN DES-04, NFR-01
@@ -170,7 +174,7 @@
 - 다음 단계 또는 워크플로우: TASK-01
 - 시작 조건: 충족
 - 입력 문서와 기준선: 위 기준선
-- 완료된 항목: §3.1 재확인, 계획, TASK-01~03
-- 미완료 항목: TASK-04~08
+- 완료된 항목: §3.1 재확인, 계획, TASK-01~07
+- 미완료 항목: TASK-08
 - 차단 요인: 없음
-- 다음 행동: TASK-04
+- 다음 행동: TASK-08

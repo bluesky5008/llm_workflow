@@ -1,4 +1,5 @@
-# DES-04 - merges the session-handoff hook registrations into a Claude Code
+# DES-04 - merges the llm_workflow hook registrations (session handoff; v4
+# regression guard) into a Claude Code
 # settings.json, preserving every foreign key and user-defined hook.
 # Dot-source this file and call Install-WfHooks. Idempotent; entries pointing
 # at a stale repo location are replaced by the current HooksDir paths.
@@ -12,11 +13,12 @@ function New-WfCommandHook([string]$ScriptPath) {
     }
 }
 
+# An empty matcher is omitted (Stop takes none).
 function New-WfEntry([string]$Matcher, [string]$ScriptPath) {
-    return [pscustomobject]@{
-        matcher = $Matcher
-        hooks   = @(New-WfCommandHook $ScriptPath)
-    }
+    $entry = [ordered]@{}
+    if ($Matcher) { $entry.matcher = $Matcher }
+    $entry.hooks = @(New-WfCommandHook $ScriptPath)
+    return [pscustomobject]$entry
 }
 
 # Ours = any entry whose command args reference a \setup\hooks\wf-*.ps1 script,
@@ -49,6 +51,12 @@ function Install-WfHooks([string]$SettingsPath, [string]$HooksDir) {
         )
         PostToolUse  = @(
             (New-WfEntry '*' (Join-Path $HooksDir 'wf-context-threshold.ps1'))
+        )
+        PreToolUse   = @(
+            (New-WfEntry 'Edit|Write|MultiEdit|NotebookEdit' (Join-Path $HooksDir 'wf-test-guard.ps1'))
+        )
+        Stop         = @(
+            (New-WfEntry '' (Join-Path $HooksDir 'wf-stop-gate.ps1'))
         )
     }
 

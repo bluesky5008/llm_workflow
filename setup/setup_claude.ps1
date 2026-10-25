@@ -82,7 +82,13 @@ if (-not (Test-Path $globalMd)) {
 #    entries after a repo move.
 . (Join-Path $PSScriptRoot 'hooks\install-hooks.ps1')
 Install-WfHooks -SettingsPath (Join-Path $claudeDir 'settings.json') -HooksDir (Join-Path $PSScriptRoot 'hooks')
-Write-Host "[ok]   hooks: session-handoff hooks registered in ~/.claude/settings.json"
+Write-Host "[ok]   hooks: session-handoff and regression-guard hooks registered in ~/.claude/settings.json"
+# The Stop gate runs python; without it only that check is skipped (fail-open, RISK-09).
+# Run it rather than Get-Command: the WindowsApps stub resolves even when Python is absent.
+$pythonOk = $false
+try { & python -c "import sys" 2>$null; $pythonOk = ($LASTEXITCODE -eq 0) } catch {}
+if ($pythonOk) { Write-Host "[ok]   python: found (regression stop gate active)" }
+else { Write-Host "[warn] python: not on PATH - regression stop gate will pass silently" }
 
 Write-Host ''
 Write-Host 'Done. Open a NEW Claude Code session and verify with /wf-design or /wf-doc.'
