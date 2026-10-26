@@ -5,8 +5,8 @@
 > 상태: `approved`
 > 기준선: `v5` (승인일 2026-10-26; v4 2026-10-25; v3 2026-10-18; v2 2026-10-09; v1 2026-08-09)
 > 작성일: 2026-08-09
-> 최종 갱신: 2026-10-26
-> 관련 문서: [REQ-llm-workflow: 요구사항](./requirements.md), [ADR-018: 승인 게이트의 판정](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md), [DCR-019: C층에 승인 게이트 훅 추가](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md), [ADR-014: 회귀 보호 훅의 강제 방식](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md), [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md), [ADR-012: 컨텍스트 신호 usage 파싱](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md), [DCR-013: 컨텍스트 신호 v3와 재개 경량화](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md), [ADR-001: 컨텍스트 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md)(대체됨)
+> 최종 갱신: 2026-10-27
+> 관련 문서: [REQ-llm-workflow: 요구사항](./requirements.md), [DCR-022: C층 설계에 공용 모듈과 의존 표 명시](./work/20261026-component-deps/DCR-022-C층-공용-모듈과-의존-표-명시.md), [ADR-018: 승인 게이트의 판정](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md), [DCR-019: C층에 승인 게이트 훅 추가](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md), [ADR-014: 회귀 보호 훅의 강제 방식](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md), [DCR-015: C층에 회귀 보호 훅 추가](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md), [ADR-012: 컨텍스트 신호 usage 파싱](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md), [DCR-013: 컨텍스트 신호 v3와 재개 경량화](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md), [ADR-001: 컨텍스트 신호 선택](./work/20260809-claude-hooks/ADR-001-컨텍스트-신호-선택.md)(대체됨)
 
 ## 요약
 
@@ -29,6 +29,7 @@
 | input | decision | [ADR-018: 승인 게이트의 판정](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) | document | DES-08의 판정 원천·배치·출력, NFR-01 예외 확장 |
 | input | change | [DCR-019: C층에 승인 게이트 훅 추가](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) | DES-04·08, 데이터와 인터페이스, 흐름, 검증 전략, 대안과 결정, RISK-08~10 | 승인(2026-10-26), 기준선 v4 → v5 |
 | input | related | [REQ-DESIGN-approval-gate](./work/20261026-approval-gate/req-design.md) | DES-01(B층 판정 스크립트), DES-02(경량 기계 조건), DES-09(`.wf-gate.json`) | DES-08이 호출하는 판정의 정본 |
+| input | change | [DCR-022: C층 설계에 공용 모듈과 의존 표 명시](./work/20261026-component-deps/DCR-022-C층-공용-모듈과-의존-표-명시.md) | 컴포넌트와 책임(DES-09·의존 표), 추적성 | 명확화(v5 유지, 승인 2026-10-27) |
 
 ## 설계 목표와 제약
 
@@ -69,6 +70,20 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 - DES-06 (v4, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md)): **`wf-test-guard.ps1`** — `PreToolUse`(matcher `Edit|Write|MultiEdit|NotebookEdit`). 대장 부재 시 무출력. `tool_input.file_path`(NotebookEdit는 `notebook_path`)를 `cwd` 기준 상대 경로로 정규화(`\`→`/`, 대소문자 무시)하고, 대장 `유지` 행의 `테스트 파일` 패턴([REQ-DESIGN-regression-guard DES-08](./work/20261025-regression-guard/req-design.md#설계) 판독 규칙, 한글 토큰은 코드포인트로 구성) 또는 Claude 게이트 설정 경로 상수(`~/.claude/settings.json`·`settings.local.json`, `<cwd>/.claude/` 같은 두 파일)와 일치하면 `permissionDecision: "ask"`와 이유(`messages/test-guard.md` + TST ID)를 출력한다. 권한 자동 승인 모드에서 `ask`가 사람에게 닿지 않는 것이 확인되면 그 모드에서만 `deny`. 대장 표를 찾지 못하는 등 판독 오류는 `ask`(이유에 `guard=error`), `테스트 파일` 열 부재는 무출력.
 - DES-07 (v4): **`wf-stop-gate.ps1`** — `Stop`. 대장 부재 또는 `stop_hook_active` 참이면 무출력. `$PSScriptRoot` 기준 저장소의 `skills/wf-doc/scripts/regression_guard.py <cwd>`를 `python`으로 호출(timeout 10초)해 exit 1이면 `{"decision":"block","reason":"<messages/stop-gate.md> <스크립트 출력>"}`, 그 밖(exit 0·2, Python 부재, timeout, 예외)은 무출력 exit 0.
 - DES-08 (v5, [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md)): **`wf-approval-gate.ps1`** — `PreToolUse`(matcher `Edit|Write|MultiEdit|NotebookEdit`, DES-06 다음 항목). 입력 처리는 DES-06과 같다. 선필터: `<cwd>/docs/work/` 없음, 대상이 `cwd` 밖, 또는 `<cwd>/.wf-gate.json`이 없고 대상이 `docs/` 아래면 판정 스크립트를 부르지 않고 무출력. 그 외 `$env:CLAUDE_WF_GATE_SCRIPT` 또는 `$PSScriptRoot` 기준 저장소의 `skills/wf-doc/scripts/approval_gate.py`를 `python <판정> <cwd> <대상>`으로 호출(5초 제한)해 exit 1이면 `permissionDecision: "ask"`와 이유(`messages/approval-gate.md` + 대상 상대 경로 + 판정 출력), exit 2·타임아웃·Python 부재면 `ask`(이유에 `gate=error (...)`, fail-to-ask), exit 0이면 무출력. 바깥 예외(입력 파싱 실패 등)는 무출력 exit 0. `deny`는 없다 — 미도달이 확인된 모드가 생기면 그 모드만 별도 DCR(ADR-018 결정 4). 제품 코드·승인 판정·경량 기계 조건은 B층이 판정한다(아래 계약).
+
+- DES-09 (명확화, [DCR-022](./work/20261026-component-deps/DCR-022-C층-공용-모듈과-의존-표-명시.md)): **`wf-common.ps1`** — 훅 6개가 dot-source하는 공용 함수: 입력 읽기, 열린 작업 기록 목록(판정 규칙은 DES-01·`열린 작업 판정`), transcript 크기·usage 토큰 판독(DES-02 신호 규칙의 구현), 상태 파일 읽기·쓰기(형식은 `데이터와 인터페이스`), 메시지 로드(DES-05), 출력 계약 직렬화, 대장 판독(규칙은 DES-06). 규칙·형식을 정하지 않는 공용 구현이며 이벤트를 처리하지 않는다.
+
+| ID | 의존 | 피의존 | 소유 데이터 | 출처 |
+|---|---|---|---|---|
+| DES-01 | DES-05, DES-09 | DES-04 | — | 재사용(setup/hooks/wf-session-start.ps1) |
+| DES-02 | DES-05, DES-09 | DES-04 | — | 재사용(setup/hooks/wf-context-threshold.ps1) |
+| DES-03 | DES-05, DES-09 | DES-04 | — | 재사용(setup/hooks/wf-post-compact.ps1) |
+| DES-04 | DES-01~03, DES-06~08 | — | `~/.claude/settings.json` 훅 항목 | 재사용(setup/hooks/install-hooks.ps1) |
+| DES-05 | — | DES-01~03, DES-06~09 | `setup/hooks/messages/*.md` | 재사용(setup/hooks/messages/) |
+| DES-06 | DES-05, DES-09 | DES-04 | — | 재사용(setup/hooks/wf-test-guard.ps1) |
+| DES-07 | DES-05, DES-09 | DES-04 | — | 재사용(setup/hooks/wf-stop-gate.ps1) |
+| DES-08 | DES-05, DES-09 | DES-04 | — | 재사용(setup/hooks/wf-approval-gate.ps1) |
+| DES-09 | DES-05 | DES-01~03, DES-06~08 | — | 재사용(setup/hooks/wf-common.ps1) |
 
 ## 데이터와 인터페이스
 
@@ -144,14 +159,14 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 
 | 요구사항 | 설계 | 작업 | 인수 조건 | 검증 | 결과 |
 |---|---|---|---|---|---|
-| [FR-01](./requirements.md#기능-요구사항) | DES-01, DES-05 | [TASK-02](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-01 | [VER-01, VER-07](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-07 미수행) |
-| [FR-02](./requirements.md#기능-요구사항) | DES-02, DES-05 | [TASK-03](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02 | [VER-02](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
-| [FR-03](./requirements.md#기능-요구사항) | DES-02, DES-03 | [TASK-03, TASK-04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02, AC-06 | [VER-02, VER-06](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-06 미수행) |
+| [FR-01](./requirements.md#기능-요구사항) | DES-01, DES-05, DES-09 | [TASK-02](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-01 | [VER-01, VER-07](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-07 미수행) |
+| [FR-02](./requirements.md#기능-요구사항) | DES-02, DES-05, DES-09 | [TASK-03](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02 | [VER-02](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
+| [FR-03](./requirements.md#기능-요구사항) | DES-02, DES-03, DES-09 | [TASK-03, TASK-04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-02, AC-06 | [VER-02, VER-06](./work/20260809-claude-hooks/work-log.md#검증) | 성공 (실세션 관찰 VER-06 미수행) |
 | [FR-04](./requirements.md#기능-요구사항) | DES-04 | [TASK-05](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-03 | [VER-03](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
-| [FR-05](./requirements.md#기능-요구사항) | DES-01, DES-02, DES-03 | [TASK-02~04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
-| [FR-06](./requirements.md#기능-요구사항) | DES-06, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | [VER-03·05·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
-| [FR-07](./requirements.md#기능-요구사항) | DES-07, DES-04, DES-05 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | [VER-04·05·08·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
-| [FR-08](./requirements.md#기능-요구사항) | DES-08, DES-04, DES-05 | [20261026-approval-gate](./work/20261026-approval-gate/work-log.md) | AC-10, AC-11, AC-12 | [TASK-01·02](./work/20261026-approval-gate/work-log.md#수행-기록) — TST-01 T47~T55, TST-02 16건 | 테스트 통과, 통합 대기 |
+| [FR-05](./requirements.md#기능-요구사항) | DES-01, DES-02, DES-03, DES-09 | [TASK-02~04](./work/20260809-claude-hooks/work-log.md#진행-기록) | AC-05 | [VER-05](./work/20260809-claude-hooks/work-log.md#검증) | 성공 |
+| [FR-06](./requirements.md#기능-요구사항) | DES-06, DES-04, DES-05, DES-09 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-07, AC-09 | [VER-03·05·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
+| [FR-07](./requirements.md#기능-요구사항) | DES-07, DES-04, DES-05, DES-09 | [20261025-regression-guard](./work/20261025-regression-guard/work-log.md) | AC-08, AC-09 | [VER-04·05·08·09](./work/20261025-regression-guard/work-log.md#인수-조건별-결과) | 성공 |
+| [FR-08](./requirements.md#기능-요구사항) | DES-08, DES-04, DES-05, DES-09 | [20261026-approval-gate](./work/20261026-approval-gate/work-log.md) | AC-10, AC-11, AC-12 | [TASK-01·02](./work/20261026-approval-gate/work-log.md#수행-기록) — TST-01 T47~T55, TST-02 16건 | 테스트 통과, 통합 대기 |
 
 ## 승인 기록
 
@@ -171,6 +186,7 @@ stdout: {"hookSpecificOutput":{"hookEventName":"...","additionalContext":"..."}}
 | 2026-10-18 | DES-02를 2단 신호(usage 토큰 1차·바이트 폴백)로 교체, 제약 완화, 상태 파일·설정값·RISK-05·검증 전략 갱신, 기준선 v3 | [DCR-013](./work/20261018-context-signal-v2/DCR-013-컨텍스트-신호-v3-재개-경량화.md) 사용자 재승인, [ADR-012](./work/20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md) | approved, v2 → v3 | 사용자(승인) |
 | 2026-10-25 | 회귀 보호 훅 추가 — 설계 목표와 제약(fail-open 예외·출력 계약·판정 중립), 시스템 경계, DES-04 등록 5종, DES-06·07 신설, 입력·출력·B층 계약, 가드·실패 흐름, 보안, 검증 전략, ADR-014, RISK-06·07, 추적성, 기준선 v4 | [DCR-015](./work/20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md) 사용자 승인, [ADR-014](./work/20261025-regression-guard/ADR-014-회귀-보호-훅-강제-방식.md) | approved, v3 → v4 | 사용자(승인) |
 | 2026-10-26 | 승인 게이트 훅 추가 — 요약, DES-04 등록 6개, DES-08 신설, 출력·B층 승인 판정 계약, 가드·실패·타임아웃 흐름, 검증 전략, ADR-018, RISK-08~10, 추적성, 기준선 v5 | [DCR-019](./work/20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md) 사용자 승인, [ADR-018](./work/20261026-approval-gate/ADR-018-승인-게이트-판정.md) | approved, v4 → v5 | 사용자(승인) |
+| 2026-10-27 | 컴포넌트와 책임에 공용 모듈 DES-09(`wf-common.ps1`)·의존 표, 추적표 FR-01~03·05~08에 DES-09, 머리말·문서 연결 DCR-022 — 코드·동작 무변경 | [DCR-022: C층 설계에 공용 모듈과 의존 표 명시](./work/20261026-component-deps/DCR-022-C층-공용-모듈과-의존-표-명시.md) | 명확화(기준선 v5 유지) | Claude(작성), 사용자(승인 2026-10-27) |
 
 ## 인계
 
