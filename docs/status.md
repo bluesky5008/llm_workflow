@@ -11,7 +11,7 @@
 ## 요약
 
 - 목적: 이 저장소에서 진행 중인 작업만 한 표로 조망한다. 완료 작업은 싣지 않으며, 이력은 `docs/work/` 각 폴더와 git이 정본이다.
-- 현재 결론 또는 상태: 진행 1건(`20261026-component-deps`, v2 설계 사이클 C, 2026-10-26 착수), 보류 1건. `20261026-design-questions`(v2 설계 사이클 A, 설계 질문·적대 검토)는 완료 보고 종결로 행 제거(2026-10-26 08:49). `20261026-approval-gate`(v2 설계 사이클 B, 승인 게이트)는 완료 보고 종결로 행 제거(2026-10-26 01:20). `20261026-test-quality`(v2 테스트 사이클 2, 품질 신호)는 완료 보고 종결로 행 제거(2026-10-26 00:31). `20261025-plan-closing`(plan 갱신 시점·종결 커밋 규칙)은 완료 보고 종결로 행 제거(2026-10-25 23:53). `20261025-regression-guard`(v2 테스트 사이클 1, 회귀 보호의 강제)는 완료 보고 종결로 행 제거(2026-10-25 23:30). `20261018-context-signal-v2`(DCR-013, 임계 훅 신호 v3)는 완료 보고 종결로 행 제거(2026-10-18 01:55). 사이클 4(`20261009-skill-diet`)는 완료 보고 종결로 행 제거(2026-10-09 20:19). 사이클 3(`20261009-test-lifecycle`)은 완료 보고 종결로 행 제거(2026-10-09 16:45). (사이클 1·2 작업은 완료 보고 종결로 행 제거 — 트리는 온디맨드 규칙에 따라 재생성하지 않음, 생성 일시 참조)
+- 현재 결론 또는 상태: 진행 0건, 보류 1건. `20261026-component-deps`(v2 설계 사이클 C, 기존 자산 대조·의존 표 검사·침식 점검)는 완료 보고 종결로 행 제거(2026-10-27 01:10). `20261026-design-questions`(v2 설계 사이클 A, 설계 질문·적대 검토)는 완료 보고 종결로 행 제거(2026-10-26 08:49). `20261026-approval-gate`(v2 설계 사이클 B, 승인 게이트)는 완료 보고 종결로 행 제거(2026-10-26 01:20). `20261026-test-quality`(v2 테스트 사이클 2, 품질 신호)는 완료 보고 종결로 행 제거(2026-10-26 00:31). `20261025-plan-closing`(plan 갱신 시점·종결 커밋 규칙)은 완료 보고 종결로 행 제거(2026-10-25 23:53). `20261025-regression-guard`(v2 테스트 사이클 1, 회귀 보호의 강제)는 완료 보고 종결로 행 제거(2026-10-25 23:30). `20261018-context-signal-v2`(DCR-013, 임계 훅 신호 v3)는 완료 보고 종결로 행 제거(2026-10-18 01:55). 사이클 4(`20261009-skill-diet`)는 완료 보고 종결로 행 제거(2026-10-09 20:19). 사이클 3(`20261009-test-lifecycle`)은 완료 보고 종결로 행 제거(2026-10-09 16:45). (사이클 1·2 작업은 완료 보고 종결로 행 제거 — 트리는 온디맨드 규칙에 따라 재생성하지 않음, 생성 일시 참조)
 - 다음 행동: 아래 작업 목록의 `다음 행동` 열.
 
 ## 문서 연결
@@ -21,7 +21,7 @@
 | input | approval | [REQ-DESIGN-plan-relocation](./work/20261009-plan-relocation/req-design.md#승인-기록) | document | 포트폴리오 최초 생성 승인(wf-tree §8)을 v1 승인 관문이 겸함. 이전 `docs/plan.md`를 대체(DES-05·07) |
 | input | related | [PLAN-20261009-plan-relocation: 구현 계획](./work/20261009-plan-relocation/plan.md) | document | 이 문서를 만든 작업(완료, 행 제거됨) |
 | output | related | [WORK-20260814-multiuser-workflow: 작업 기록](./work/20260814-multiuser-workflow/work-log.md) | document | 포함 작업(보류) |
-| output | related | [WORK-20261026-component-deps: 작업 기록](./work/20261026-component-deps/work-log.md) | document | 포함 작업(진행). v2 설계 사이클 C |
+| output | related | [WORK-20261026-component-deps: 작업 기록](./work/20261026-component-deps/work-log.md) | document | 포함했던 작업(완료 — 행 제거됨). v2 설계 사이클 C |
 | input | related | [WORK-20261026-design-questions: 작업 기록](./work/20261026-design-questions/work-log.md) | document | 포함했던 작업(완료 — 행 제거됨). v2 설계 사이클 A, ADR-020 |
 | input | related | [WORK-20261009-test-lifecycle: 작업 기록](./work/20261009-test-lifecycle/work-log.md) | document | 포함했던 작업(사이클 3, 완료 — 행 제거됨). 테스트 대장 [REGISTER-llm-workflow](./test-register.md) 신설 |
 | input | related | [WORK-20261009-worklog-diet: 작업 기록](./work/20261009-worklog-diet/work-log.md) | document | 포함했던 작업(사이클 2, 완료 — 행 제거됨). 이 문서의 행 정합은 그 작업의 린트(L8)가 검사 |
@@ -42,17 +42,15 @@
 
 | 작업 ID | 제목 | 상태 | 계획·기록 | 의존 | 다음 행동 |
 |---|---|---|---|---|---|
-| 20261026-component-deps | 기존 자산 대조·컴포넌트 의존 검사·설계 침식 점검(v2 설계 사이클 C) | in-progress | [work-log](./work/20261026-component-deps/work-log.md) | — | TASK-06 통합과 종결 |
 | 20260814-multiuser-workflow | 다인 사용 시나리오 토론 | on-hold | [work-log](./work/20260814-multiuser-workflow/work-log.md) | 20261009-plan-relocation | 재개 조건은 작업 기록 인계 절 — plan-relocation 완료 후 Q-04 재검토 |
 
 ## 계획 트리
 
-<!-- generated: 2026-10-27 00:40 — scripts/render.py --view all -->
+<!-- generated: 2026-10-27 01:10 — scripts/render.py --view all -->
 
 ```text
 [포트폴리오] ST-llm-workflow — 진행 중 작업 ... in-progress
-├─ [▶] 20261026-component-deps 기존 자산 대조·컴포넌트 의존 검사·설계 침식 점검(v2 설계 사이클 C) ... in-progress
-└─ [ ] 20260814-multiuser-workflow 다인 사용 시나리오 토론 .......................................... on-hold  depends: 20261009-plan-relocation
+└─ [ ] 20260814-multiuser-workflow 다인 사용 시나리오 토론 ... on-hold  depends: 20261009-plan-relocation
 ```
 
 ## 승인 기록
@@ -92,6 +90,7 @@
 | 2026-10-26 | `20261026-component-deps` 행 추가(wf-design 착수, 작업 기록 시작 — v2 설계 사이클 C), 트리 재생성 | wf-implement §7 포트폴리오 행의 추가·제거, wf-tree 생성 시점 |
 | 2026-10-26 | `20261026-component-deps` 상태 in-progress → awaiting-approval(승인 요청) | wf-design §8 |
 | 2026-10-27 | `20261026-component-deps` 상태 awaiting-approval → in-progress(v1 승인, 계획 작성) | wf-design §8, wf-implement §3.2 |
+| 2026-10-27 | `20261026-component-deps` 행 제거(완료 보고 종결, 2026-10-27 01:10), 트리 재생성 | wf-implement §7, wf-tree 생성 시점 |
 
 ## 인계
 

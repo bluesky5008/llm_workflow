@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261026-component-deps`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `[REQ-DESIGN-component-deps](./req-design.md) v1` (승인일 2026-10-27)
 > 작성일: 2026-10-26
 > 최종 갱신: 2026-10-27
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: v2 설계 사이클 C(D-09~D-11)의 wf-design·wf-implement 진행을 기록한다.
-- 현재 결론 또는 상태: v1 승인(2026-10-27), TASK-01~05 완료(5/6).
-- 다음 행동: TASK-06.
+- 현재 결론 또는 상태: 완료(2026-10-27) — TASK-01~06, AC-01~08 성공, 구현 커밋 `59c46a1`.
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -26,7 +26,7 @@
 ## 기준선과 현재 계획
 
 - 기준선: [REQ-DESIGN-component-deps](./req-design.md) v1, [ADR-021](./ADR-021-컴포넌트-의존-표와-설계-린트.md), [DCR-022](./DCR-022-C층-공용-모듈과-의존-표-명시.md)
-- 계획: [PLAN](./plan.md) TASK-01~06
+- 계획: [PLAN](./plan.md) TASK-01~06 완료
 
 ## 수행 기록
 
@@ -110,6 +110,14 @@
 - Red: `lint_design.py docs/design.md` · 6535663+dirty · 무출력(의존 표 없음)
 - 결과: 완료 — 2026-10-27 01:06
 
+### 2026-10-27 — TASK-06: 통합과 종결
+
+- 발견 사항: 침식 점검 (a) 자기 적용 — `lint_design.find_root`가 `lint_worklog.find_root`와 같음 → import로 교체. (b) 새 의존은 `lint_worklog` 파서뿐(DES-02 출처에 명시). (c) 복잡도 도구 없음 → N/A.
+- 결정과 이유: 대장 TST-02 86→104·보호 스코프 확장(Missing 1), 폐기·병합 없음. 커밋·push 승인 — 사용자 "다음 진행하고 커밋푸시까지 해"(2026-10-27).
+- 검증: 린트 3종 오류 0, 뮤턴트 3/3 kill, ① `59c46a1` · ② clean 56·104·16·15(01:09)
+- Red: 해당 없음 — 통합 단계(새 테스트 없음, 실패 증거는 뮤턴트 kill)
+- 결과: 완료 — 2026-10-27 01:09
+
 ## 설계와 달라진 점
 
 - 없음 — DES-01~05 문구대로. 자체 리뷰 침식 점검 (a)로 `lint_design.find_root`를 `lint_worklog`에서 import(중복 헬퍼 제거, DES-02 출처 "파서는 lint_worklog 재사용" 범위 안).
@@ -125,7 +133,7 @@
 ### 결과 요약
 
 - 총계: 175 (성공 175 / 실패 0 / 미수행 0) — `유지` 4행(TST-04 16건은 TST-02 104건에 포함, 중복 집계 안 함)
-- 기준: `6535663` · 워킹트리 dirty(통합 01:07). clean 재실행은 종결 ②
+- 기준: `6535663` · 워킹트리 dirty(통합 01:07). `유지` 전량은 `59c46a1` · clean(01:09)
 - 명령:
   - `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 56/56
   - `python -m pytest skills/wf-doc/scripts/tests -q` 104(TST-04 16·`test_lint_design.py` 18 포함)
@@ -146,7 +154,7 @@
 | VER-05 | AC-05 | grep review-checklist 3문항·대조 기준, verification-depth §5, `git diff --stat 6535663 -- skills/wf-implement/SKILL.md` | 성공 | — | TASK-04 · diff 비어 있음 |
 | VER-06 | AC-06 | `python skills/wf-doc/scripts/lint_design.py docs/design.md` | 성공 | — | exit 0·무출력, v5 유지, DCR-022 `completed` |
 | VER-07 | AC-07 | `lint_design.py docs/work/20261026-component-deps/req-design.md` | 성공 | — | exit 0 |
-| VER-08 | AC-08 | `body_words`, 린트 3종 기본 실행, NFR-06 앵커, `유지` 4행, ADR-021·등록부, closing.md | 성공 | — | wf-design 2,174 → 2,169, 나머지 3개 무변경 · 린트 3종 오류 0(기본 16파일) · 앵커 7/7 · 종결 ①~④ |
+| VER-08 | AC-08 | `body_words`, 린트 3종 기본 실행, NFR-06 앵커, `유지` 4행, ADR-021·등록부, closing.md | 성공 | — | wf-design 2,174 → 2,169, 나머지 3개 무변경 · 린트 3종 오류 0(기본 16파일) · 앵커 7/7 · ① `59c46a1` · ② clean 01:09 · ④ 전부 `docs/` |
 
 ### 실패와 미수행 분석
 
@@ -175,7 +183,7 @@
 
 ### 통합 상태
 
-- 구현 커밋은 종결 ①, 종결 커밋과 함께 origin push 대상(승인 2026-10-27, 완료 보고 관문 "다음 진행하고 커밋푸시까지 해"). 설치본은 저장소 심볼릭 링크라 동기화 불필요
+- 구현 커밋 `59c46a1`, 이 종결 커밋과 함께 origin push 대상(승인 2026-10-27, 완료 보고 관문 "다음 진행하고 커밋푸시까지 해"). 설치본은 저장소 심볼릭 링크라 동기화 불필요
 
 ### 남은 위험과 제한
 
@@ -190,12 +198,7 @@
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement §3.3
-- 시작 조건: 충족 — 사용자 승인(2026-10-27, v1)
-- 입력 문서와 기준선: 위 문서 연결, 형식 선례 [REQ-DESIGN-design-questions](../20261026-design-questions/req-design.md)
-- 완료된 항목: §4.1 조사, 질문 단계, req-design·ADR-021·DCR-022 초안, §4.5, 등록부 2행, 적대 검토 2라운드, 승인, 계획, TASK-01~05
-- 미완료 항목: TASK-06
-- 차단 요인: 없음
-- 미커밋 변경: 없음(구현 커밋 후)
-- 다음 행동: closing.md ② — 구현 커밋 SHA에서 clean으로 `유지` 4행 재실행, 이어서 ③ 종결 갱신(대장 TST-02 104·보호 스코프·마지막 성공 SHA·재정비 기록, plan·work-log `completed`, status 행 제거) → ④ → ⑤ → ⑥ push(승인 2026-10-27).
-- 재개 프롬프트: 작업 20261026-component-deps 재개 — docs/work/20261026-component-deps/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: TASK-01~06, AC-01~08, ADR-021 `approved`, DCR-022 `completed`
+- 미완료 항목: 없음
+- 다음 행동: 없음
