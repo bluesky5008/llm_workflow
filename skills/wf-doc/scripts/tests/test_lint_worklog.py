@@ -205,6 +205,14 @@ def test_l3_too_many_chars(tmp_path):
     assert "L3" in found and "L5" not in found
 
 
+def test_l3_chars_at_limit_allowed(tmp_path):
+    base = sum(len(t) for t in ENTRY.splitlines()[1:] if t.strip())
+    pad = lw.MAX_ENTRY_CHARS - base
+    entry = ENTRY.replace("- 결정과 이유: 없음", "- 결정과 이유: 없음" + "가" * (pad // 2)) \
+                 .replace("3 passed", "3 passed" + "나" * (pad - pad // 2))
+    assert "L3" not in codes(run(tmp_path, good(entries=entry)))
+
+
 def test_l3_nine_lines_allowed(tmp_path):
     entry = ENTRY + "".join("- 메모 %d: 짧은 줄\n" % i for i in range(5))
     assert "L3" not in codes(run(tmp_path, good(entries=entry)))

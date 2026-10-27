@@ -1,5 +1,5 @@
 # render.py 검증 — 실행: python -m pytest skills/wf-tree/scripts/tests -q
-# 크기 라벨: small. 파싱 2 · 중첩 2 · 접기 1 · 뷰 2 · depends 1 · 완료 시점 1 · write 1 · 경고 2 · exit 1.
+# 크기 라벨: small. 파싱 2 · 중첩 2 · 접기 1 · 뷰 2 · depends 1 · 완료 시점 1 · write 1 · 폭 1 · 경고 2 · exit 1.
 import os
 import re
 import sys
@@ -201,6 +201,14 @@ def test_write_replaces_fence_and_generated_comment(tmp_path):
     render.write_tree(path2, "TREE", view="all", now="2026-01-02 12:34")
     text2 = open(path2, encoding="utf-8").read()
     assert text2.index("## 계획 트리") < text2.index("TREE") < text2.index("## 작업 목록")
+
+
+# ---- 정렬 폭 ----
+
+def test_width_counts_wide_and_fullwidth_as_two():
+    assert render.width("가") == 2          # 동아시아 W
+    assert render.width("Ａ") == 2          # 전각 F(U+FF21)
+    assert render.width("a·") == 2         # 좁음·모호 = 1
 
 
 # ---- 경고 ----
