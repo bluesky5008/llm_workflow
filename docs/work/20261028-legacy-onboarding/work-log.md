@@ -3,7 +3,7 @@
 > 문서 유형: `work-log, verification, completion`
 > 작업 ID: `20261028-legacy-onboarding`
 > 상태: `in-progress`
-> 기준선: `N/A — 승인 전(wf-design 진행 중)`
+> 기준선: `[REQ-DESIGN-legacy-onboarding](./req-design.md) v1` (승인일 2026-10-28)
 > 작성일: 2026-10-28
 > 최종 갱신: 2026-10-28
 > 관련 문서: [REQ-DESIGN-legacy-onboarding](./req-design.md), [ST-llm-workflow](../../status.md), [테스트 액션 아이템](../../research/20261025-aidlc-trends/04_test_action_items.md)
@@ -11,7 +11,7 @@
 ## 요약
 
 - 목적: v2 레거시 묶음 ①(04 R-13 대장 편입 + R-11 커버리지 기반 보호 스코프) 규칙의 wf-design·wf-implement 진행을 기록한다.
-- 현재 결론 또는 상태: wf-design §4.1 조사 완료, 질문 단계 전.
+- 현재 결론 또는 상태: 설계 승인(2026-10-28, v1) — 계획 수립 전.
 - 다음 행동: [인계](#인계) 절.
 
 ## 문서 연결
@@ -20,11 +20,11 @@
 |---|---|---|---|---|
 | input | related | [ST-llm-workflow](../../status.md) | 작업 목록 | 이 작업의 행 |
 | input | related | [테스트 액션 아이템](../../research/20261025-aidlc-trends/04_test_action_items.md) | R-13, R-11 | 입력(조사 트랙) |
-| input | baseline | [REQ-DESIGN-legacy-onboarding](./req-design.md) | document | 초안(승인 전) |
+| input | baseline | [REQ-DESIGN-legacy-onboarding](./req-design.md) | FR-01~07, DES-01~05 | v1 |
 
 ## 기준선과 현재 계획
 
-- 기준선: 없음 — [REQ-DESIGN-legacy-onboarding](./req-design.md) 초안 작성 중
+- 기준선: [REQ-DESIGN-legacy-onboarding](./req-design.md) v1, [ADR-023](./ADR-023-레거시-테스트-대장-편입.md)
 - 계획: 없음 — 승인 후 plan.md
 
 ## 수행 기록
@@ -79,11 +79,11 @@
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-design §8 승인 관문
-- 시작 조건: 충족(적대 검토 2라운드 완료)
-- 입력 문서와 기준선: [REQ-DESIGN-legacy-onboarding](./req-design.md) `awaiting-approval`, [ADR-023](./ADR-023-레거시-테스트-대장-편입.md) `proposed`
-- 완료된 항목: §4.1 조사, 질문 단계, 초안·ADR-023, §4.5, 적대 검토 1라운드
-- 미완료 항목: 승인
+- 다음 단계 또는 워크플로우: wf-implement §3.1 재확인 → §3.2 계획 수립
+- 시작 조건: 충족(승인 v1, 응답 "y" 2026-10-28)
+- 입력 문서와 기준선: [REQ-DESIGN-legacy-onboarding](./req-design.md) v1, [ADR-023](./ADR-023-레거시-테스트-대장-편입.md) `approved`
+- 완료된 항목: wf-design 전 단계(조사·질문·초안·ADR-023·§4.5·적대 검토 2라운드·승인)
+- 미완료 항목: 계획·구현·검증·통합
 - 차단 요인: 없음
-- 다음 행동: 승인 응답을 받아 승인 기록(req-design·ADR-023·decisions), 이후 wf-implement 계획. 미커밋 변경: req-design·ADR-023·work-log·`docs/decisions.md`.
+- 다음 행동: wf-implement §3.1 재확인(`유지` 행 SHA ≠ HEAD면 전량 재실행) 후 plan.md 작성 — TASK 후보: DES-05 특성화 테스트, DES-01 verification-depth §1·§2·§3·§7, DES-02 templates, DES-03 §3.1(어절 순증 0), DES-04 lightweight-path, 통합.
 - 재개 프롬프트: 작업 20261028-legacy-onboarding 재개 — docs/work/20261028-legacy-onboarding/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
