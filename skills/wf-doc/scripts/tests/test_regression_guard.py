@@ -161,6 +161,23 @@ def test_unreadable_register_is_internal_error(tmp_path, capsys):
     assert rg.main([root]) == 2
 
 
+def test_onboarding_notation_protects_only_kept_rows():
+    # 편입 표기(격리(기존 실패, …)·미확정·명령줄 제외·파이프 없는 실패 메시지)는 판독을 바꾸지 않는다(legacy-onboarding DES-05)
+    text = """## 대장
+
+| ID | 테스트·명령 | 테스트 파일 | 보호 스코프 | 크기 | 발행 작업 | 상태 | 마지막 성공 (일시 · SHA) | 비고 |
+|---|---|---|---|---|---|---|---|---|
+| TST-01 | `pytest tests --deselect tests/legacy/test_flaky.py::test_x --ignore=tests/legacy/test_old.py` | tests/unit/*.py | 미확정 | medium | 20260101-onboard | 유지 | 2026-01-02 10:00 · abc1234 | 편입 |
+| TST-02 | `pytest tests/legacy/test_old.py` | tests/legacy/test_old.py | 미확정 | small | 20260101-onboard | 격리(기존 실패, 20260102-fix) | 없음 — 편입 2회 실패 | 2 failed — AssertionError: a / b |
+| TST-03 | `pytest tests/legacy/test_flaky.py::test_x` | tests/legacy/test_flaky.py | 미확정 | small | 20260101-onboard | 격리(불일치, 20260102-fix) | 없음 — 편입 2회 불일치 | |
+"""
+    rows = rg.parse_register(text)
+    assert rows["TST-02"][0] == "격리(기존 실패, 20260102-fix)"
+    assert rg.protecting(rows, "tests/unit/test_a.py") == ["TST-01"]
+    assert rg.protecting(rows, "tests/legacy/test_old.py") == []
+    assert rg.protecting(rows, "tests/legacy/test_flaky.py") == []
+
+
 def test_sample_register_reading_matches_expectations():
     text = open(SAMPLE, encoding="utf-8").read()
     rows = rg.parse_register(text)

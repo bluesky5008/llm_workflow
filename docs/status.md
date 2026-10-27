@@ -43,7 +43,7 @@
 
 | 작업 ID | 제목 | 상태 | 계획·기록 | 의존 | 다음 행동 |
 |---|---|---|---|---|---|
-| 20261028-legacy-onboarding | 레거시 테스트 대장 편입·커버리지 보호 스코프(v2 레거시 묶음 ① 규칙) | in-progress | [work-log](./work/20261028-legacy-onboarding/work-log.md) | — | 설계 승인(v1) — 계획 수립 |
+| 20261028-legacy-onboarding | 레거시 테스트 대장 편입·커버리지 보호 스코프(v2 레거시 묶음 ① 규칙) | in-progress | [plan](./work/20261028-legacy-onboarding/plan.md), [work-log](./work/20261028-legacy-onboarding/work-log.md) | — | TASK-06 종결(5/6) — closing.md ② 대기 |
 | 20260814-multiuser-workflow | 다인 사용 시나리오 토론 | on-hold | [work-log](./work/20260814-multiuser-workflow/work-log.md) | 20261009-plan-relocation | 재개 조건은 작업 기록 인계 절 — plan-relocation 완료 후 Q-04 재검토 |
 
 ## 계획 트리
