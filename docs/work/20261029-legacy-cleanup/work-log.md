@@ -2,8 +2,8 @@
 
 > 문서 유형: `work-log`
 > 작업 ID: `20261029-legacy-cleanup`
-> 상태: `awaiting-approval`
-> 기준선: `draft` — [REQ-DESIGN-legacy-cleanup](./req-design.md)(승인 대기)
+> 상태: `in-progress`
+> 기준선: `v1` — [REQ-DESIGN-legacy-cleanup](./req-design.md) (승인일 2026-10-29), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md)
 > 작성일: 2026-10-29
 > 최종 갱신: 2026-10-29
 > 관련 문서: [REQ-DESIGN-legacy-cleanup](./req-design.md), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md), [ST-llm-workflow](../../status.md), [테스트 액션 아이템](../../research/20261025-aidlc-trends/04_test_action_items.md)
@@ -11,19 +11,19 @@
 ## 요약
 
 - 목적: v2 레거시 묶음 ②(R-14 독립 재정비 작업·R-15 `리팩터` 전이·R-16 대량 승인 계층화) 규칙의 설계·승인·구현 기록.
-- 현재 결론 또는 상태: 승인 대기(21:24) — 초안·§4.5·적대 검토 2라운드 완료(11건 해소, 신규 5건 작성자 수정).
+- 현재 결론 또는 상태: 설계 승인(v1, 2026-10-29 21:24) — wf-implement 계획 수립 대기. 세션 인계(컨텍스트 임계).
 - 다음 행동: [인계](#인계)의 다음 행동.
 
 ## 문서 연결
 
 | 방향 | 관계 | 대상 문서 | 대상 항목 | 비고 |
 |---|---|---|---|---|
-| input | baseline | [REQ-DESIGN-legacy-cleanup](./req-design.md) | 전체 | 승인 전(draft) |
-| input | decision | [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md) | document | 제안(proposed, 승인 대기) |
+| input | baseline | [REQ-DESIGN-legacy-cleanup](./req-design.md) | 전체 | v1 승인(2026-10-29) |
+| input | decision | [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md) | document | approved(2026-10-29) |
 
 ## 기준선과 현재 계획
 
-- 기준선: 없음(draft). 계획은 승인 뒤 wf-implement 에서 `plan.md`.
+- 기준선: v1(2026-10-29). 계획은 wf-implement 에서 `plan.md`(미작성).
 - 설계 단계 진행: 조사 → 질문 → 초안 → §4.5 → 적대 검토(서브에이전트, 2라운드) → 승인 관문.
 
 ## 수행 기록
@@ -61,6 +61,12 @@
 - 발견 사항: 1라운드 11건 전부 `해소`. 신규 5건(중간 1·낮음 4) — 되돌림 기준점이 작업 착수 SHA 로 읽혀 앞 배치 소실, `리팩터` 경계(집합 보존)와 증거(강화 허용) 불일치, ADR 결정 2 와 FR-03 (g)(3) 불일치·「3항」 미정의, ADR 이력 누락, req-design 인계 절 낡음.
 - 결정과 이유: 전부 수용, 작성자 수정(최대 2라운드라 재확인 없음) — 배치 착수 SHA(clean 커밋) 기록·되돌림 기준, 경계 = 단언 보존(강화 허용). 비용: 서브에이전트 205,893토큰·2분 9초(도구 호출 8회). 상태 `awaiting-approval`.
 - 검증: `lint_design.py` exit 0, `lint_worklog.py` 0 오류
+- 결과: 완료 — 2026-10-29 21:24
+
+### 2026-10-29 — 승인 관문
+
+- 결정과 이유: 사용자가 한 화면 승인 요청에 "승인"으로 응답 — 기준선 v1, ADR-024 approved, 결정 등록부 행 추가, status 행 갱신. 설계 단계 로컬 커밋 `aa9ee4c`(초안·적대 검토) 뒤 승인 기록 커밋.
+- 검증: `lint_worklog.py` 0 오류(열린 기록·status)
 - 결과: 완료 — 2026-10-29 21:24
 
 ## 설계와 달라진 점
@@ -116,11 +122,11 @@ TBD
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-design §8 승인 관문 → 승인 시 승인 기록(응답 인용)·기준선 v1·ADR-024 `approved`·`docs/decisions.md` 행·status 갱신 → wf-implement(plan.md). 완료 뒤 GitHub push → aidlc `git diff --binary e1ffa64 <HEAD> | git apply --index` 동기화 → 마켓 재정비 작업(정식 경로, A급 18파일부터).
-- 시작 조건: 사용자 응답(승인·수정 요청·거부·보류)
+- 다음 단계 또는 워크플로우: wf-implement §3.1 재확인 → §3.2 계획(plan.md, DES-01~05 TASK 분해) → 구현·검증·통합. 완료 뒤 GitHub push → aidlc `git diff --binary e1ffa64 <HEAD> | git apply --index` 동기화 → 마켓 재정비 작업(정식 경로, A급 18파일부터).
+- 시작 조건: 충족 — v1 승인
 - 입력 문서와 기준선: [REQ-DESIGN-legacy-cleanup](./req-design.md), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md), 04 R-13~R-16·성공 기준 후보, 마켓 측정 보고(저장소 밖 `D:/code/outputs/docs/marketplace-test-diet-2026-10-29/01-측정-보고.md`)
-- 완료된 항목: §4.1 조사, 질문 Q-01~04 답, 요구사항·설계·위험·추적표·ADR-024, §4.5, 적대 검토 2라운드(2026-10-29)
-- 미완료 항목: 승인·계획·구현·검증·통합. 미커밋 변경: 없음(승인 요청 직전 커밋)
-- 차단 요인: 사용자 승인 대기 — 승인 요청은 2026-10-29 21:24 세션에서 발신
-- 다음 행동: 사용자 응답을 받아 (승인이면) req-design 승인 기록에 응답 인용, 머리말 `approved`·`v1`, ADR-024 `approved`, `docs/decisions.md` ADR-024 행 추가, status 행 갱신 후 커밋 → wf-implement §3.1·§3.2 로 plan.md 작성. 수정 요청이면 지정 항목 보완 후 재요청.
+- 완료된 항목: §4.1 조사, 질문 Q-01~04 답, 요구사항·설계·위험·추적표·ADR-024, §4.5, 적대 검토 2라운드, 승인 v1(2026-10-29)
+- 미완료 항목: 계획(plan.md)·구현·검증·통합. 미커밋 변경: 없음
+- 차단 요인: 없음
+- 다음 행동: wf-implement 스킬을 읽고 §3.1 재확인(HEAD·clean·`유지` 4행 실행 또는 인용) 뒤 `plan.md` 작성 — TASK 후보: 01 verification-depth(DES-01), 02 templates(DES-02), 03 본문 포인터 wf-implement·wf-design(DES-03·05), 04 판독 특성화 테스트(DES-04, TST-02 106→107), 05 통합. 트리는 wf-tree 로 생성.
 - 재개 프롬프트: 작업 20261029-legacy-cleanup 재개 — docs/work/20261029-legacy-cleanup/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
