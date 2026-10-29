@@ -6,12 +6,12 @@
 > 기준선: `v1` — [REQ-DESIGN-legacy-cleanup](./req-design.md) (승인일 2026-10-29), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md)
 > 작성일: 2026-10-29
 > 최종 갱신: 2026-10-29
-> 관련 문서: [REQ-DESIGN-legacy-cleanup](./req-design.md), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md), [ST-llm-workflow](../../status.md), [테스트 액션 아이템](../../research/20261025-aidlc-trends/04_test_action_items.md)
+> 관련 문서: [REQ-DESIGN-legacy-cleanup](./req-design.md), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md), [PLAN-20261029-legacy-cleanup](./plan.md), [ST-llm-workflow](../../status.md), [테스트 액션 아이템](../../research/20261025-aidlc-trends/04_test_action_items.md)
 
 ## 요약
 
 - 목적: v2 레거시 묶음 ②(R-14 독립 재정비 작업·R-15 `리팩터` 전이·R-16 대량 승인 계층화) 규칙의 설계·승인·구현 기록.
-- 현재 결론 또는 상태: 설계 승인(v1, 2026-10-29 21:24) — wf-implement 계획 수립 대기. 세션 인계(컨텍스트 임계).
+- 현재 결론 또는 상태: §3.1 재확인·계획 작성(2026-10-29 21:30) — TASK-01~05 pending. 세션 인계(컨텍스트 임계).
 - 다음 행동: [인계](#인계)의 다음 행동.
 
 ## 문서 연결
@@ -20,11 +20,12 @@
 |---|---|---|---|---|
 | input | baseline | [REQ-DESIGN-legacy-cleanup](./req-design.md) | 전체 | v1 승인(2026-10-29) |
 | input | decision | [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md) | document | approved(2026-10-29) |
+| input | plan | [PLAN-20261029-legacy-cleanup](./plan.md) | TASK-01~05 | 2026-10-29 작성 |
 
 ## 기준선과 현재 계획
 
-- 기준선: v1(2026-10-29). 계획은 wf-implement 에서 `plan.md`(미작성).
-- 설계 단계 진행: 조사 → 질문 → 초안 → §4.5 → 적대 검토(서브에이전트, 2라운드) → 승인 관문.
+- 기준선: v1(2026-10-29). 계획: [plan.md](./plan.md) TASK-01~05(특성화 테스트 → templates → verification-depth → 본문 포인터 → 통합).
+- 진행: TASK-01 pending.
 
 ## 수행 기록
 
@@ -63,11 +64,12 @@
 - 검증: `lint_design.py` exit 0, `lint_worklog.py` 0 오류
 - 결과: 완료 — 2026-10-29 21:24
 
-### 2026-10-29 — 승인 관문
+### 2026-10-29 — §3.1 재확인과 계획
 
-- 결정과 이유: 사용자가 한 화면 승인 요청에 "승인"으로 응답 — 기준선 v1, ADR-024 approved, 결정 등록부 행 추가, status 행 갱신. 설계 단계 로컬 커밋 `aa9ee4c`(초안·적대 검토) 뒤 승인 기록 커밋.
-- 검증: `lint_worklog.py` 0 오류(열린 기록·status)
-- 결과: 완료 — 2026-10-29 21:24
+- 발견 사항: HEAD `8184b5c` clean. python 3.13에 pytest·hypothesis 없어 `--user` 설치. TST-02는 tmp(C:)·저장소(D:) 드라이브 교차로 `test_main_exit_codes` relpath ValueError — 환경 실패 1건, 테스트 무수정.
+- 결정과 이유: TST-02는 `PYTEST_DEBUG_TEMPROOT=D:/code/.pytest_tmp`로 기록된 명령 그대로 106 통과(3튜플 인용 가능). TASK 5개(01 특성화·02 templates·03 규칙·04 본문 포인터·05 통합), 03·04는 본문 우선 규칙 때문에 같은 커밋.
+- 검증: TST-01 56/56(21:26), TST-02 106(21:30, TEMPROOT D:), TST-04 16, TST-05 16(21:29) — 전부 `8184b5c` clean
+- 결과: 완료 — 2026-10-29 21:30
 
 ## 설계와 달라진 점
 
@@ -122,11 +124,11 @@ TBD
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement §3.1 재확인 → §3.2 계획(plan.md, DES-01~05 TASK 분해) → 구현·검증·통합. 완료 뒤 GitHub push → aidlc `git diff --binary e1ffa64 <HEAD> | git apply --index` 동기화 → 마켓 재정비 작업(정식 경로, A급 18파일부터).
+- 다음 단계 또는 워크플로우: wf-implement §3.3 구현 — [plan.md](./plan.md) TASK-01~05 → 검증·통합·종결. 완료 뒤 GitHub push → aidlc `git diff --binary e1ffa64 <HEAD> | git apply --index` 동기화 → 마켓 재정비 작업(정식 경로, A급 18파일부터).
 - 시작 조건: 충족 — v1 승인
 - 입력 문서와 기준선: [REQ-DESIGN-legacy-cleanup](./req-design.md), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md), 04 R-13~R-16·성공 기준 후보, 마켓 측정 보고(저장소 밖 `D:/code/outputs/docs/marketplace-test-diet-2026-10-29/01-측정-보고.md`)
-- 완료된 항목: §4.1 조사, 질문 Q-01~04 답, 요구사항·설계·위험·추적표·ADR-024, §4.5, 적대 검토 2라운드, 승인 v1(2026-10-29)
-- 미완료 항목: 계획(plan.md)·구현·검증·통합. 미커밋 변경: 없음
+- 완료된 항목: 설계 v1 승인, §3.1 재확인, plan.md TASK-01~05(2026-10-29 21:30)
+- 미완료 항목: TASK-01~05. 미커밋 변경: 없음
 - 차단 요인: 없음
-- 다음 행동: wf-implement 스킬을 읽고 §3.1 재확인(HEAD·clean·`유지` 4행 실행 또는 인용) 뒤 `plan.md` 작성 — TASK 후보: 01 verification-depth(DES-01), 02 templates(DES-02), 03 본문 포인터 wf-implement·wf-design(DES-03·05), 04 판독 특성화 테스트(DES-04, TST-02 106→107), 05 통합. 트리는 wf-tree 로 생성.
+- 다음 행동: TASK-01 — `test_regression_guard.py`에 특성화 1건(DES-04, AC-05): `비고` `리팩터(…)` 유지 행 파일 변경 + 다른 행 `유지 → 폐기` 축소가 대장 변경 절 기록으로 exit 0, 없으면 exit 1. 먼저 이 기록 `### 테스트 대장 변경`에 TST-02 106→107 행. 실행: `PYTEST_DEBUG_TEMPROOT=D:/code/.pytest_tmp python -m pytest skills/wf-doc/scripts/tests -q`.
 - 재개 프롬프트: 작업 20261029-legacy-cleanup 재개 — docs/work/20261029-legacy-cleanup/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
