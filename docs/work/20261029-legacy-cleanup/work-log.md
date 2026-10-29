@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log`
 > 작업 ID: `20261029-legacy-cleanup`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `v1` — [REQ-DESIGN-legacy-cleanup](./req-design.md) (승인일 2026-10-29), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md)
 > 작성일: 2026-10-29
 > 최종 갱신: 2026-10-29
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: v2 레거시 묶음 ②(R-14 독립 재정비 작업·R-15 `리팩터` 전이·R-16 대량 승인 계층화) 규칙의 설계·승인·구현 기록.
-- 현재 결론 또는 상태: TASK-01~04 완료(2026-10-29 21:47) — TASK-05 통합 대기. 세션 인계(컨텍스트 임계).
-- 다음 행동: [인계](#인계)의 다음 행동.
+- 현재 결론 또는 상태: 완료(2026-10-29) — 규칙 구현 커밋 `8116946`·`ac32578`, `유지` 4행 전량 통과, 대장 TST-02 106→107. 승인 2026-10-29 21:52.
+- 다음 행동: 없음 — 후속은 [완료 보고 후속 작업](#후속-작업).
 
 ## 문서 연결
 
@@ -24,8 +24,7 @@
 
 ## 기준선과 현재 계획
 
-- 기준선: v1(2026-10-29). 계획: [plan.md](./plan.md) TASK-01~05(특성화 테스트 → templates → verification-depth → 본문 포인터 → 통합).
-- 진행: TASK-01~04 완료, TASK-05 pending.
+- 기준선: v1(2026-10-29). 계획: [plan.md](./plan.md) TASK-01~05 — 전부 완료.
 
 ## 수행 기록
 
@@ -99,66 +98,110 @@
 - 검증: grep wf-implement 2·wf-design 1(21:47), `lint_skill.py` 4종 오류 0 — 본문 2,816/2,850·2,192/2,300
 - 결과: 완료 — 2026-10-29 21:47
 
+### 2026-10-29 — TASK-05 통합 ① 검증·자체 리뷰
+
+- 발견 사항: review-checklist 전 항목 대조 — 요구사항·설계 일치(DES-01~05 그대로, 새 의존 없음, 범위 밖 변경 없음), 변경이 닿은 보호 스코프는 TST-02 자신(Breaking·Stale 없음, Missing 은 제품 코드 0 이라 N/A), 보안·호환 해당 없음(판독 무변경), 결정 사다리(기존 픽스처 재사용), 인용 SHA = HEAD `ac32578` clean, TDD 미적용 이유 기록됨, 디버그 코드 없음. 수정 사항 없음.
+- 결정과 이유: 통합 실행 집합 = 전체 스위트(`유지` 4행 + `격리` TST-03) 1회. 재정비 관문은 TST-02 보호 스코프 확장 외 변경 없음.
+- Red: 해당 없음 — 통합 검증 단계(새 테스트 없음)
+- 검증: 아래 검증 결과 절(21:50)
+- 결과: 완료 — 2026-10-29 21:51
+
+### 2026-10-29 — TASK-05 통합 ② 완료 보고 관문·종결
+
+- 결정과 이유: 사용자 응답 "승인 + push + aidlc 동기화"(21:52) — 대장 변경(TST-02 106→107)·종결 커밋·origin push·aidlc 동기화 승인. closing.md 순서로 ② clean 재실행(21:50, `ac32578`) → ③ 종결 갱신(대장 SHA·재정비 기록, plan·기록·status, 04 머리말) → ④ 문서 전용 확인 → ⑤ 종결 커밋 → ⑥ push → aidlc `git diff --binary e1ffa64 HEAD` 적용.
+- Red: 해당 없음 — 종결 단계
+- 검증: 린트 2종 0 오류, `git diff --name-only ac32578` 전부 `docs/`
+- 결과: 완료 — 2026-10-29 21:53
+
 ## 설계와 달라진 점
+
+없음 — DES-01~05 그대로. 계획 세부 하나: §8 앵커가 없는 상태의 깨진 링크를 커밋하지 않으려 TASK-02~04 를 한 커밋 `ac32578` 으로 묶었다(경미, §4.1).
 
 ## 검증 결과
 
 ### 범위와 환경
 
-- 대상 기준선 또는 구현: TBD
+- 대상 기준선 또는 구현: [REQ-DESIGN-legacy-cleanup](./req-design.md) v1, 구현 커밋 `8116946`(TASK-01)·`ac32578`(TASK-02~04)
+- 실행 환경: Windows 11, Python 3.13.15(사용자 설치, pytest 9.2.0·hypothesis `--user` 설치), PowerShell 5.1, git. pytest 임시 루트 `PYTEST_DEBUG_TEMPROOT=D:/code/.pytest_tmp`(저장소와 같은 드라이브 — 없으면 `test_main_exit_codes` 가 드라이브 교차 relpath 로 환경 실패)
 
 ### 결과 요약
 
-- 총계: TBD
-- 기준: TBD
-- 명령: TBD
-- 커버리지: TBD
-- 뮤테이션: TBD
-- 산출물: TBD
+- 총계: 203 (성공 198 / 실패 5 / 미수행 0) — `유지` 4행 195 전부 성공, `격리` TST-03 3/8(기존 환경 실패 5, 완료 판정 제외)
+- 기준: `ac32578` · 워킹트리 clean
+- 명령:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 56/56(21:50)
+  - `PYTEST_DEBUG_TEMPROOT=D:/code/.pytest_tmp python -m pytest skills/wf-doc/scripts/tests -q` 107(21:50)
+  - `python -m pytest skills/wf-doc/scripts/tests/test_lint_skill.py -q` 16(21:50)
+  - `python -m pytest skills/wf-tree/scripts/tests -q` 16(21:50)
+  - `python docs/presentation/tests/test_make_pptx.py` 3/8(21:50, 격리)
+  - `python skills/wf-doc/scripts/lint_design.py docs/work/20261029-legacy-cleanup/req-design.md` 0 오류 · `lint_skill.py` 4 SKILL 0 오류(경고 K3 6) · `lint_worklog.py` 0 오류
+- 커버리지: N/A — 도구 없음
+- 뮤테이션: N/A — 변경 범위에 코드 파일 없음(`regression_guard.py`·`setup/hooks/` diff 0, 테스트·문서만)
+- 산출물: 없음
 
 ### 인수 조건별 결과
 
 | 검증 ID | 인수 조건 | 방법·명령 | 결과 | 분류 | 증거 |
 |---|---|---|---|---|---|
+| VER-01 | AC-01 | `verification-depth.md` §8 문구 grep(형태·필수 절·분리 행·동결·배치 (a)~(h)·배치 착수 SHA·승인 값·시점) 14종, 도구명 grep | 성공 | — | `ac32578` · 전부 ≥ 1건, 도구명은 §5·§7 예시뿐(21:46) |
+| VER-02 | AC-02 | §2 허용 시점·`리팩터` 단락·§3 시점·4조건 표 grep | 성공 | — | `ac32578` · VER-01 과 같은 grep 묶음(21:46) |
+| VER-03 | AC-03 | templates grep 4문구(`유지 → 유지(리팩터)`·`리팩터(분류, 일시)`·시점 `재정비 작업`·필수 절) | 성공 | — | `ac32578` · 각 1건(21:44) |
+| VER-04 | AC-04 | 두 SKILL.md grep 「독립 재정비 작업」, `lint_skill.py` | 성공 | — | `ac32578` · 2·1건, 본문 2,816/2,850·2,192/2,300, 오류 0(21:47) |
+| VER-05 | AC-05 | `PYTEST_DEBUG_TEMPROOT=D:/code/.pytest_tmp python -m pytest skills/wf-doc/scripts/tests -q` | 성공 | — | `test_cleanup_batch_record_passes_refactor_and_discard` · 107 passed · `2114f37`+dirty ×2(21:42), `ac32578` clean(21:50) |
+| VER-06 | AC-06 | `유지` 4행 전량, `git diff --stat 8184b5c -- skills/wf-doc/scripts/regression_guard.py setup/hooks/`, `lint_design.py`, `lint_worklog.py` | 성공 | — | `ac32578` clean · 56/107/16/16, diff 빈 출력, 린트 0(21:50) |
+| VER-07 | NFR-01 | `lint_skill.py` K3 | 성공 | — | VER-04 와 같음 |
+| VER-08 | NFR-02 | 판독기·훅 diff 0 + TST-01 56(공유 견본 판독 T29~T37 포함) | 성공 | — | VER-06 과 같음 |
+| VER-09 | NFR-03 | 도구명 grep(§8 에 없음) | 성공 | — | VER-01 과 같음 |
 
 ### 실패와 미수행 분석
+
+- TST-03(`격리(환경)`) 5건 실패 — `ModuleNotFoundError: pptx`, 기존·환경. 완료 판정 제외(§2 `격리` 규칙), 이 작업과 무관.
+- TST-02 는 pytest 임시 루트가 C: 일 때 `test_main_exit_codes` 1건이 드라이브 교차 relpath 로 환경 실패한다(§3.1 재확인에서 발견). 같은 드라이브 루트에서 107 통과 — 테스트·명령 무수정, 환경 조건을 대장 비고에 남긴다.
 
 ### 테스트 대장 변경
 
 | 대상 | 현재 상태 → 제안 | 분류·증거 | 유일 검증 여부 | 승인 |
 |---|---|---|---|---|
-| TST-02 | 유지 → 유지(보호 스코프 확장 106→107) | TASK-01 특성화 1건 추가(`리팩터` 비고·배치 기록 판독) — `regression_guard.py` 무변경 | 해당 없음 | 완료 보고 관문 |
+| TST-02 | 유지 → 유지(보호 스코프 확장 106→107) | TASK-01 특성화 1건 추가(`리팩터` 비고·배치 기록 판독) — `regression_guard.py` 무변경 | 해당 없음 | 완료 보고 관문(2026-10-29 21:52 "승인 + push + aidlc 동기화") |
+
+재정비 관문(통합, 2026-10-29 21:51): 변경이 닿은 보호 스코프 = TST-02 자신. Breaking 0 · Stale 0 · Missing 0(제품 코드 변경 없음 — 뮤테이션 N/A). 커버리지 재계산 생략(도구 없음). 폐기·병합·리팩터 후보 0.
 
 ## 완료 보고
 
 ### 완료 상태
 
-- 결과: TBD
-- 완료 판단 근거: TBD
+- 결과: 완료
+- 완료 판단 근거: AC-01~06 전부 성공(VER-01~09), `유지` 4행 전량 통과(`ac32578` clean), 린트 3종 0 오류, 자체 리뷰 수정 사항 없음, 대장 갱신(TST-02 107·SHA `ac32578`·재정비 기록 1행), 사용자 승인(21:52).
 
 ### 주요 변경
 
-TBD
+- `verification-depth.md`: `## 8. 독립 재정비 작업` 신설(정식 경로의 한 종류·req-design 필수 절·제품 코드 동결·배치 절차 (a)~(h)·성공 기준과 복구·승인 계층·기록), §2 `병합`·`폐기` 허용 시점과 `리팩터` 단락(단언 보존 경계·증거), §3 시점·유일성 판정 ①~③·승인 계층.
+- `templates.md`: 요구사항 노트(재정비 작업 필수 절), `### 테스트 대장 변경` 예시 `유지 → 유지(리팩터)`, 대장 노트(`리팩터` 비고 표기·재정비 기록 시점 `재정비 작업`·승인 값).
+- wf-implement §3.3 예외 링크·§3.6 포인터(승인 단위·반영 시점 예외), wf-design §4.2 필수 절 1문장 — 본문 2,816/2,850·2,192/2,300.
+- `test_regression_guard.py` 특성화 1건(TST-02 106→107). 판독기·훅 무변경(NFR-02).
 
 ### 통합 상태
 
-TBD
+구현 커밋 `8116946`(TASK-01)·`ac32578`(TASK-02~04), 이 종결 커밋과 함께 origin/main push 대상(승인 2026-10-29 21:52). 같은 승인으로 `D:/code/aidlc-workflow` 에 `git diff --binary e1ffa64 HEAD` 적용·커밋·push 대상.
 
 ### 남은 위험과 제한
 
-TBD
+- RISK-01 PreToolUse 가드는 편집 호출마다 `ask` — 마켓 첫 배치에서 횟수 실측, 피로하면 (B)안 DCR.
+- RISK-02·08 뮤테이션·커버리지 도구 없는 저장소는 수동 뮤턴트·단언 대조가 증거의 전부이고 `미확정` 행은 스코프부터 채워야 한다.
+- RISK-05 이 저장소에서 재정비 작업 시범 불가 — 마켓 첫 배치가 시범, 빈틈은 DCR 로 환류.
+- 환경: TST-02 는 pytest 임시 루트가 저장소와 같은 드라이브여야 한다(대장 비고).
 
 ### 후속 작업
 
-TBD
+- 마켓 재정비 작업 req-design(정식 경로, `### 대상 TST 범위·배치·성공 기준` 절 — A급 18파일 첫 배치, 측정 보고 §4.2 순). 시작 조건: 이 규칙 push·aidlc 동기화 완료.
+- 04 R-14~R-16 행 상태 갱신은 04 머리말에 완료 표시로 갈음.
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement §3.3 구현 — [plan.md](./plan.md) TASK-01~05 → 검증·통합·종결. 완료 뒤 GitHub push → aidlc `git diff --binary e1ffa64 <HEAD> | git apply --index` 동기화 → 마켓 재정비 작업(정식 경로, A급 18파일부터).
-- 시작 조건: 충족 — v1 승인
-- 입력 문서와 기준선: [REQ-DESIGN-legacy-cleanup](./req-design.md), [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md), 04 R-13~R-16·성공 기준 후보, 마켓 측정 보고(저장소 밖 `D:/code/outputs/docs/marketplace-test-diet-2026-10-29/01-측정-보고.md`)
-- 완료된 항목: 설계 v1 승인, §3.1 재확인, plan.md, TASK-01~04(2026-10-29 21:47)
-- 미완료 항목: TASK-05. 미커밋 변경: 없음(TASK-02~04 커밋)
+- 다음 단계 또는 워크플로우: 없음 — 후속은 [완료 보고 후속 작업](#후속-작업)
+- 시작 조건: 해당 없음
+- 입력 문서와 기준선: [REQ-DESIGN-legacy-cleanup](./req-design.md) v1, [ADR-024](./ADR-024-독립-재정비-작업과-리팩터-표기.md), [plan.md](./plan.md)
+- 완료된 항목: 설계 v1 승인, TASK-01~05, 완료 보고 관문 승인(2026-10-29 21:52)
+- 미완료 항목: 없음. 미커밋 변경: 없음
 - 차단 요인: 없음
-- 다음 행동: TASK-05 통합 — 린트 3종, `유지` 전량(TST-02 는 `PYTEST_DEBUG_TEMPROOT=D:/code/.pytest_tmp`), `git diff --stat 8184b5c -- skills/wf-doc/scripts/regression_guard.py setup/hooks/` 빈 출력, 자체 리뷰(review-checklist), 검증 표 VER-01~06, 재정비 관문 1행, 대장 TST-02 106→107, 완료 보고 관문 → closing.md.
-- 재개 프롬프트: 작업 20261029-legacy-cleanup 재개 — docs/work/20261029-legacy-cleanup/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 행동: 없음
