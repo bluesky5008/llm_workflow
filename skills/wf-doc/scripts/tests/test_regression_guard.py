@@ -186,3 +186,23 @@ def test_sample_register_reading_matches_expectations():
     assert len(cases) == 8
     for path, rid in cases:
         assert rg.protecting(rows, path) == ([] if rid == "-" else [rid]), path
+
+
+def test_cleanup_batch_record_passes_refactor_and_discard(tmp_path, capsys):
+    # 재정비 작업 표기(비고 `리팩터(…)`, 대장 변경 절 `유지 → 유지(리팩터)`·`유지 → 폐기`, 승인 열의 따옴표 인용)는
+    # 판독을 바꾸지 않는다 — 기록이 있으면 통과, 없으면 두 위반(legacy-cleanup DES-04)
+    root, sha = repo(tmp_path)
+    kept = "| TST-01 | `pytest` | tests/t.py | 유지 | 2026-01-02 10:00 · %s | 리팩터(Lazy Test, 2026-02-01) |" % sha
+    write(root, "tests/u.py", "def test_b(): pass\n")
+    write(root, "docs/test-register.md", REGISTER.format(rows=kept + "\n" + row(sha, files="tests/u.py", rid="TST-02")))
+    git(root, "add", ".")
+    git(root, "commit", "-qm", "c3")
+    write(root, "tests/t.py", "def test_a():\n    assert True\n")
+    write(root, "docs/test-register.md", REGISTER.format(
+        rows=kept + "\n" + row(sha, state="폐기(중복, 2026-02-01)", files="tests/u.py", rid="TST-02")))
+    code, out = run(root, capsys)
+    assert code == 1 and out == ["TST-01: 테스트 파일 변경 tests/t.py",
+                                 "TST-02: 대장 상태 변경(폐기(중복, 2026-02-01)) docs/test-register.md"]
+    log(root, '| TST-01 | 유지 → 유지(리팩터) | 리팩터 — Lazy Test, 수정 전후 통과·단언 보존 | 해당 없음 | 배치 1 승인(2026-02-01, "전부") |\n'
+              '| TST-02 | 유지 → 폐기 | 중복 — 단언 대조 | 아니오 | 배치 1 승인(2026-02-01, "전부") |')
+    assert run(root, capsys) == (0, [])

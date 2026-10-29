@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: 승인된 v1(FR-01~09, DES-01~05)을 5개 TASK로 구현하고, 종결은 closing.md 순서를 따른다.
-- 현재 결론 또는 상태: 계획 작성(2026-10-29 21:29) — TASK-01~05 pending.
-- 다음 행동: TASK-01부터.
+- 현재 결론 또는 상태: TASK-01 완료(2026-10-29 21:42) — TASK-02~05 pending.
+- 다음 행동: TASK-02.
 
 ## 문서 연결
 
@@ -37,22 +37,23 @@
 
 ## 계획 트리
 
-<!-- generated: 2026-10-29 21:31 — scripts/render.py --view all -->
+<!-- generated: 2026-10-29 21:43 — scripts/render.py --view all -->
 
 ```text
-[작업] 20261029-legacy-cleanup — 독립 재정비 작업·`리팩터` 처분·대량 승인 계층화 규칙 ... in-progress (0/5)
-├─ [ ] 판독 특성화 테스트 (DES-04) (TASK-01)
+[작업] 20261029-legacy-cleanup — 독립 재정비 작업·`리팩터` 처분·대량 승인 계층화 규칙 ... in-progress (1/5)
+├─ [✓] 판독 특성화 테스트 (DES-04) (TASK-01) ... 2026-10-29 21:42
 ├─ [ ] templates 노트 (DES-02) (TASK-02)
-├─ [ ] 재정비 규칙 (DES-01) (TASK-03) ...... depends: TASK-02
-├─ [ ] 본문 포인터 (DES-03·05) (TASK-04) ... depends: TASK-03
-└─ [ ] 통합과 종결 (TASK-05) ............... depends: TASK-01~04
+├─ [ ] 재정비 규칙 (DES-01) (TASK-03) .......... depends: TASK-02
+├─ [ ] 본문 포인터 (DES-03·05) (TASK-04) ....... depends: TASK-03
+└─ [ ] 통합과 종결 (TASK-05) ................... depends: TASK-01~04
 ```
 
 ## 작업 목록
 
 ### TASK-01: 판독 특성화 테스트 (DES-04)
 
-- 상태: pending
+- 상태: completed
+- 완료: 2026-10-29 21:42
 - 상위: 없음
 - 목표: `test_regression_guard.py`에 tmp git 픽스처 재사용 1건 — `비고`에 `리팩터(…)`가 있는 `유지` 행의 테스트 파일 변경과 다른 행의 `유지 → 폐기` 축소를, 열린 작업 기록 `### 테스트 대장 변경`에 `유지 → 유지(리팩터)`·`유지 → 폐기` 행으로 기록하면 exit 0, 기록이 없으면 exit 1
 - 관련 요구사항과 설계: NFR-02, DES-04, AC-05
@@ -123,13 +124,14 @@
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: TASK-01
-- 완료된 항목: 없음
-- 미완료 항목: TASK-01~05
-- 다음 행동: TASK-01 — `test_regression_guard.py`에 특성화 1건(DES-04, AC-05).
+- 다음 단계 또는 워크플로우: TASK-02
+- 완료된 항목: TASK-01
+- 미완료 항목: TASK-02~05
+- 다음 행동: TASK-02 — templates 노트 3곳(DES-02, AC-03).
 
 ## 변경 이력
 
 | 날짜 | 변경 내용 | 근거 | 상태 전이 | 작성·승인 |
 |---|---|---|---|---|
 | 2026-10-29 | 최초 작성 — TASK-01~05 | REQ-DESIGN-legacy-cleanup v1 | → in-progress | Claude(작성) |
+| 2026-10-29 | TASK-01 완료 | TST-02 107 ×2 | in-progress 유지 | Claude(작성) |
