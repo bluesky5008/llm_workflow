@@ -72,8 +72,10 @@ function Get-WfContextTokens([string]$TranscriptPath, [int]$TailBytes = 1048576)
     } finally { $fs.Dispose() }
     $text = [Text.Encoding]::UTF8.GetString($buf, 0, $read)
     $lines = $text -split "`n"
-    # usage object may nest one level (cache_creation{...}, server_tool_use{...})
-    $usageRe = [regex]'"usage":\{(?:[^{}]|\{[^{}]*\})*\}'
+    # usage object nests to any depth (cache_creation{...}, iterations[{cache_creation{...}}]):
+    # .NET balancing groups match the braces; the top-level keys come first, so the
+    # first match of each key below is the call's own total, not an iteration's.
+    $usageRe = [regex]'"usage":\{(?>[^{}]+|\{(?<d>)|\}(?<-d>))*(?(d)(?!))\}'
     for ($i = $lines.Length - 1; $i -ge 0; $i--) {
         $line = $lines[$i]
         if ($line.IndexOf('"type":"assistant"') -lt 0) { continue }
@@ -149,13 +151,16 @@ function ConvertFrom-WfCodePoints([int[]]$CodePoints) {
     return -join ($CodePoints | ForEach-Object { [char]$_ })
 }
 
+# Cells of a table row. As in GFM, an escaped pipe (\|) is cell content, not a cell
+# boundary (same rule as regression_guard.py cells).
 function Split-WfRow([string]$Row) {
-    return @($Row.Trim().Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+    $t = $Row.Trim() -replace '^\|+', '' -replace '(?<!\\)\|+$', ''
+    return @([regex]::Split($t, '(?<!\\)\|') | ForEach-Object { $_.Trim().Replace('\|', '|') })
 }
 
 # DES-08 register reading rules, the same as skills/wf-doc/scripts/regression_guard.py
 # (parse_register) and pinned by the shared fixture tests/fixtures/test-register.sample.md:
-# first table under the register H2 outside code fences, columns found by header
+# cells split on unescaped pipes (GFM \|), first table under the register H2 outside code fences, columns found by header
 # prefix, keep rows are those whose state starts with the keep token, globs split on ';'.
 # Returns @{ <row ID> = @(<globs>) } for keep rows (empty when the test-file column
 # is absent) and throws when the table cannot be read.

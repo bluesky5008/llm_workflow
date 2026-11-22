@@ -188,6 +188,15 @@ def test_sample_register_reading_matches_expectations():
         assert rg.protecting(rows, path) == ([] if rid == "-" else [rid]), path
 
 
+def test_escaped_pipe_in_cell_is_cell_content():
+    # GFM: 칸 안의 `\|`는 칸 경계가 아니라 내용이다 — 명령 칸에 파이프를 쓴 대장도 읽고 보호 대상을 그대로 찾는다
+    text = REGISTER.format(rows="| TST-01 | `jar tf a.jar \\| grep -q x` | tests/*.py | 유지 | 2026-01-02 10:00 · abc1234 | 끝 칸 \\| |\n")
+    rows = rg.parse_register(text)
+    assert rows["TST-01"][1] == ["tests/*.py"]
+    assert rg.protecting(rows, "tests/t.py") == ["TST-01"]
+    assert rg.protecting(rows, "src/a.py") == []
+
+
 def test_cleanup_batch_record_passes_refactor_and_discard(tmp_path, capsys):
     # 재정비 작업 표기(비고 `리팩터(…)`, 대장 변경 절 `유지 → 유지(리팩터)`·`유지 → 폐기`, 승인 열의 따옴표 인용)는
     # 판독을 바꾸지 않는다 — 기록이 있으면 통과, 없으면 두 위반(legacy-cleanup DES-04)

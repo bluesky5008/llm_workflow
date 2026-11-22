@@ -24,9 +24,10 @@ try {
     $tokens = Get-WfContextTokens $t
     if ($null -ne $tokens) {
         # ---- primary: absolute context tokens (no baseline needed) ----
-        $thresholdTokens = 130000
+        # sized for a 1M-token context (2026-11-11 user decision; ADR-012 had 130k / 20k)
+        $thresholdTokens = 400000
         if ($env:CLAUDE_WF_THRESHOLD_TOKENS -match '^\d+$') { $thresholdTokens = [long]$env:CLAUDE_WF_THRESHOLD_TOKENS }
-        $rewarnTokens = 20000
+        $rewarnTokens = 100000
         if ($env:CLAUDE_WF_REWARN_TOKENS -match '^\d+$') { $rewarnTokens = [long]$env:CLAUDE_WF_REWARN_TOKENS }
 
         if ($tokens -lt $thresholdTokens) { exit 0 }

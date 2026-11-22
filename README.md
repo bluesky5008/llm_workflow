@@ -75,7 +75,7 @@ powershell -ExecutionPolicy Bypass -File .\setup\setup_claude.ps1
 스크립트는 [setup/hooks/](./setup/hooks/)의 훅 6종(세션 핸드오프 3종, 회귀 보호 2종, 승인 게이트 1종)도 `~/.claude/settings.json`에 등록합니다. 기존 설정과 사용자 훅은 보존됩니다.
 
 - **세션 시작 재개 주입** — 새 세션·`/clear`·재개 시 미완료 작업 기록(`docs/work/`)이 있으면 재개 지시를 주입합니다.
-- **컨텍스트 임계값 경고** — transcript의 마지막 assistant `usage`에서 읽은 실제 컨텍스트 토큰이 임계값(기본 130000, 환경 변수 `CLAUDE_WF_THRESHOLD_TOKENS`·`CLAUDE_WF_REWARN_TOKENS`로 조정)을 넘으면 다음 계획 항목 경계에서 세션 인계를 수행하라는 지시를 주입합니다. usage를 읽을 수 없으면 transcript 성장량(기본 1500KB, `CLAUDE_WF_THRESHOLD_KB`·`CLAUDE_WF_REWARN_KB`)으로 폴백하며, 주입 문구 끝의 `signal=usage|bytes`로 어느 신호였는지 알 수 있습니다.
+- **컨텍스트 임계값 경고** — transcript의 마지막 assistant `usage`에서 읽은 실제 컨텍스트 토큰이 임계값(기본 400000, 재경고 100000 — 1M 창 기준. 환경 변수 `CLAUDE_WF_THRESHOLD_TOKENS`·`CLAUDE_WF_REWARN_TOKENS`로 조정)을 넘으면 다음 계획 항목 경계에서 세션 인계를 수행하라는 지시를 주입합니다. usage를 읽을 수 없으면 transcript 성장량(기본 1500KB, `CLAUDE_WF_THRESHOLD_KB`·`CLAUDE_WF_REWARN_KB`)으로 폴백하며, 주입 문구 끝의 `signal=usage|bytes`로 어느 신호였는지 알 수 있습니다.
 - **컴팩션 사후 재정렬** — 자동 요약 직후 작업 기록을 정본으로 재확인하라는 지시를 주입합니다.
 - **보호 테스트 편집 확인** — 파일 편집 도구가 테스트 대장(`docs/test-register.md`) `유지` 행의 테스트 파일이나 Claude 설정 파일(`~/.claude/settings*.json`, `<프로젝트>/.claude/settings*.json`)을 바꾸려 하면 실행 전에 사용자 확인을 요청합니다. 대장을 읽지 못하면 확인을 요청합니다(`guard=error`).
 - **종료 시 대장 정합 검사** — 응답을 마치려 할 때 [regression_guard.py](./skills/wf-doc/scripts/regression_guard.py)를 호출해, `유지` 테스트 파일이나 `유지` 행이 작업 기록 `### 테스트 대장 변경`에 기록 없이 바뀌었으면 종료를 1회 막습니다. Python이 필요하며 없으면 이 검사만 건너뜁니다.

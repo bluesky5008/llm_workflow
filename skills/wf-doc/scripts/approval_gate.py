@@ -7,6 +7,7 @@
   열린 작업(닫힘 계열 제외)의 머리말 `기준선`:
     `N/A — 경량 경로…` → 기계 조건 (a) 제품 코드 변경 ∪ 대상 ≤ 5 (b) 민감 파일 아님 (c) 새 파일은 테스트
     그 외 → 값 안의 링크 문서가 모두 상태 approved·completed이고 `## 승인 기록`에 응답 인용이 있어야 승인.
+    상태는 첫 백틱 값만 본다. 응답 인용 = 「응답」이나 「사용자」가 든 줄의 "…"·“…”·「…」.
 출력: 확인이 필요하면 `<작업 ID>: <사유>` 행과 exit 1, 통과는 무출력 exit 0, 내부 오류 exit 2.
 표준 라이브러리와 git만 사용한다. 정본은 REQ-DESIGN-approval-gate DES-01·02·09, ADR-018.
 """
@@ -25,7 +26,8 @@ GATE_FILE = ".wf-gate.json"
 APPROVED = {"approved", "completed"}
 LIGHT_PREFIX = "N/A — 경량 경로"
 MAX_LIGHT_FILES = 5
-QUOTE_RE = re.compile(r"[\"“][^\"”]+[\"”]")
+QUOTE_RE = re.compile(r"[\"“「][^\"”」]+[\"”」]")
+STATE_TOKEN_RE = re.compile(r"`([^`]+)`")
 SENSITIVE = {GATE_FILE, "requirements.txt", "pyproject.toml", "setup.py", "setup.cfg", "package.json",
              "package-lock.json", "go.mod", "Cargo.toml", "pom.xml"}
 SENSITIVE_GLOBS = ["requirements*.txt", "*.csproj", "build.gradle*"]
@@ -64,18 +66,26 @@ def is_product(rel, gate):
     return match("product") or not (rel == "docs" or rel.startswith("docs/"))
 
 
+def state_of(head):
+    """머리말 `상태` 값 — 첫 백틱 값만 읽는다(값 뒤의 괄호 설명은 상태가 아니다)."""
+    if "상태" not in head:
+        return ""
+    m = STATE_TOKEN_RE.search(head["상태"][0])
+    return m.group(1).strip() if m else lw.plain(head["상태"][0])
+
+
 def baseline_problem(doc_path):
     """기준선 문서가 승인되었으면 None, 아니면 사유."""
     if not os.path.isfile(doc_path):
         return "기준선 문서 없음 %s" % os.path.basename(doc_path)
     lines = lw.read_lines(doc_path)
     head = lw.head_fields(lines)
-    state = lw.plain(head["상태"][0]) if "상태" in head else ""
+    state = state_of(head)
     name = os.path.basename(doc_path)
     if state not in APPROVED:
         return "기준선 미승인 %s (%s)" % (name, state or "상태 없음")
     nf, _ = lw.outside_fences(lines)
-    if not any("응답" in t and QUOTE_RE.search(t) for _, t in lw.section(nf, "승인 기록")):
+    if not any(("응답" in t or "사용자" in t) and QUOTE_RE.search(t) for _, t in lw.section(nf, "승인 기록")):
         return "승인 기록에 사용자 응답 인용 없음 %s" % name
     return None
 
@@ -120,10 +130,10 @@ def judge(root, target):
         return []
     reasons = []
     for log in lw.worklogs_under(root):
-        if lw.worklog_state(log) in lw.CLOSED:
+        head = lw.head_fields(lw.read_lines(log))
+        if state_of(head) in lw.CLOSED:
             continue
         wid = os.path.basename(os.path.dirname(log))
-        head = lw.head_fields(lw.read_lines(log))
         value = head["기준선"][0] if "기준선" in head else ""
         if lw.plain(value).startswith(LIGHT_PREFIX):
             problem = light_problem(root, rel, gate)

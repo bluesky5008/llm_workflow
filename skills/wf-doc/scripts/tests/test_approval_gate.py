@@ -101,6 +101,46 @@ def test_response_word_without_quote_asks(tmp_path, capsys):
     assert run(root, "src/a.py", capsys)[0] == 1
 
 
+def test_corner_bracket_quoted_response_passes(tmp_path, capsys):
+    # 잡는 버그: 한국어 낫표 인용(「…」)으로 남긴 사용자 응답을 인용 없음으로 읽어 승인된 작업의 편집마다 묻는다.
+    record = "- 재승인(2026-11-11 20:48): 이 DCR에 대한 사용자 응답 「승인합니다. 계속하세요」."
+    root = repo(tmp_path, [("20260101-a", "in-progress", LINKED, "approved", record)])
+    assert run(root, "src/a.py", capsys) == (0, "")
+
+
+def test_user_quote_row_without_word_response_passes(tmp_path, capsys):
+    # 잡는 버그: 승인 표의 "사용자 「…」" 행(응답이라는 낱말 없이 사용자 말을 인용)을 인용 없음으로 읽는다.
+    record = "| 2026-10-15 18:05 | **승인** — 권장안 | 사용자 「1. 권장안 승인」 |"
+    root = repo(tmp_path, [("20260101-a", "in-progress", LINKED, "approved", record)])
+    assert run(root, "src/a.py", capsys) == (0, "")
+
+
+def test_quote_without_user_or_response_asks(tmp_path, capsys):
+    root = repo(tmp_path, [("20260101-a", "in-progress", LINKED, "approved", '- 2026-10-26 — "승인" 문구를 제안함.')])
+    assert run(root, "src/a.py", capsys)[0] == 1
+
+
+def _note_after_status(root, wid, state, note):
+    path = os.path.join(root, "docs", "work", wid, "req-design.md")
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    write(path, text.replace("> 상태: `%s`" % state, "> 상태: `%s` (%s)" % (state, note)))
+
+
+def test_status_note_after_token_reads_the_token(tmp_path, capsys):
+    # 잡는 버그: 상태 줄의 값 뒤 설명(`approved` (2026-10-21 사용자 승인 …))까지 상태로 읽어 미승인으로 본다.
+    root = repo(tmp_path, [("20260101-a", "in-progress", LINKED, "approved", QUOTED)])
+    _note_after_status(root, "20260101-a", "approved", "2026-10-21 사용자 승인 — 구현은 wf-implement 인계")
+    assert run(root, "src/a.py", capsys) == (0, "")
+
+
+def test_status_note_after_unapproved_token_still_asks(tmp_path, capsys):
+    root = repo(tmp_path, [("20260101-a", "in-progress", LINKED, "draft", QUOTED)])
+    _note_after_status(root, "20260101-a", "draft", "approved 예정")
+    code, out = run(root, "src/a.py", capsys)
+    assert code == 1 and "(draft)" in out
+
+
 def test_table_form_and_completed_doc_pass(tmp_path, capsys):
     root = repo(tmp_path, [("20260101-a", "in-progress", LINKED, "completed", TABLE)])
     assert run(root, "src/a.py", capsys) == (0, "")

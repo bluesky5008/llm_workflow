@@ -36,7 +36,9 @@ def norm(path):
 
 
 def cells(row):
-    return [c.strip() for c in row.strip().strip("|").split("|")]
+    """표 행의 칸. GFM처럼 `\\|`는 칸 경계가 아니라 칸 내용(`|`)이다(wf-common.ps1 Split-WfRow와 같은 규칙)."""
+    t = re.sub(r"(?<!\\)\|+$", "", re.sub(r"^\|+", "", row.strip()))
+    return [c.strip().replace("\\|", "|") for c in re.split(r"(?<!\\)\|", t)]
 
 
 def parse_register(text):

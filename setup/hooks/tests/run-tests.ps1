@@ -51,6 +51,13 @@ function New-UsageLine([int]$InputTokens, [int]$CacheCreate, [int]$CacheRead, [b
     return '{"parentUuid":"p","isSidechain":' + $sc + ',"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"ok"}],"usage":{"input_tokens":' + $InputTokens + ',"cache_creation_input_tokens":' + $CacheCreate + ',"cache_read_input_tokens":' + $CacheRead + ',"cache_creation":{"ephemeral_5m_input_tokens":' + $CacheCreate + ',"ephemeral_1h_input_tokens":0},"output_tokens":12,"service_tier":"standard"}},"uuid":"u"}'
 }
 
+# The shape Claude Code writes since 2026-11 (real transcript, trimmed): usage nests
+# iterations[{..., cache_creation{...}}] two levels deep.
+function New-IterationsUsageLine([int]$InputTokens, [int]$CacheCreate, [int]$CacheRead) {
+    $top = '"input_tokens":' + $InputTokens + ',"cache_creation_input_tokens":' + $CacheCreate + ',"cache_read_input_tokens":' + $CacheRead
+    return '{"parentUuid":"p","isSidechain":false,"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"ok"}],"stop_reason":"tool_use","usage":{' + $top + ',"output_tokens":380,"output_tokens_details":{"thinking_tokens":0},"server_tool_use":{"web_search_requests":0,"web_fetch_requests":0},"service_tier":"standard","cache_creation":{"ephemeral_1h_input_tokens":' + $CacheCreate + ',"ephemeral_5m_input_tokens":0},"inference_geo":"global","iterations":[{"input_tokens":' + $InputTokens + ',"output_tokens":380,"cache_read_input_tokens":' + $CacheRead + ',"cache_creation_input_tokens":' + $CacheCreate + ',"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":' + $CacheCreate + '},"type":"message"}],"speed":"standard","fallback_credit":null},"diagnostics":null},"uuid":"u"}'
+}
+
 function New-ToolResultLine([int]$PayloadBytes) {
     return '{"parentUuid":"u","isSidechain":false,"type":"user","message":{"role":"user","content":[{"tool_use_id":"t","type":"tool_result","content":"' + ('x' * $PayloadBytes) + '"}]},"uuid":"r"}'
 }
@@ -224,8 +231,35 @@ Write-TranscriptLines $t @((New-UsageLine 1000 1000 1000), (New-UsageLine 1000 1
 $out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th6'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
 Assert-True ($out -match 'context_tokens=142000') 'T28 threshold skips sidechain usage lines'
 
+# T28b: usage carrying the newer two-level nesting (iterations[{cache_creation{}}]) is still read,
+# from the top-level keys only (2026-11-11: this shape made every session fall back to bytes)
+$ws = New-TestDir 'th-iterations'
+New-WorkLog $ws '20990109-open' 'in-progress'
+$t = Join-Path $ws 'transcript.jsonl'
+Write-TranscriptLines $t @((New-UsageLine 1000 1000 1000))
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th7'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Write-TranscriptLines $t @((New-UsageLine 1000 1000 1000), (New-IterationsUsageLine 2 1166 125987))
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th7'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($out -match 'context_tokens=127155') 'T28b threshold reads usage with nested iterations'
+
 Remove-Item Env:\CLAUDE_WF_THRESHOLD_TOKENS -ErrorAction SilentlyContinue
 Remove-Item Env:\CLAUDE_WF_REWARN_TOKENS -ErrorAction SilentlyContinue
+
+# T28c: defaults sized for a 1M-token context — silent at 390k, inject at 410k, re-warn only after +100k
+$ws = New-TestDir 'th-defaults'
+New-WorkLog $ws '20990110-open' 'in-progress'
+$t = Join-Path $ws 'transcript.jsonl'
+Write-TranscriptLines $t @((New-IterationsUsageLine 2 1000 1000))
+$out = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th8'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Write-TranscriptLines $t @((New-IterationsUsageLine 0 0 390000))
+$silent = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th8'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Write-TranscriptLines $t @((New-IterationsUsageLine 0 0 410000))
+$warn = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th8'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Write-TranscriptLines $t @((New-IterationsUsageLine 0 0 490000))
+$suppressed = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th8'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Write-TranscriptLines $t @((New-IterationsUsageLine 0 0 511000))
+$rewarn = Invoke-Hook 'wf-context-threshold.ps1' @{ session_id='wf-test-th8'; transcript_path=$t; cwd=$ws; hook_event_name='PostToolUse'; tool_name='Bash' }
+Assert-True ($silent -eq '' -and $warn -match 'threshold=400000' -and $suppressed -eq '' -and $rewarn -match 'hookSpecificOutput') 'T28c threshold defaults 400k / re-warn 100k'
 $env:CLAUDE_WF_THRESHOLD_KB = '50'
 
 # ---------- wf-post-compact.ps1 ----------
@@ -538,6 +572,13 @@ Assert-True ($out -match '"permissionDecision":"ask"' -and $out -match '20260101
 # T55: unreadable hook input -> silent (outer fail-open)
 $out = [string](@('not json' | & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $hooksDir 'wf-approval-gate.ps1')) -join "`n")
 Assert-True ($out -eq '') 'T55 gate silent on unreadable hook input'
+
+# T56: GFM escaped pipe (\|) in a cell is cell content -> register reads, keep-row file asks with its ID, others silent
+$pipeReg = "## $kRegister`n`n| ID | cmd | $kTestFile | $kState | $kLastOk | note |`n|---|---|---|---|---|---|`n| TST-01 | jar tf a.jar \| grep -q x | tests/*.py | $kKeep | 2026-01-02 10:00 $([char]0xB7) abc1234 | end \| |`n"
+$ws = New-GuardRepo 'tg-pipe' $pipeReg
+$outA = Invoke-Guard $ws 'Edit' @{ file_path=(Join-Path $ws 'tests\a.py') }
+$outB = Invoke-Guard $ws 'Edit' @{ file_path=(Join-Path $ws 'src\b.py') }
+Assert-True ($outA -match '"permissionDecision":"ask"' -and $outA -match 'TST-01' -and $outA -notmatch 'guard=error' -and $outB -eq '') 'T56 guard reads a register whose cells hold escaped pipes'
 
 } finally {
     Remove-Item Env:\CLAUDE_WF_GATE_SCRIPT -ErrorAction SilentlyContinue
