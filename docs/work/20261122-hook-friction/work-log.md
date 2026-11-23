@@ -2,7 +2,7 @@
 
 > 문서 유형: `work-log`
 > 작업 ID: `20261122-hook-friction`
-> 상태: `in-progress`
+> 상태: `completed`
 > 기준선: `v1` — [REQ-DESIGN-hook-friction](./req-design.md) (승인일 2026-11-22), [ADR-025](./ADR-025-회귀-보호-판정-단위와-반복-억제.md), [DCR-026](./DCR-026-C층-회귀-보호-판정-완화와-선행-변경-편입.md)
 > 작성일: 2026-11-22
 > 최종 갱신: 2026-11-23
@@ -11,8 +11,8 @@
 ## 요약
 
 - 목적: 회귀 보호 훅(DES-06 가드·DES-07 종료 게이트)과 관련 규정이 위험하지 않은 변경에도 사용자 판정을 강요하는 문제의 설계·승인·구현 기록. 선행 변경 `46600de` 편입 포함.
-- 현재 결론 또는 상태: 구현·검증 완료 — TASK-01~06 완료(6/7), TASK-07은 자체 리뷰·뮤테이션·전체 스위트까지 마치고 완료 보고 관문 승인 대기.
-- 다음 행동: [인계](#인계)의 다음 행동.
+- 현재 결론 또는 상태: 완료(2026-11-23) — 구현 커밋 `32f2f41`, `유지` 4행 clean 통과(92·141·16·16), 대장 TST-01 56→92·TST-02 107→141, C층 v6. 승인 2026-11-23 21:36.
+- 다음 행동: 없음 — 후속은 [후속 작업](#후속-작업).
 
 ## 문서 연결
 
@@ -25,7 +25,7 @@
 
 ## 기준선과 현재 계획
 
-- 기준선: v1(2026-11-22). 계획: [plan.md](./plan.md) TASK-01~07 — 6/7(TASK-05를 TASK-04보다 먼저 수행).
+- 기준선: v1(2026-11-22). 계획: [plan.md](./plan.md) TASK-01~07 — 전부 완료(TASK-05를 TASK-04보다 먼저 수행).
 
 ## 수행 기록
 
@@ -126,6 +126,14 @@
 - Red: 해당 없음 — 문서 변경
 - 결과: 완료 — 2026-11-23 20:23
 
+### 2026-11-23 — TASK-07: 통합과 종결
+
+- 발견 사항: 실세션 기억 성립(Edit). 자체 리뷰 결함 4건 — 추적되던 미추적 파일의 삭제 누락, `diff.external`·textconv가 위반을 가림, 변경 보호 파일 약 75개부터 10초 제한 초과로 게이트 통과. 셸이 저장소 밖으로 가면 훅 `cwd`도 바뀐다.
+- 결정과 이유: 시간 초과는 병렬화(한계만 이동) 대신 묶음 호출. 설치된 훅이 작업 트리를 가리켜 뮤테이션은 사본에서 실행.
+- 검증: `32f2f41` clean · TST-01 92, TST-02 141, TST-04 16, TST-05 16 통과(21:39). 린트 3종 오류 0
+- Red: `python -m pytest skills/wf-doc/scripts/tests/test_regression_guard.py -q` · 786dbe7+dirty · 5 실패(결함 재현 3, git 호출 수 1, 실패한 묶음 1)
+- 결과: 완료 — 2026-11-23 21:41
+
 ## 설계와 달라진 점
 
 - 2026-11-22 TASK-01 — AC-05의 공유 표본을 테스트 소스 안의 실행 시 조합 대신 공유 픽스처 `skills/wf-doc/scripts/tests/fixtures/disable-pattern-samples.txt`(대장 보호 대상 `*.py` 밖)에 둠. AC-05의 검증 대상(같은 표본에 같은 결과, 테스트 파일에 패턴 줄 없음)은 그대로이며 공유 견본 선례(`test-register.sample.md`)와 같음 — §4.1 경미(테스트 내부 세부).
@@ -146,7 +154,7 @@
 ### 결과 요약
 
 - 총계: 257 (성공 252 / 실패 5 / 미수행 0) — 실패 5건은 전부 TST-03 `격리` 행(환경)
-- 기준: `786dbe7` · 워킹트리 dirty(통합 2026-11-23 21:25~21:28). 구현 커밋 clean 재실행은 종결 ②
+- 기준: `32f2f41` · 워킹트리 clean(`유지` 4행, 2026-11-23 21:36~21:39). 전체 스위트 1회와 TST-03은 커밋 전 `786dbe7` · dirty(21:25~21:28, 코드·테스트 같음)
 - 명령:
   - `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 92/92
   - `python -m pytest skills/wf-doc/scripts/tests -q` 141(TST-04 16건 포함, TST-04 단독 16)
@@ -167,7 +175,7 @@
 | VER-05 | AC-05 | 공유 표본 pytest·T70·T71, 추가 줄 패턴 대조 | 성공 | — | 두 테스트 파일에 더한 436줄 중 패턴에 맞는 줄 0(21:19) |
 | VER-06 | AC-06 | `lint_skill.py`, grep | 성공 | — | 오류 0, wf-implement 2,826어절, §9 앵커·포인터·메시지 2개 |
 | VER-07 | AC-07 | DCR-026 변경 항목 대조 | 성공 | — | TASK-06 23항목, C층 v6 |
-| VER-08 | AC-08 | 설치 항목 확인, `유지` 4행, 린트, `regression_guard.py .` | 미수행 | — | 설치 7개·중복 없음, `유지` 4행 통과, 린트 오류 0, 판정 exit 0. 앞 항목은 모두 통과했고 `completed` 전이 뒤 HEAD 판정만 남아 전체를 미수행으로 둔다 |
+| VER-08 | AC-08 | 설치 항목 확인, `유지` 4행, 린트, `regression_guard.py .` | 성공 | — | 설치 7개·중복 없음, `32f2f41` clean `유지` 4행, 린트 오류 0. `completed` 전이 상태의 판정 exit 0(종결 내용을 커밋한 저장소 사본의 HEAD에서 실행) |
 | VER-09 | NFR-03 | 훅 지연(중앙값, n=11)·판정 규모 | 성공 | — | PowerShell 기동 257ms 기준 가드 무해당 585·순수 추가 723·`ask` 785, PostToolUse 570, 종료 게이트 1,213ms(n=7). 변경 보호 파일 200개 판정 25.67초 → 1.35초 |
 
 ### 실패와 미수행 분석
@@ -187,38 +195,48 @@
 | TST-02 Missing | 등록(순수 추가) | 통합 뮤테이션 survived — `regression_guard.py` B5(다른 지문으로 해소)·B6(다른 줄의 지문으로 해소)·B7(패턴 대소문자 구분)·B9(추적 이진 통과) → pytest 4건 추가 후 kill. 함께 보강: B4(지문이 첫 줄만 반영)·B8(미추적 이진), 표본 없던 패턴 7개 — 추가 뒤 kill | 해당 없음 | 승인 2026-11-23 21:36 |
 | TST-01 Missing | 등록(순수 추가) | 통합 뮤테이션 survived — `wf-common.ps1` C1(`replace_all` 무시)·C2(줄 비교 대소문자 무시)·C5(패턴 대소문자 구분), `wf-test-guard.ps1` G3(기록 실패 때 `ask` 출력), `wf-stop-gate.ps1` S1(`stopKeys` 덮어쓰기)·S3(키에서 파일 누락) → T84~T89 추가 후 kill | 해당 없음 | 승인 2026-11-23 21:36 |
 
-- 승인 응답: 완료 보고 관문 요청(대장 변경, 커밋, `origin/main` push)에 사용자 "전부 승인"(2026-11-23 21:36).
+- 승인 응답: 완료 보고 관문 요청(대장 변경, 커밋, `origin/main` push)에 사용자 "전부 승인"(2026-11-23 21:36). 요청의 4행은 Missing 2행을 TST-01·02 건수에 포함해 제시했다.
+- 재정비 관문(통합): Breaking 9(T18·T19·T21, pytest 6 — DCR-026) · Stale 0 · Missing 10(survived → 추가). 커버리지 재계산 생략(도구 없음). 폐기·병합·리팩터 0.
 
 ## 완료 보고
 
 ### 완료 상태
 
-- 결과: TBD
-- 완료 판단 근거: TBD
+- 결과: 완료
+- 완료 판단 근거: AC-01~08 성공(VER-01~09), `유지` 4행 clean 통과(`32f2f41`), 린트 3종 0 오류, 자체 리뷰 결함 4건 수정·재검증, 대장 변경 승인(21:36)
 
 ### 주요 변경
 
-TBD
+- B층 `regression_guard.py` — 파일 단위에서 변경 내용 판정으로(삭제 줄·비활성화 패턴), 지문 출력과 (행 ID + 지문) 해소, 미추적 파일 판정, 묶음 호출. 공유 패턴 파일 `test-disable-patterns.txt`
+- C층 가드 순수 추가 통과·세션 기억(PostToolUse), 종료 게이트 반복 억제, 설치 7개, 메시지 2개
+- 규정 verification-depth §9(세 분류·기록 형식), wf-implement 주의 ④·§3.3, 경량 경로 §4, templates 예시
+- REQ·DESIGN v6(DCR-026, ADR-025), 선행 변경 `46600de` 사후 기록, README
+- 테스트 TST-01 56→92, TST-02 107→141
 
 ### 통합 상태
 
-TBD
+- 설계 커밋 `786dbe7`, 구현 커밋 `32f2f41`, 이 종결 커밋과 함께 origin/main push 대상(승인 2026-11-23 21:36, 완료 보고 관문 "전부 승인"). 훅은 전역 설치됨(2026-11-23 20:13)
 
 ### 남은 위험과 제한
 
-TBD
+- 패턴 밖의 무력화 삽입(조건부 skip, 환경 변수)은 순수 추가로 통과한다(RISK-01, ADR-025 감수 단점).
+- 게이트 억제로, 차단을 무시하면 그 세션에서는 같은 위반을 다시 막지 않는다(RISK-03).
+- 세션 기억은 Edit만 실세션 확인. Write·MultiEdit와 `bypassPermissions` 모드는 미확인.
+- 편집마다 PostToolUse 훅 약 570ms(PowerShell 기동 257ms 포함) — RISK-04의 예상 250ms보다 크다.
+- 세션의 작업 디렉터리가 저장소 루트가 아니면 가드·게이트가 무출력이다(기존 동작). 세션 중 셸이 저장소 밖으로 이동해도 같다.
+- 선행 변경 `46600de`는 TDD Red 증거가 없다(RISK-07).
 
 ### 후속 작업
 
-TBD
+- 편집당 지연 축소 — 편집 도구에 걸린 PowerShell 훅 통합 검토(RISK-04)
+- 저장소 루트가 아닌 `cwd`에서의 보호(훅이 저장소 루트를 찾기) 검토
+- Write·MultiEdit 실세션 기억과 `bypassPermissions` 관찰(사용자)
+- verification-depth §7 「파이프 금지」를 이스케이프 판독에 맞출지 검토
+- REQ·DESIGN 추적표 FR-08의 「통합 대기」 표기 정정(20261026-approval-gate는 완료됨)
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement §3.4~§3.6 — TASK-07 통합과 종결
-- 시작 조건: 충족(의존 TASK-01~06 완료). 새 세션을 저장소 루트(`llm_workflow`)에서 연다 — 아니면 가드·게이트가 무출력
-- 입력 문서와 기준선: [REQ-DESIGN-hook-friction](./req-design.md) v1 — NFR-01~05, AC-01~08, [plan.md](./plan.md) TASK-07, wf-implement `review-checklist.md`·`closing.md`·verification-depth §3·§5
-- 완료된 항목: 설계·승인(v1), 계획, TASK-01~06, 전역 훅 설치(7개), DCR-026 `completed`
-- 미완료 항목: TASK-07(진행 중). 미커밋 변경: `git status` 26파일(TASK-07에서 `disable-pattern-list.txt` 추가) — TASK-01(4), TASK-02~04(7), TASK-05(4), TASK-06(기준선 2·닫힌 작업 req-design·approval-request·README·결정 등록부·DCR-026), 작업 문서 3 — 커밋은 완료 보고 관문 뒤(closing.md ①)
-- 차단 요인: 없음
-- 다음 행동: TASK-07 — 승인됨(21:36, 대장 변경·커밋·push). closing.md ②~⑥: 구현 커밋에서 clean `유지` 4행(92·141·16·16), 대장 SHA·재정비 기록, plan·work-log·status 종결, `docs/` 전용 확인, 종결 커밋, push. Red·측정값은 검증 결과 절.
-- 재개 프롬프트: 작업 20261122-hook-friction 재개 — docs/work/20261122-hook-friction/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.
+- 다음 단계 또는 워크플로우: 없음
+- 완료된 항목: 설계·승인(v1), TASK-01~07, ADR-025·DCR-026 적용(C층 v6), TST-01 92·TST-02 141, 훅 설치(7개)
+- 미완료 항목: 없음
+- 다음 행동: 없음
