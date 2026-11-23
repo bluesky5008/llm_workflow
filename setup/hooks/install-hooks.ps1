@@ -50,7 +50,8 @@ function Install-WfHooks([string]$SettingsPath, [string]$HooksDir) {
             (New-WfEntry 'compact' (Join-Path $HooksDir 'wf-post-compact.ps1'))
         )
         PostToolUse  = @(
-            (New-WfEntry '*' (Join-Path $HooksDir 'wf-context-threshold.ps1'))
+            (New-WfEntry '*' (Join-Path $HooksDir 'wf-context-threshold.ps1')),
+            (New-WfEntry 'Edit|Write|MultiEdit|NotebookEdit' (Join-Path $HooksDir 'wf-test-guard.ps1'))
         )
         PreToolUse   = @(
             (New-WfEntry 'Edit|Write|MultiEdit|NotebookEdit' (Join-Path $HooksDir 'wf-test-guard.ps1')),

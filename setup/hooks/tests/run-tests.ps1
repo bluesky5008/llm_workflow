@@ -442,7 +442,7 @@ Assert-True ($out -match '"decision":"block"' -and $out -match 'TST-01' -and $ou
 $installPath = Join-Path $hooksDir 'install-hooks.ps1'
 if (Test-Path $installPath) { . $installPath }
 else {
-    Assert-True $false 'T18 fresh install registers 2 SessionStart + 1 PostToolUse entries'
+    Assert-True $false 'T18 fresh install registers 2 SessionStart + 2 PostToolUse entries'
     Assert-True $false 'T19 rerun does not duplicate entries'
     Assert-True $false 'T20 foreign settings and hooks preserved alongside ours'
     Assert-True $false 'T21 stale wf entries retargeted to current hooks dir'
@@ -457,17 +457,17 @@ function Get-WfEntryCounts([string]$Path) {
     return @{ SessionStart = $ss.Count; PostToolUse = $pt.Count; Parsed = $s }
 }
 
-# T18: fresh install creates settings with 2 SessionStart entries + 1 PostToolUse entry
+# T18: fresh install creates settings with 2 SessionStart entries + 2 PostToolUse entries (threshold, guard memory)
 $dir = New-TestDir 'inst-fresh'
 $settings = Join-Path $dir 'settings.json'
 Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
 $c = Get-WfEntryCounts $settings
-Assert-True ($c.SessionStart -eq 2 -and $c.PostToolUse -eq 1) 'T18 fresh install registers 2 SessionStart + 1 PostToolUse entries'
+Assert-True ($c.SessionStart -eq 2 -and $c.PostToolUse -eq 2) 'T18 fresh install registers 2 SessionStart + 2 PostToolUse entries'
 
 # T19: rerun is idempotent
 Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
 $c = Get-WfEntryCounts $settings
-Assert-True ($c.SessionStart -eq 2 -and $c.PostToolUse -eq 1) 'T19 rerun does not duplicate entries'
+Assert-True ($c.SessionStart -eq 2 -and $c.PostToolUse -eq 2) 'T19 rerun does not duplicate entries'
 
 # T20: foreign settings and foreign hooks preserved
 $dir = New-TestDir 'inst-foreign'
@@ -486,7 +486,7 @@ Set-Content -Path $settings -Value $staleJson -Encoding UTF8
 Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
 $c = Get-WfEntryCounts $settings
 $hasOld = (Get-Content $settings -Raw -Encoding UTF8) -match 'old-repo'
-Assert-True ($c.SessionStart -eq 3 -and $c.PostToolUse -eq 1 -and -not $hasOld) 'T21 stale wf entries retargeted to current hooks dir'
+Assert-True ($c.SessionStart -eq 3 -and $c.PostToolUse -eq 2 -and -not $hasOld) 'T21 stale wf entries retargeted to current hooks dir'
 
 # T45: fresh install also registers the regression-guard hooks (PreToolUse guard, Stop gate)
 $dir = New-TestDir 'inst-guard'
@@ -502,6 +502,12 @@ Assert-True ($preOk -and $stopOk) 'T45 install registers 2 PreToolUse entries (t
 Install-WfHooks -SettingsPath $settings -HooksDir $hooksDir
 $h = (Get-Content $settings -Raw -Encoding UTF8 | ConvertFrom-Json).hooks
 Assert-True (@($h.PreToolUse | Where-Object { $_ }).Count -eq 2 -and @($h.Stop | Where-Object { $_ }).Count -eq 1) 'T46 rerun does not duplicate guard entries'
+
+# T83: after the rerun the second PostToolUse entry is the test guard on the edit tools; 7 entries in all (v6 DES-06)
+$post = @($h.PostToolUse | Where-Object { $_ })
+$total = 0
+foreach ($ev in 'SessionStart', 'PostToolUse', 'PreToolUse', 'Stop') { $total += @($h.$ev | Where-Object { $_ }).Count }
+Assert-True ($post.Count -eq 2 -and $post[0].hooks[0].args[-1] -like '*\wf-context-threshold.ps1' -and $post[1].matcher -eq 'Edit|Write|MultiEdit|NotebookEdit' -and $post[1].hooks[0].args[-1] -like '*\wf-test-guard.ps1' -and $total -eq 7) 'T83 install registers the test guard on PostToolUse, 7 entries in all'
 }
 
 # ---------- wf-approval-gate.ps1 (DES-08 v5, ADR-018) ----------
@@ -579,6 +585,178 @@ $ws = New-GuardRepo 'tg-pipe' $pipeReg
 $outA = Invoke-Guard $ws 'Edit' @{ file_path=(Join-Path $ws 'tests\a.py') }
 $outB = Invoke-Guard $ws 'Edit' @{ file_path=(Join-Path $ws 'src\b.py') }
 Assert-True ($outA -match '"permissionDecision":"ask"' -and $outA -match 'TST-01' -and $outA -notmatch 'guard=error' -and $outB -eq '') 'T56 guard reads a register whose cells hold escaped pipes'
+
+# ---------- wf-test-guard.ps1 : pure addition and session memory (v6 DES-03/04) ----------
+
+# Guard call with any event and session; -Depth 10 keeps MultiEdit edits whole (Invoke-Hook stops at depth 2).
+function Invoke-GuardAs([string]$Sid, [string]$HookEvent, [string]$Cwd, [string]$Tool, [hashtable]$ToolInput) {
+    $json = ConvertTo-Json -InputObject @{ session_id=$Sid; cwd=$Cwd; hook_event_name=$HookEvent; tool_name=$Tool; tool_input=$ToolInput; permission_mode='default' } -Compress -Depth 10
+    return [string](@($json | & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $hooksDir 'wf-test-guard.ps1')) -join "`n")
+}
+$ask = '"permissionDecision":"ask"'
+$wsPure = New-GuardRepo 'tg-pure' $fixtureText
+$tA = Join-Path $wsPure 'skills\wf-doc\scripts\tests\t_a.py'
+New-Item -ItemType Directory -Force (Split-Path $tA) | Out-Null
+[IO.File]::WriteAllText($tA, "def test_a():`r`n    assert a == 1`r`n    assert b == 2`r`n", (New-Object Text.UTF8Encoding($false)))
+# Disabling-pattern text is assembled at run time so that this file holds no matching line (AC-05).
+$skipMark = '@pytest.mark.' + 'skip'
+
+# T57: Edit adding a line at a line boundary of a CRLF file (old/new in LF) -> silent
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string="    assert a == 1`n"; new_string="    assert a == 1`n    assert c == 3`n" }
+Assert-True ($out -eq '') 'T57 guard silent for an Edit that only adds lines'
+
+# T58..T60: Edits changing characters inside a line -> ask (comment out, weaken, split)
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string='assert a'; new_string='# assert a' }
+Assert-True ($out -match $ask) 'T58 guard asks when an Edit comments out a line'
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string='== 1'; new_string='== 1 or True' }
+Assert-True ($out -match $ask) 'T59 guard asks when an Edit weakens a line'
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string='assert a == 1'; new_string="assert (a ==`n        1)" }
+Assert-True ($out -match $ask) 'T60 guard asks when an Edit splits a line'
+
+# T61: an added line carries a disabling pattern -> ask
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string="def test_a():`n"; new_string="$skipMark`ndef test_a():`n" }
+Assert-True ($out -match $ask) 'T61 guard asks when an added line disables a test'
+
+# T62/T63: Write creating a test file -> silent without a pattern, ask with one
+$tNew = Join-Path $wsPure 'skills\wf-doc\scripts\tests\t_new.py'
+$out = Invoke-Guard $wsPure 'Write' @{ file_path=$tNew; content="def test_new():`n    assert 1`n" }
+Assert-True ($out -eq '') 'T62 guard silent for a Write that creates a test file'
+$out = Invoke-Guard $wsPure 'Write' @{ file_path=$tNew; content="$skipMark`ndef test_new():`n    assert 1`n" }
+Assert-True ($out -match $ask) 'T63 guard asks for a created test file that disables a test'
+
+# T64/T65: Write over an existing test file -> silent when every old line stays in order, ask when one is dropped
+$out = Invoke-Guard $wsPure 'Write' @{ file_path=$tA; content="def test_a():`n    assert a == 1`n    assert b == 2`n`ndef test_b():`n    assert 3`n" }
+Assert-True ($out -eq '') 'T64 guard silent for a Write that keeps every old line in order'
+$out = Invoke-Guard $wsPure 'Write' @{ file_path=$tA; content="def test_a():`n    assert a == 1`n" }
+Assert-True ($out -match $ask) 'T65 guard asks for a Write that drops a line'
+
+# T66/T67: MultiEdit is judged on the result of all its edits applied in order
+$addC = @{ old_string="    assert a == 1`n"; new_string="    assert a == 1`n    assert c == 3`n" }
+$out = Invoke-GuardAs 'wf-test-tg' 'PreToolUse' $wsPure 'MultiEdit' @{ file_path=$tA; edits=@($addC, @{ old_string="    assert c == 3`n"; new_string="    assert c == 3`n    assert d == 4`n" }) }
+Assert-True ($out -eq '') 'T66 guard silent for a MultiEdit whose edits only add lines'
+$out = Invoke-GuardAs 'wf-test-tg' 'PreToolUse' $wsPure 'MultiEdit' @{ file_path=$tA; edits=@($addC, @{ old_string='== 2'; new_string='== 2 or True' }) }
+Assert-True ($out -match $ask) 'T67 guard asks for a MultiEdit with one weakening edit'
+
+# T68: old_string absent from the file -> ask (fail-to-ask)
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string='assert z == 9'; new_string="assert z == 9`n    assert y == 8" }
+Assert-True ($out -match $ask) 'T68 guard asks when old_string is not in the file'
+
+# T69: gate settings file -> ask even for a pure addition (NotebookEdit always asks: T36)
+$out = Invoke-Guard $wsPure 'Write' @{ file_path=(Join-Path $wsPure '.claude\settings.local.json'); content="{}`n" }
+Assert-True ($out -match $ask) 'T69 guard asks for a gate settings file even when only lines are added'
+
+# T70/T71: shared disabling-pattern samples, the same verdicts as test_regression_guard.py (AC-05)
+$sampleFile = Join-Path (Split-Path (Split-Path $hooksDir)) 'skills\wf-doc\scripts\tests\fixtures\disable-pattern-samples.txt'
+$samples = @([IO.File]::ReadAllLines($sampleFile, [Text.Encoding]::UTF8) | Where-Object { $_ -and -not $_.StartsWith('#') })
+$hitLines = @($samples | Where-Object { $_[0] -eq '1' } | ForEach-Object { $_.Substring(2) })
+$quietLines = @($samples | Where-Object { $_[0] -eq '0' } | ForEach-Object { $_.Substring(2) })
+$missed = @($hitLines | Where-Object { (Invoke-Guard $wsPure 'Write' @{ file_path=$tNew; content="$_`n" }) -notmatch $ask })
+Assert-True ($hitLines.Count -eq 4 -and $missed.Count -eq 0) ('T70 guard asks for every matching shared sample ' + ($missed -join '; '))
+# T71: ordinary words of existing protected files ('... skips ...', Select-Object -Skip 2) added as lines -> silent
+$tP = Join-Path $wsPure 'setup\hooks\tests\run-tests.ps1'
+New-Item -ItemType Directory -Force (Split-Path $tP) | Out-Null
+[IO.File]::WriteAllText($tP, "# suite`r`n", (New-Object Text.UTF8Encoding($false)))
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tP; old_string="# suite`n"; new_string=("# suite`n" + ($quietLines -join "`n") + "`n") }
+Assert-True ($quietLines.Count -eq 4 -and $out -eq '') 'T71 guard silent for added lines of the shared non-matching samples'
+
+# T72..T76: session memory (FR-04) - once an asked test-file edit runs (PostToolUse with the
+# same path and input hash), that file is not asked again in the same session
+$weakA = @{ file_path=$tA; old_string='== 1'; new_string='== 1 or True' }
+$weakB = @{ file_path=$tA; old_string='== 2'; new_string='== 2 or True' }
+$pre1 = Invoke-GuardAs 'wf-test-gm1' 'PreToolUse' $wsPure 'Edit' $weakA
+$post1 = Invoke-GuardAs 'wf-test-gm1' 'PostToolUse' $wsPure 'Edit' $weakA
+$again = Invoke-GuardAs 'wf-test-gm1' 'PreToolUse' $wsPure 'Edit' $weakB
+Assert-True ($pre1 -match $ask -and $post1 -eq '' -and $again -eq '') 'T72 guard stops asking for a test file once an asked edit of it ran'
+$other = Invoke-GuardAs 'wf-test-gm2' 'PreToolUse' $wsPure 'Edit' $weakB
+Assert-True ($other -match $ask) 'T73 guard memory does not cross sessions'
+
+# T74: a declined ask (no PostToolUse), then a pure edit and its PostToolUse -> the next non-pure edit still asks
+$addD = @{ file_path=$tA; old_string="    assert b == 2`n"; new_string="    assert b == 2`n    assert d == 4`n" }
+$declined = Invoke-GuardAs 'wf-test-gm3' 'PreToolUse' $wsPure 'Edit' $weakA
+$pureEdit = Invoke-GuardAs 'wf-test-gm3' 'PreToolUse' $wsPure 'Edit' $addD
+$purePost = Invoke-GuardAs 'wf-test-gm3' 'PostToolUse' $wsPure 'Edit' $addD
+$next = Invoke-GuardAs 'wf-test-gm3' 'PreToolUse' $wsPure 'Edit' $weakB
+Assert-True ($declined -match $ask -and $pureEdit -eq '' -and $purePost -eq '' -and $next -match $ask) 'T74 guard is not approved by a pure edit that follows a declined ask'
+
+# T75/T76: gate settings and NotebookEdit are never remembered -> ask again after their PostToolUse
+$setW = @{ file_path=(Join-Path $wsPure '.claude\settings.local.json'); content="{}`n" }
+$null = Invoke-GuardAs 'wf-test-gm4' 'PreToolUse' $wsPure 'Write' $setW
+$null = Invoke-GuardAs 'wf-test-gm4' 'PostToolUse' $wsPure 'Write' $setW
+$out = Invoke-GuardAs 'wf-test-gm4' 'PreToolUse' $wsPure 'Write' $setW
+Assert-True ($out -match $ask) 'T75 guard keeps asking for gate settings after their PostToolUse'
+$nb = @{ notebook_path=(Join-Path $wsPure 'skills\wf-doc\scripts\tests\nb.py'); new_source='x = 1' }
+$null = Invoke-GuardAs 'wf-test-gm4' 'PreToolUse' $wsPure 'NotebookEdit' $nb
+$null = Invoke-GuardAs 'wf-test-gm4' 'PostToolUse' $wsPure 'NotebookEdit' $nb
+$out = Invoke-GuardAs 'wf-test-gm4' 'PreToolUse' $wsPure 'NotebookEdit' $nb
+Assert-True ($out -match $ask) 'T76 guard keeps asking for NotebookEdit after its PostToolUse'
+
+# T84..T86: replace_all reaches every match; letter case counts in lines, not in disabling patterns
+$tR = Join-Path $wsPure 'skills\wf-doc\scripts\tests\t_r.py'
+[IO.File]::WriteAllText($tR, "one`nstone_age`n", (New-Object Text.UTF8Encoding($false)))
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tR; old_string='one'; new_string="one`none"; replace_all=$true }
+Assert-True ($out -match $ask) 'T84 guard applies replace_all to every match'
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string='assert a'; new_string='assert A' }
+Assert-True ($out -match $ask) 'T85 guard asks when an Edit changes only letter case'
+$out = Invoke-Guard $wsPure 'Edit' @{ file_path=$tA; old_string="def test_a():`n"; new_string=($skipMark.ToUpper() + "`ndef test_a():`n") }
+Assert-True ($out -match $ask) 'T86 guard matches disabling patterns regardless of case'
+
+# T87: guard state that cannot be written at PostToolUse -> silent (NFR-04)
+$null = Invoke-GuardAs 'wf-test-gm5' 'PreToolUse' $wsPure 'Edit' $weakA
+$locked = Get-Item (Join-Path $env:TEMP 'claude-wf\wf-test-gm5.guard.json')
+$locked.IsReadOnly = $true
+$out = Invoke-GuardAs 'wf-test-gm5' 'PostToolUse' $wsPure 'Edit' $weakA
+$locked.IsReadOnly = $false
+Assert-True ($out -eq '') 'T87 guard silent when its state cannot be written at PostToolUse'
+
+# ---------- wf-stop-gate.ps1 : per-session repeat suppression (v6 DES-05) ----------
+
+# Key = row ID|file|print of each judge output line; a stop blocks only when some key is new to the session.
+$jAB = New-FakeJudge 'keysAB' 1 'TST-01: x tests/a.py [aaaaaaaa]\nTST-02: x tests/b.py [bbbbbbbb]'
+$jA = New-FakeJudge 'keysA' 1 'TST-01: x tests/a.py [aaaaaaaa]'
+$jA2 = New-FakeJudge 'keysA2' 1 'TST-01: x tests/a.py [cccccccc]'
+$jABC = New-FakeJudge 'keysABC' 1 'TST-01: x tests/a.py [aaaaaaaa]\nTST-02: x tests/b.py [bbbbbbbb]\nTST-03: x tests/c.py [dddddddd]'
+function Invoke-StopGateAs([string]$Sid, [string]$Judge) {
+    $env:CLAUDE_WF_GUARD_SCRIPT = $Judge
+    return Invoke-Hook 'wf-stop-gate.ps1' @{ session_id=$Sid; cwd=$wsSg; hook_event_name='Stop'; stop_hook_active=$false }
+}
+$block = '"decision":"block"'
+
+# T77: the same key set at a second stop of the session -> silent
+$first = Invoke-StopGateAs 'wf-test-sm1' $jAB
+$second = Invoke-StopGateAs 'wf-test-sm1' $jAB
+Assert-True ($first -match $block -and $second -eq '') 'T77 stop-gate does not block twice for the same violations'
+
+# T78: only already-blocked keys remain (one violation resolved) -> silent
+$out = Invoke-StopGateAs 'wf-test-sm1' $jA
+Assert-True ($out -eq '') 'T78 stop-gate silent when only already-blocked violations remain'
+
+# T79/T80: a new key -> block (print changed; row added)
+$out = Invoke-StopGateAs 'wf-test-sm1' $jA2
+Assert-True ($out -match $block -and $out -match 'cccccccc') 'T79 stop-gate blocks again when a violation print changes'
+$out = Invoke-StopGateAs 'wf-test-sm1' $jABC
+Assert-True ($out -match $block -and $out -match 'TST-03') 'T80 stop-gate blocks again when a new violation appears'
+
+# T81: another session -> block (suppression is per session)
+$out = Invoke-StopGateAs 'wf-test-sm2' $jAB
+Assert-True ($out -match $block) 'T81 stop-gate suppression does not cross sessions'
+
+# T82: guard state that cannot be saved (a directory in its place) -> block every time (NFR-04)
+$stuck = Join-Path $env:TEMP 'claude-wf\wf-test-sm3.guard.json'
+New-Item -ItemType Directory -Force $stuck | Out-Null
+$first = Invoke-StopGateAs 'wf-test-sm3' $jAB
+$second = Invoke-StopGateAs 'wf-test-sm3' $jAB
+Remove-Item $stuck
+Assert-True ($first -match $block -and $second -match $block) 'T82 stop-gate blocks without suppression when its state cannot be saved'
+
+# T88: a key blocked earlier stays suppressed after a newer one; T89: the same print in another file is a new key
+$first = Invoke-StopGateAs 'wf-test-sm4' $jA
+$second = Invoke-StopGateAs 'wf-test-sm4' $jA2
+$third = Invoke-StopGateAs 'wf-test-sm4' $jA
+Assert-True ($first -match $block -and $second -match $block -and $third -eq '') 'T88 stop-gate keeps earlier keys suppressed after a new one'
+$jB = New-FakeJudge 'keysB' 1 'TST-01: x tests/b.py [aaaaaaaa]'
+$out = Invoke-StopGateAs 'wf-test-sm4' $jB
+Assert-True ($out -match $block) 'T89 stop-gate blocks for the same print in another file'
+Remove-Item Env:\CLAUDE_WF_GUARD_SCRIPT -ErrorAction SilentlyContinue
 
 } finally {
     Remove-Item Env:\CLAUDE_WF_GATE_SCRIPT -ErrorAction SilentlyContinue

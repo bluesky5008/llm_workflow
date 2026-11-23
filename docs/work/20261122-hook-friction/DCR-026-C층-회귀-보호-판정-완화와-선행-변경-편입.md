@@ -2,17 +2,17 @@
 
 > 문서 유형: `dcr`
 > 작업 ID: `20261122-hook-friction`
-> 상태: `approved`
+> 상태: `completed`
 > 기준선: `v5 → v6` (승인일 2026-11-22) ([REQ-llm-workflow](../../requirements.md)·[DESIGN-llm-workflow](../../design.md))
 > 작성일: 2026-11-22
-> 최종 갱신: 2026-11-22
+> 최종 갱신: 2026-11-23
 > 관련 문서: [ADR-025](./ADR-025-회귀-보호-판정-단위와-반복-억제.md), [REQ-DESIGN-hook-friction](./req-design.md), [REQ-llm-workflow: 요구사항](../../requirements.md), [DESIGN-llm-workflow: 설계](../../design.md), [WORK-20261122-hook-friction: 작업 기록](./work-log.md), [DCR-015](../20261025-regression-guard/DCR-015-C층-회귀-보호-훅-추가.md), [DCR-019](../20261026-approval-gate/DCR-019-C층-승인-게이트-훅-추가.md), [ADR-012](../20261018-context-signal-v2/ADR-012-컨텍스트-신호-usage-파싱.md)
 
 ## 요약
 
 - 목적: C층 회귀 보호(DES-06·07)의 위반 정의를 변경 내용 단위로 바꾸고 세션 반복을 억제한다. 저장소 밖 선행 변경 `46600de`가 바꾼 C층·B층 동작을 기준선에 사후 기록한다.
-- 현재 결론 또는 상태: 승인(2026-11-22) — REQ·DESIGN v6 반영은 구현(REQ-DESIGN-hook-friction DES-09)에서.
-- 다음 행동: wf-implement 구현.
+- 현재 결론 또는 상태: 완료(2026-11-23) — 승인(2026-11-22), REQ·DESIGN v6 반영(TASK-06). 구현 커밋은 작업 통합(TASK-07)에서.
+- 다음 행동: 없음.
 
 ## 문서 연결
 
@@ -102,6 +102,7 @@
 | 2026-11-22 | 적대 검토 1라운드 반영 — 제안 설계 1·2(메모리 적용 판정, 해시 일치 기억, `--no-renames`, 지문 단위 해소·키 억제), 변경 항목(FR-07, 데이터와 인터페이스, REQ-DESIGN-regression-guard DES-08), 검증 방법(T18·T19·T21 `Breaking`) | 적대 검토 1라운드 지적 1~4·7·9·12 | draft 유지 | Claude(작성) |
 | 2026-11-22 | 적대 검토 2라운드 반영 — 제안 설계 3 범위, DES-07 행 키 집합, 영향 범위 해소 계약·전역 영향. 승인 요청 | 적대 검토 2라운드 지적 19~22 | draft → awaiting-approval | Claude(작성) |
 | 2026-11-22 | 승인 | 사용자 응답 "승인합니다" | awaiting-approval → approved | 사용자(승인) |
+| 2026-11-23 | 완료 — REQ·DESIGN v6 반영(TASK-06), 구현은 TASK-01~05(구현 커밋은 TASK-07 통합에서) | wf-implement TASK-06 | approved → completed | Claude(작성) |
 
 ## 인계
 

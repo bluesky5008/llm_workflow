@@ -1,4 +1,4 @@
-# Shared helpers for llm_workflow hooks (DES-01..DES-03, DES-05; v4 DES-06).
+# Shared helpers for llm_workflow hooks (DES-01..DES-03, DES-05; v4 DES-06; v6 DES-04).
 # ASCII-only source: PS 5.1 misreads Korean literals in BOM-less UTF-8 scripts.
 # Korean text lives in messages/*.md and is read with explicit UTF-8 encoding.
 # Every hook is fail-open: callers wrap everything in try/catch and exit 0
@@ -34,12 +34,12 @@ function Get-WfOpenWorkLogs([string]$WorkDir) {
     return ,$open
 }
 
-function Get-WfStatePath([object]$HookInput) {
+function Get-WfStatePath([object]$HookInput, [string]$Suffix = '') {
     $dir = Join-Path $env:TEMP 'claude-wf'
     New-Item -ItemType Directory -Force $dir | Out-Null
     $sid = $HookInput.session_id
     if (-not $sid) { $sid = 'unknown' }
-    return Join-Path $dir "$sid.json"
+    return Join-Path $dir "$sid$Suffix.json"
 }
 
 function Get-WfTranscriptBytes([object]$HookInput) {
@@ -108,6 +108,25 @@ function Write-WfState([string]$Path, [long]$BaselineBytes, [object]$LastWarnedB
     }
     $json = ConvertTo-Json -InputObject $state -Compress
     [IO.File]::WriteAllText($Path, $json, (New-Object Text.UTF8Encoding($false)))
+}
+
+# v6 DES-04: per-session guard memory {asked:[{path,hash}], approved:[path], stopKeys:[key]}
+# in <sid>.guard.json, apart from <sid>.json (Write-WfState rewrites that whole object).
+# Read-modify-write without a lock: a lost update only asks or blocks again, and an
+# unreadable file reads as no memory (NFR-04).
+function Get-WfGuardState([object]$HookInput) {
+    $state = @{ asked = @(); approved = @(); stopKeys = @() }
+    try {
+        $ErrorActionPreference = 'Stop'   # any read error lands in the catch, not on stderr
+        $saved = Read-WfState (Get-WfStatePath $HookInput '.guard')
+        foreach ($k in @($state.Keys)) { if ($saved.$k) { $state[$k] = @($saved.$k) } }
+    } catch { }
+    return $state
+}
+
+function Set-WfGuardState([object]$HookInput, [hashtable]$State) {
+    $json = ConvertTo-Json -InputObject $State -Compress -Depth 5
+    [IO.File]::WriteAllText((Get-WfStatePath $HookInput '.guard'), $json, (New-Object Text.UTF8Encoding($false)))
 }
 
 function Get-WfMessage([string]$Name) {
@@ -198,4 +217,63 @@ function Get-WfKeptTestFiles([string]$RegisterPath) {
         $kept[$c[0]] = @($c[$fi].Split(';') | Where-Object { $_.Trim() } | ForEach-Object { ConvertTo-WfKey $_ })
     }
     return $kept
+}
+
+# v6 DES-02/04: the shared disabling patterns, read as regression_guard.load_patterns
+# reads them (one regex per line, '#' comments and blank lines skipped, case-insensitive).
+function Get-WfDisablePatterns {
+    $file = Join-Path $PSScriptRoot '..\..\skills\wf-doc\scripts\test-disable-patterns.txt'
+    return @([IO.File]::ReadAllLines($file, [Text.Encoding]::UTF8) | ForEach-Object { $_.Trim() } |
+        Where-Object { $_ -and -not $_.StartsWith('#') } | ForEach-Object { [regex]::new($_, 'IgnoreCase') })
+}
+
+# v6 DES-04 (FR-04): identity of one tool call - SHA-1 of tool_name + compact JSON of
+# tool_input, which its PreToolUse and PostToolUse both carry.
+function Get-WfToolInputHash([object]$HookInput) {
+    $text = [string]$HookInput.tool_name + (ConvertTo-Json -InputObject $HookInput.tool_input -Compress -Depth 10)
+    $sha = [Security.Cryptography.SHA1]::Create()
+    try { return -join ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($text)) | ForEach-Object { $_.ToString('x2') }) }
+    finally { $sha.Dispose() }
+}
+
+# v6 DES-04 (FR-01, FR-03): the guard's pre-check of what regression_guard.py decides at
+# stop (the B layer stays canonical, NFR-05). Applies the edit to the current file in
+# memory (Edit: first match, all with replace_all; MultiEdit: each edit in order; Write:
+# the whole content; no file: empty) and is true when every old line is still there in
+# order and no other line matches a disabling pattern. CRLF is folded to LF first; lines
+# keep their LF, so an unterminated last line that gains a newline counts as changed, as
+# in git diff. A missing field, an old_string not found or any error means "not pure"
+# (fail-to-ask, NFR-04).
+function Test-WfPureAddition([object]$HookInput, [string]$Path) {
+    try {
+        $in = $HookInput.tool_input
+        $before = ''
+        if (Test-Path -LiteralPath $Path) { $before = [IO.File]::ReadAllText($Path, [Text.Encoding]::UTF8).Replace("`r`n", "`n") }
+        $after = $before
+        $edits = @()
+        switch ($HookInput.tool_name) {
+            'Write'     { if ($null -eq $in.content) { return $false }; $after = ([string]$in.content).Replace("`r`n", "`n") }
+            'Edit'      { $edits = @($in) }
+            'MultiEdit' { $edits = @($in.edits) }
+            default     { return $false }
+        }
+        foreach ($e in $edits) {
+            if ($null -eq $e.old_string -or $null -eq $e.new_string) { return $false }
+            $old = ([string]$e.old_string).Replace("`r`n", "`n")
+            $new = ([string]$e.new_string).Replace("`r`n", "`n")
+            $at = $after.IndexOf($old, [StringComparison]::Ordinal)
+            if ($at -lt 0) { return $false }
+            if ($e.replace_all) { $after = $after.Replace($old, $new) }
+            else { $after = $after.Remove($at, $old.Length).Insert($at, $new) }
+        }
+        $oldLines = @([regex]::Split($before, '(?<=\n)') | Where-Object { $_ })
+        $patterns = Get-WfDisablePatterns
+        $i = 0
+        foreach ($line in @([regex]::Split($after, '(?<=\n)') | Where-Object { $_ })) {
+            if ($i -lt $oldLines.Count -and $line -ceq $oldLines[$i]) { $i++; continue }
+            $text = $line.TrimEnd("`n")
+            foreach ($p in $patterns) { if ($p.IsMatch($text)) { return $false } }
+        }
+        return ($i -eq $oldLines.Count)
+    } catch { return $false }
 }

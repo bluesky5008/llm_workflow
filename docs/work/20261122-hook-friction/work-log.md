@@ -5,13 +5,13 @@
 > 상태: `in-progress`
 > 기준선: `v1` — [REQ-DESIGN-hook-friction](./req-design.md) (승인일 2026-11-22), [ADR-025](./ADR-025-회귀-보호-판정-단위와-반복-억제.md), [DCR-026](./DCR-026-C층-회귀-보호-판정-완화와-선행-변경-편입.md)
 > 작성일: 2026-11-22
-> 최종 갱신: 2026-11-22
+> 최종 갱신: 2026-11-23
 > 관련 문서: [REQ-DESIGN-hook-friction](./req-design.md), [ST-llm-workflow](../../status.md), [DESIGN-llm-workflow](../../design.md)
 
 ## 요약
 
 - 목적: 회귀 보호 훅(DES-06 가드·DES-07 종료 게이트)과 관련 규정이 위험하지 않은 변경에도 사용자 판정을 강요하는 문제의 설계·승인·구현 기록. 선행 변경 `46600de` 편입 포함.
-- 현재 결론 또는 상태: 승인(2026-11-22 22:43) — 기준선 v1. 계획 TASK-01~07 작성, 구현 전(0/7). 세션 인계 지점.
+- 현재 결론 또는 상태: 구현·검증 완료 — TASK-01~06 완료(6/7), TASK-07은 자체 리뷰·뮤테이션·전체 스위트까지 마치고 완료 보고 관문 승인 대기.
 - 다음 행동: [인계](#인계)의 다음 행동.
 
 ## 문서 연결
@@ -25,7 +25,7 @@
 
 ## 기준선과 현재 계획
 
-- 기준선: v1(2026-11-22). 계획: [plan.md](./plan.md) TASK-01~07 — 0/7.
+- 기준선: v1(2026-11-22). 계획: [plan.md](./plan.md) TASK-01~07 — 6/7(TASK-05를 TASK-04보다 먼저 수행).
 
 ## 수행 기록
 
@@ -78,36 +78,116 @@
 - 검증: `유지` 4행 대장 명령 그대로 · `46600de`+dirty(문서만) · TST-01 59, TST-02 113, TST-04 16, TST-05 16 통과(22:46)
 - 결과: 완료 — 2026-11-22 22:50
 
+### 2026-11-22 — TASK-01: B층 판정 — 패턴 파일·내용 판정·지문 해소
+
+- 발견 사항: 새 판정을 이 저장소에 적용하니 `46600de`의 `run-tests.ps1` 순수 추가는 위반이 아니고, 이번 Breaking 수정만 지문 `883ceed3`으로 보고됨. 보호 파일 Write의 도구 결과에 가드 사유가 없었다(A-04 — 확인창 표시 여부는 사용자 확인 대기).
+- 결정과 이유: 패턴 표본은 테스트 소스 조합 대신 공유 픽스처(`.txt`, 보호 밖)에 둠 — [설계와 달라진 점](#설계와-달라진-점). Red에서 통과한 보존 테스트 2건은 패턴 파일을 비운 뮤턴트로 kill 확인(4 failed) 후 복원(해시 일치).
+- 검증: `유지` 4행 · `786dbe7`+dirty · TST-01 59, TST-02 126(+13), TST-04 16, TST-05 16 통과(23:09)
+- Red: `python -m pytest skills/wf-doc/scripts/tests/test_regression_guard.py -q` · 786dbe7+dirty · 15 실패(지문 접미 없음, `load_patterns` 없음, 순수 추가를 위반으로 봄, 이름 변경·미추적 누락)
+- 결과: 완료 — 2026-11-22 23:11
+
+### 2026-11-23 — TASK-02: 가드 순수 추가·세션 기억 (DES-03·04)
+
+- 발견 사항: A-04 성립 — 확인창·사유는 사용자에게만 보임(사용자 확인). 기존 정리 줄 `wf-test-*.json`이 `*.guard.json`도 지워 계획의 삭제 줄 불필요(TASK-03 위험도). `Invoke-Hook`이 JSON 깊이 2라 MultiEdit용 헬퍼 추가.
+- 결정과 이유: 줄은 LF까지 비교 — 끝 줄에 줄바꿈이 생기면 변경(B층 git diff와 같음). 필드 누락은 비순수(T29·T37·T56 유지). 상태 기본값 `stopKeys`(게이트 키 보존). NotebookEdit는 T36.
+- 검증: `유지` 4행 · `786dbe7`+dirty · TST-01 79(+20), TST-02 126, TST-04 16, TST-05 16 통과(00:22). 보존 13건 뮤턴트 kill(4개, 해시 복원)
+- Red: `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` · 786dbe7+dirty · 7 실패(순수 추가에 ask, PostToolUse에도 ask·기억 없음)
+- 결과: 완료 — 2026-11-23 00:22
+
+### 2026-11-23 — TASK-03: 게이트 세션 반복 억제 (DES-05)
+
+- 발견 사항: 실세션 — 새 가드에서 보호 파일 순수 추가 Edit가 확인 없이 통과(사용자 확인). 상태 경로가 디렉터리면 `Get-Content` 비종료 오류가 훅 stderr로 샘 → `Get-WfGuardState`에서 `Stop`으로 잡음. 연속 실행(00:30·00:32) 통과 — 상태 잔류 없음.
+- 결정과 이유: 키 = 첫 `:` 앞 행 ID·마지막 경로 토큰·끝 `[…]`(없으면 `-`). 키 0개는 무출력(판정 이상은 통과). NFR-04 저장 실패 T82 추가. 인자 `$Event` → `$HookEvent`(자동 변수).
+- 검증: `유지` 4행 · `786dbe7`+dirty · TST-01 85(+6), TST-02 126, TST-04 16, TST-05 16 통과(00:41). 보존 4건 뮤턴트 kill(G1~G4, 해시 복원)
+- Red: `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` · 786dbe7+dirty · 2 실패(T77·T78 같은 키·부분집합에도 재차단)
+- 결과: 완료 — 2026-11-23 00:41
+
+### 2026-11-23 — TASK-05: 보호 테스트 변경 분류 규정 (DES-08)
+
+- 발견 사항: 선례(approval-gate)도 `setup_claude.ps1` 재실행을 사용자 확인 후 했다. TASK-04는 `Breaking` 편집의 가드 확인과 설치에 사용자 응답이 필요해, 의존 없는 이 TASK를 먼저 함. wf-design K3 경고는 기존.
+- 결정과 이유: §9에 FR-07 3분류 표·기록 예(지문)·`Breaking`·「판단이 서지 않으면 (3) 단언 약화」·기록할 곳 없음·닫을 때 SHA 갱신, 결정 링크 ADR-025. 문구 적용 세부는 [설계와 달라진 점](#설계와-달라진-점).
+- 검증: `유지` 4행 · `786dbe7`+dirty · TST-01 85, TST-02 126, TST-04 16, TST-05 16 통과(00:49). `lint_skill.py` 오류 0(wf-implement 2,826어절, +10), AC-06 grep 통과
+- Red: 해당 없음 — 문서 변경(규정)
+- 결과: 완료 — 2026-11-23 00:49
+
+### 2026-11-23 — TASK-04: 설치 등록·메시지 (DES-06·07)
+
+- 발견 사항: 실세션 가드 상태의 `asked`는 기존 줄 수정 2건(00:30, 20:02)뿐, 순수 추가(00:26, T83)는 없음. 실제 PostToolUse 해시 일치는 미확인(TASK-07). `cwd`가 저장소 루트가 아니면 가드·게이트 무출력(기존 동작). TASK-02·03의 사용자 확인 시각은 추정이라 삭제.
+- 결정과 이유: 개수만 보는 T18을 T83(둘째 항목이 가드, 총 7개)으로 보강. 메시지에 승인된 DCR `Breaking` 예외 포함. 설치는 사용자 확인 뒤 — 사본 사전 실행·백업, 추가 1개, 외부 항목 보존.
+- 검증: `유지` 4행 · `786dbe7`+dirty · TST-01 86(+1) 2회, TST-02 126, TST-04 16, TST-05 16 통과(20:13)
+- Red: `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` · 786dbe7+dirty · 4 실패(T18·T19·T21·T83 — PostToolUse 가드 항목 없음)
+- 결과: 완료 — 2026-11-23 20:13
+
+### 2026-11-23 — TASK-06: C층 v6와 선행 변경 사후 기록 (DES-09)
+
+- 발견 사항: 코드 사실 대조 — 임계 기본값 400000/100000, 승인 인용은 「응답」·「사용자」가 든 줄. `design.md` 추적성 FR-06·07 행 누락을 검토 중 발견해 보완. verification-depth §7 「파이프 금지」는 이스케이프 판독 뒤에도 안전한 관례라 유지(후속 후보).
+- 결정과 이유: 치환마다 1건 일치를 확인하고 하나라도 어긋나면 저장하지 않는 방식으로 반영. DCR-026 `completed`(구현 커밋은 TASK-07).
+- 검증: `유지` 4행 · `786dbe7`+dirty · TST-01 86, TST-02 126, TST-04 16, TST-05 16 통과(20:23). 린트 3종 오류 0, AC-07 23항목, 깨진 링크 0
+- Red: 해당 없음 — 문서 변경
+- 결과: 완료 — 2026-11-23 20:23
+
 ## 설계와 달라진 점
+
+- 2026-11-22 TASK-01 — AC-05의 공유 표본을 테스트 소스 안의 실행 시 조합 대신 공유 픽스처 `skills/wf-doc/scripts/tests/fixtures/disable-pattern-samples.txt`(대장 보호 대상 `*.py` 밖)에 둠. AC-05의 검증 대상(같은 표본에 같은 결과, 테스트 파일에 패턴 줄 없음)은 그대로이며 공유 견본 선례(`test-register.sample.md`)와 같음 — §4.1 경미(테스트 내부 세부).
+- 선행 변경 `46600de`는 워크플로우 밖에서 만들어져 TDD Red 증거가 없다(RISK-07). 착수 시 테스트 통과(59/59, pytest)로 대신한다.
+- 2026-11-23 TASK-05 — DES-08 문구 적용: 주의 ④는 지정 문구의 `[§9]` 뒤에 기존 `[§3.3]`·`[충돌 출구]` 링크를 한 괄호로 남김, §3.3 금지문은 두 번째 줄표 대신 쉼표로 이음, §2 `리팩터` 단락 끝의 주의 ④ 인용 「통과시키려는 수정」을 「통과시키려는 약화·제외」로 맞춤 — 의미 동일, §4.1 경미(문서 보완).
+- 2026-11-23 TASK-06 — DCR-026 변경 항목 표에 없지만 같은 의미로 맞춘 문구: REQ 시나리오 4·5, FR-08 인용 판독, RISK-02 기본값, DESIGN RISK-13(실세션 해시 일치 미확인)·보안 절 git 명령, README 훅 설명 — 의미 동일, §4.1 경미(문서 일관성).
+- 2026-11-23 TASK-07 — DES-01 `git diff` 호출: 사용자 설정을 무효화하는 옵션(`--no-ext-diff`·`--no-textconv`·접두사·경로 인용) 추가, SHA에서 추적되던 미추적 파일은 삭제와 새 파일로 각각 판정(FR-05 (a) 준수 — 리뷰 결함 수정).
+- 2026-11-23 TASK-07 — DES-01 파일당 1회 대신 50개씩 묶어 부르고 `diff --git` 머리줄로 나눔(실패한 묶음·머리줄 불일치는 파일별 재호출). 판정·출력·지문 동일, NFR-03 상한보다 적은 호출 — §4.1 경미(내부 구조 개선).
 
 ## 검증 결과
 
 ### 범위와 환경
 
-- 대상 기준선 또는 구현: TBD
+- 대상 기준선 또는 구현: [REQ-DESIGN-hook-friction](./req-design.md) v1, TASK-01~07
+- 실행 환경: Windows 10 Pro 19045, Python 3.12, pytest, hypothesis, PowerShell 5.1, Git for Windows
+- 제외 항목: TST-03(`격리`, `pptx` 미설치 — 기존, 무관)
 
 ### 결과 요약
 
-- 총계: TBD
-- 기준: TBD
-- 명령: TBD
-- 커버리지: TBD
-- 뮤테이션: TBD
-- 산출물: TBD
+- 총계: 257 (성공 252 / 실패 5 / 미수행 0) — 실패 5건은 전부 TST-03 `격리` 행(환경)
+- 기준: `786dbe7` · 워킹트리 dirty(통합 2026-11-23 21:25~21:28). 구현 커밋 clean 재실행은 종결 ②
+- 명령:
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File setup/hooks/tests/run-tests.ps1` 92/92
+  - `python -m pytest skills/wf-doc/scripts/tests -q` 141(TST-04 16건 포함, TST-04 단독 16)
+  - `python -m pytest skills/wf-tree/scripts/tests -q` 16
+  - `python docs/presentation/tests/test_make_pptx.py` 3/8
+- 커버리지: N/A — 커버리지 도구 미사용
+- 뮤테이션: killed 35 / survived 0 / 동치 0 · 수동(사본에서 적용, 원본 해시 전후 동일) — 첫 실행 killed 9·survived 10, 테스트 추가 뒤 survived 10건 kill. `regression_guard.py` B4~B8은 묶음 호출 전 코드에서 실행(해당 줄 무변경), B1~B3·B9·신규 3개는 최종 코드
+- 산출물: 없음
 
 ### 인수 조건별 결과
 
 | 검증 ID | 인수 조건 | 방법·명령 | 결과 | 분류 | 증거 |
 |---|---|---|---|---|---|
+| VER-01 | AC-01 | `run-tests.ps1` T57~T71·T84~T86, NotebookEdit T36 | 성공 | — | `786dbe7`+dirty · 92/92(21:25) |
+| VER-02 | AC-02 | T72~T76·T87, 실세션 Edit 1회 | 성공 | — | 92/92. 실세션 20:25 — 확인 53초 뒤 `approved` 기록, 되돌림 2초 무확인, 해시 복원(Edit만, Write·MultiEdit는 미확인) |
+| VER-03 | AC-03 | `test_regression_guard.py` 45건 | 성공 | — | `786dbe7`+dirty · TST-02 141 |
+| VER-04 | AC-04 | T77~T82·T88·T89 | 성공 | — | 92/92 |
+| VER-05 | AC-05 | 공유 표본 pytest·T70·T71, 추가 줄 패턴 대조 | 성공 | — | 두 테스트 파일에 더한 436줄 중 패턴에 맞는 줄 0(21:19) |
+| VER-06 | AC-06 | `lint_skill.py`, grep | 성공 | — | 오류 0, wf-implement 2,826어절, §9 앵커·포인터·메시지 2개 |
+| VER-07 | AC-07 | DCR-026 변경 항목 대조 | 성공 | — | TASK-06 23항목, C층 v6 |
+| VER-08 | AC-08 | 설치 항목 확인, `유지` 4행, 린트, `regression_guard.py .` | 미수행 | — | 설치 7개·중복 없음, `유지` 4행 통과, 린트 오류 0, 판정 exit 0. 앞 항목은 모두 통과했고 `completed` 전이 뒤 HEAD 판정만 남아 전체를 미수행으로 둔다 |
+| VER-09 | NFR-03 | 훅 지연(중앙값, n=11)·판정 규모 | 성공 | — | PowerShell 기동 257ms 기준 가드 무해당 585·순수 추가 723·`ask` 785, PostToolUse 570, 종료 게이트 1,213ms(n=7). 변경 보호 파일 200개 판정 25.67초 → 1.35초 |
 
 ### 실패와 미수행 분석
+
+- TST-03 5건 실패: 기존 `격리`(환경), 이 작업과 무관.
+- 리뷰 결함 4건을 통합에서 고침: 추적되던 미추적 파일의 삭제 누락, `diff.external`·textconv가 위반을 가림, 변경 보호 파일 75개쯤부터 10초 제한에 걸려 게이트가 조용히 통과. 앞 3건은 재현 테스트 Red 3 실패(20:29), 마지막은 git 호출 수 테스트 Red(21:14) 뒤 수정.
+- 미수행: Write·MultiEdit의 실세션 기억(영향은 다시 묻는 쪽), `bypassPermissions` 모드 관찰.
 
 ### 테스트 대장 변경
 
 | 대상 | 현재 상태 → 제안 | 분류·증거 | 유일 검증 여부 | 승인 |
 |---|---|---|---|---|
-| TST-01 | 유지 → 유지 | 선행 변경 `46600de` — `setup/hooks/tests/run-tests.ps1` 순수 추가 +41(T28b·T28c·T56), 삭제 줄 0. 마지막 성공 SHA 갱신은 이 작업의 `completed` 전이에서 | 해당 없음 | 완료 보고 관문 |
-| TST-02 | 유지 → 유지 | 선행 변경 `46600de` — `test_approval_gate.py` +40(5건)·`test_regression_guard.py` +9(1건) 순수 추가, 삭제 줄 0. SHA 갱신은 위와 같음 | 해당 없음 | 완료 보고 관문 |
+| TST-01 | 유지 → 유지 | 선행 변경 `46600de` — `setup/hooks/tests/run-tests.ps1` 순수 추가 +41(T28b·T28c·T56), 삭제 줄 0. TASK-02·03 순수 추가 +145(T57~T82 26건, 59 → 85), TASK-04 순수 추가 T83(→ 86), TASK-07 순수 추가 T84~T89(→ 92), 삭제 줄 0. 마지막 성공 SHA 갱신은 이 작업의 `completed` 전이에서 | 해당 없음 | 승인 2026-11-23 21:36 |
+| TST-02 | 유지 → 유지 | 선행 변경 `46600de` — `test_approval_gate.py` +40(5건)·`test_regression_guard.py` +9(1건) 순수 추가, 삭제 줄 0. TASK-07 순수 추가 15건(결함 재현 3·Missing 7·묶음 호출 5, 126 → 141). SHA 갱신은 위와 같음 | 해당 없음 | 승인 2026-11-23 21:36 |
+| TST-01 T18·T19·T21 | 유지 → 유지(Breaking 수정) | Breaking — 승인된 DCR-026·DES-06에 따른 PostToolUse 항목 수 기대값 1→2와 T18 이름·주석(5줄), §6 판정 (b) 승인됨. 지문 [bae50868] | 아니오 | 승인 2026-11-23 21:36 |
+| TST-02 `test_regression_guard.py` | 유지 → 유지(Breaking 수정) | Breaking — 승인된 DCR-026 B층 계약(출력 지문 접미, 테스트 파일 위반의 지문 해소)에 따른 기대값·픽스처 갱신 6건, §6 판정 (b) 승인됨. 신규 13건은 순수 추가. 지문 [883ceed3] | 아니오 | 승인 2026-11-23 21:36 |
+| TST-02 Missing | 등록(순수 추가) | 통합 뮤테이션 survived — `regression_guard.py` B5(다른 지문으로 해소)·B6(다른 줄의 지문으로 해소)·B7(패턴 대소문자 구분)·B9(추적 이진 통과) → pytest 4건 추가 후 kill. 함께 보강: B4(지문이 첫 줄만 반영)·B8(미추적 이진), 표본 없던 패턴 7개 — 추가 뒤 kill | 해당 없음 | 승인 2026-11-23 21:36 |
+| TST-01 Missing | 등록(순수 추가) | 통합 뮤테이션 survived — `wf-common.ps1` C1(`replace_all` 무시)·C2(줄 비교 대소문자 무시)·C5(패턴 대소문자 구분), `wf-test-guard.ps1` G3(기록 실패 때 `ask` 출력), `wf-stop-gate.ps1` S1(`stopKeys` 덮어쓰기)·S3(키에서 파일 누락) → T84~T89 추가 후 kill | 해당 없음 | 승인 2026-11-23 21:36 |
+
+- 승인 응답: 완료 보고 관문 요청(대장 변경, 커밋, `origin/main` push)에 사용자 "전부 승인"(2026-11-23 21:36).
 
 ## 완료 보고
 
@@ -134,11 +214,11 @@ TBD
 
 ## 인계
 
-- 다음 단계 또는 워크플로우: wf-implement §3.3 — TASK-01
-- 시작 조건: 충족(승인 v1, §3.1 재확인 2026-11-22 22:46)
-- 입력 문서와 기준선: [REQ-DESIGN-hook-friction](./req-design.md) v1, [plan.md](./plan.md), [ADR-025](./ADR-025-회귀-보호-판정-단위와-반복-억제.md), [DCR-026](./DCR-026-C층-회귀-보호-판정-완화와-선행-변경-편입.md)
-- 완료된 항목: 설계·승인(v1), §3.1 재확인, 계획 작성
-- 미완료 항목: TASK-01~07. 미커밋 변경: 없음 — 착수·설계·승인·계획 문서는 로컬 커밋(push 안 함)
+- 다음 단계 또는 워크플로우: wf-implement §3.4~§3.6 — TASK-07 통합과 종결
+- 시작 조건: 충족(의존 TASK-01~06 완료). 새 세션을 저장소 루트(`llm_workflow`)에서 연다 — 아니면 가드·게이트가 무출력
+- 입력 문서와 기준선: [REQ-DESIGN-hook-friction](./req-design.md) v1 — NFR-01~05, AC-01~08, [plan.md](./plan.md) TASK-07, wf-implement `review-checklist.md`·`closing.md`·verification-depth §3·§5
+- 완료된 항목: 설계·승인(v1), 계획, TASK-01~06, 전역 훅 설치(7개), DCR-026 `completed`
+- 미완료 항목: TASK-07(진행 중). 미커밋 변경: `git status` 26파일(TASK-07에서 `disable-pattern-list.txt` 추가) — TASK-01(4), TASK-02~04(7), TASK-05(4), TASK-06(기준선 2·닫힌 작업 req-design·approval-request·README·결정 등록부·DCR-026), 작업 문서 3 — 커밋은 완료 보고 관문 뒤(closing.md ①)
 - 차단 요인: 없음
-- 다음 행동: TASK-01 Red — `test_regression_guard.py`에 AC-03·05 케이스를 한 번의 편집으로 추가(기존 가드가 확인을 물음 — 정상)하고 실행해 실패를 확인한다. 이어 Breaking 6건을 같은 TASK에서 갱신하고 지문과 함께 대장 변경 절에 기록.
+- 다음 행동: TASK-07 — 승인됨(21:36, 대장 변경·커밋·push). closing.md ②~⑥: 구현 커밋에서 clean `유지` 4행(92·141·16·16), 대장 SHA·재정비 기록, plan·work-log·status 종결, `docs/` 전용 확인, 종결 커밋, push. Red·측정값은 검증 결과 절.
 - 재개 프롬프트: 작업 20261122-hook-friction 재개 — docs/work/20261122-hook-friction/work-log.md의 인계 절을 읽고 "다음 행동"부터 진행하라.

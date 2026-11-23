@@ -5,7 +5,7 @@
 > 상태: `in-progress`
 > 기준선: `N/A — 포트폴리오. 최초 생성(범위) 승인은 [REQ-DESIGN-plan-relocation v1](./work/20261009-plan-relocation/req-design.md#승인-기록) 승인 관문이 겸함(2026-10-09)`
 > 작성일: 2026-10-09
-> 최종 갱신: 2026-11-22
+> 최종 갱신: 2026-11-23
 > 관련 문서: [wf-tree 포트폴리오 생성과 갱신](../skills/wf-tree/SKILL.md#8-포트폴리오-생성과-갱신), [wf-implement 작업 기록과 저장 위치](../skills/wf-implement/SKILL.md#7-작업-기록과-저장-위치), [결정 등록부](./decisions.md)
 
 ## 요약
@@ -45,12 +45,12 @@
 
 | 작업 ID | 제목 | 상태 | 계획·기록 | 의존 | 다음 행동 |
 |---|---|---|---|---|---|
-| 20261122-hook-friction | 회귀 보호 훅·규정의 사용자 판정 강요 완화 | in-progress | [work-log](./work/20261122-hook-friction/work-log.md) | — | TASK-01 B층 판정(Red부터) — 계획 [plan.md](./work/20261122-hook-friction/plan.md) 0/7 |
+| 20261122-hook-friction | 회귀 보호 훅·규정의 사용자 판정 강요 완화 | in-progress | [work-log](./work/20261122-hook-friction/work-log.md) | — | TASK-07 통합과 종결 — 계획 [plan.md](./work/20261122-hook-friction/plan.md) 6/7 |
 | 20260814-multiuser-workflow | 다인 사용 시나리오 토론 | on-hold | [work-log](./work/20260814-multiuser-workflow/work-log.md) | 20261009-plan-relocation | 재개 조건은 작업 기록 인계 절 — plan-relocation 완료 후 Q-04 재검토 |
 
 ## 계획 트리
 
-<!-- generated: 2026-11-22 22:50 — scripts/render.py --view active -->
+<!-- generated: 2026-11-23 20:23 — scripts/render.py --view active -->
 
 ```text
 [포트폴리오] ST-llm-workflow — 진행 중 작업 ... in-progress
